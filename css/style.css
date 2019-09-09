@@ -203,24 +203,39 @@ a {
     top: 1px;
     left: 9px;
     transform: rotate(90deg);
+    transition: 0.3s;
 }
 
 .header__category-items {
-    display: none;
-}
-
-.open .header__category-items {
-    position: absolute;
+    transition: 0.3s;
+    visibility: hidden;
+    z-index: -1;
     top: 97%;
     margin: 0;
-    padding: 10px;
+    padding: 10px 15px;
     list-style: none;
     background: white;
     width: 101%;
     left: -1px;
+    position: absolute;
     border: 1px solid;
+    transform: translateY(-20px);
     border-top: 0;
-    display: block;
+    opacity: 0;
+}
+
+.header__category-items:hover{
+    background: #eee;
+}
+
+.open.header__category:after {
+    transform: rotate(-90deg);
+}
+.open .header__category-items {
+    transform: translateY(0);
+    visibility: visible;
+    z-index: 1;
+    opacity: 1;
 }
 
 .header__category-item {
@@ -696,6 +711,7 @@ a {
 }
 
 .product {
+    position: relative;
     width: 100%;
     max-width: 170px;
     background: white;
@@ -709,6 +725,39 @@ a {
     box-shadow: 0 4px 5px 0px rgba(0, 0, 0, 0.19);
     transform: translateY(-2px);
 }
+
+.action-product{
+    font-size: 13px;
+    font-family: 'GothamPro-Medium';
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #ff0124;
+    color: white;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+.action-viewed{
+    font-size: 13px;
+    font-family: 'GothamPro-Medium';
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    background: #ff0124 url("../images/home/shopping-purse-icon.svg") center center no-repeat;
+    background-size: 60%;
+}
+
 
 /*.product:hover .product__img img{*/
 /*transform: scale(1.05);*/
@@ -735,6 +784,7 @@ a {
     font-family: 'GothamPro-Medium';
     margin-top: 25px;
     padding: 0 15px;
+    color: #8d8d8d;
 }
 
 .product__title {
@@ -949,6 +999,13 @@ a {
     padding: 15px;
     display: flex;
     justify-content: space-between;
+    position: relative;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.open.block-title__select{
+    border: 1px solid #242324;
 }
 
 .block-title__select:after {
@@ -962,7 +1019,42 @@ a {
     left: 9px;
     transform: rotate(90deg);
     margin-right: 15px;
+    transition: 0.3s;
 }
+
+
+.block-title__select-items {
+    transition: 0.3s;
+    visibility: hidden;
+    z-index: -1;
+    top: 97%;
+    margin: 0;
+    padding: 10px 15px;
+    list-style: none;
+    background: white;
+    width: calc(100% + 2px);
+    left: -1px;
+    position: absolute;
+    transform: translateY(-20px);
+    opacity: 0;
+    border: 1px solid #242324;
+    border-top: 0;
+}
+
+.block-title__select-items:hover{
+    background: #eee;
+}
+
+.open.block-title__select:after {
+    transform: rotate(-90deg);
+}
+.open .block-title__select-items {
+    transform: translateY(0);
+    visibility: visible;
+    z-index: 10;
+    opacity: 1;
+}
+
 
 .catalog-services{
     display: flex;
@@ -1258,6 +1350,8 @@ a {
 .footer__social a:hover path{
     fill: #242324 !important;
 }
+
+
 
 
 .mobile-menu-btn,

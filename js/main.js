@@ -52,6 +52,9 @@ $(document).ready(function () {
     $('.header__category').click(function () {
         $('.header__category').toggleClass('open');
     });
+    $('.block-title__select').click(function () {
+        $('.block-title__select').toggleClass('open');
+    });
 
     $('.header__category-link').click(function () {
         $('.header__category span').html( $(this).html());
