@@ -10,6 +10,22 @@ $(document).ready(function () {
         dots: true,
         smartSpeed: 500
     });
+    $('.catalog-services__slider').owlCarousel({
+        loop:true,
+        margin:30,
+        nav:true,
+        items:1,
+        dots: true,
+        smartSpeed: 500
+    });
+    $('.advertisement__items').owlCarousel({
+        loop:true,
+        margin:15,
+        nav:true,
+        items:2,
+        dots: true,
+        smartSpeed: 500
+    });
 
     $('.mobile-menu-btn').click(function (e) {
         e.preventDefault();
