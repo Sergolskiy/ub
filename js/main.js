@@ -58,5 +58,9 @@ $(document).ready(function () {
 
     $('.header__category-link').click(function () {
         $('.header__category span').html( $(this).html());
-    })
+    });
+
+    $('.to-top').click(function () {
+        $("html, body").animate({scrollTop: 0}, 1000);
+    });
 });
