@@ -1,12 +1,12 @@
 @font-face {
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     src: url('../fonts/GothamPro-Medium/GothamPro-Medium.eot?#iefix') format('embedded-opentype'), url('../fonts/GothamPro-Medium/GothamPro-Medium.woff') format('woff'), url('../fonts/GothamPro-Medium/GothamPro-Medium.ttf') format('truetype'), url('../fonts/GothamPro-Medium/GothamPro-Medium.svg#GothamPro-Medium') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
     src: url('../fonts/GothamPro-Black/GothamPro-Black.eot?#iefix') format('embedded-opentype'), url('../fonts/GothamPro-Black/GothamPro-Black.woff') format('woff'), url('../fonts/GothamPro-Black/GothamPro-Black.ttf') format('truetype'), url('../fonts/GothamPro-Black/GothamPro-Black.svg#GothamPro-Black') format('svg');
     font-weight: normal;
     font-style: normal;
@@ -20,11 +20,40 @@
 }
 
 @font-face {
-    font-family: 'GothamProBold';
+    font-family: 'Roboto-Bold';
     src: url('../fonts/GothamPro-Bold/GothamPro-Bold.eot?#iefix') format('embedded-opentype'), url('../fonts/GothamPro-Bold/GothamPro-Bold.woff') format('woff'), url('../fonts/GothamPro-Bold/GothamPro-Bold.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
+
+@font-face {
+    font-family: 'Roboto-Regular';
+    src: url('../fonts/Roboto-Regular/Roboto-Regular.eot?#iefix') format('embedded-opentype'),  url('../fonts/Roboto-Regular/Roboto-Regular.woff') format('woff'), url('../fonts/Roboto-Regular/Roboto-Regular.ttf')  format('truetype'), url('../fonts/Roboto-Regular/Roboto-Regular.svg#Roboto-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto-Black';
+    src: url('../fonts/Roboto-Black/Roboto-Black.eot?#iefix') format('embedded-opentype'),  url('../fonts/Roboto-Black/Roboto-Black.woff') format('woff'), url('../fonts/Roboto-Black/Roboto-Black.ttf')  format('truetype'), url('../fonts/Roboto-Black/Roboto-Black.svg#Roboto-Black') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto-Medium';
+    src: url('../fonts/Roboto-Medium/Roboto-Medium.eot?#iefix') format('embedded-opentype'),  url('../fonts/Roboto-Medium/Roboto-Medium.woff') format('woff'), url('../fonts/Roboto-Medium/Roboto-Medium.ttf')  format('truetype'), url('../fonts/Roboto-Medium/Roboto-Medium.svg#Roboto-Medium') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto-Bold';
+    src: url('../fonts/Roboto-Bold/Roboto-Bold.eot?#iefix') format('embedded-opentype'),  url('../fonts/Roboto-Bold/Roboto-Bold.woff') format('woff'), url('../fonts/Roboto-Bold/Roboto-Bold.ttf')  format('truetype'), url('../fonts/Roboto-Bold/Roboto-Bold.svg#Roboto-Bold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
 
 
 a {
@@ -34,8 +63,8 @@ a {
 
 * {
     box-sizing: border-box;
-    font-family: 'GothamPro';
-    letter-spacing: -1px;
+    font-family: 'Roboto-Regular';
+    letter-spacing: -0.3px;
 }
 
 .ios * {
@@ -409,7 +438,7 @@ a {
 .header__menu-link {
     position: relative;
     transition: 0.4s cubic-bezier(0.21, 0.65, 0.4, 0.96);
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     font-size: 15px;
 }
 
@@ -471,7 +500,7 @@ a {
 
 .popup-city__title{
     font-size: 24px;
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
 }
 
 .popup-city__items{
@@ -498,7 +527,7 @@ a {
     color: white;
     text-align: center;
     transition: 0.3s;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     margin-top: 25px;
     margin-bottom: 40px;
 }
@@ -584,7 +613,7 @@ a {
 .catalog-bar__tabs-item {
     position: relative;
     text-transform: uppercase;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     color: #8d8d8d;
 }
 
@@ -651,7 +680,7 @@ a {
     display: flex;
     min-height: 22px;
     align-items: center;
-    padding-bottom: 10px;
+    padding-bottom: 9px;
     font-size: 14px;
     transition: 0.4s cubic-bezier(0.21, 0.65, 0.4, 0.96);
 }
@@ -833,7 +862,7 @@ a {
     bottom: 40px;
     left: 40px;
     color: white;
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
     font-size: 36px;
     letter-spacing: 0;
     opacity: 0;
@@ -888,7 +917,7 @@ a {
     left: 35px;
     color: white;
     font-size: 22px;
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
     letter-spacing: 0;
 }
 
@@ -903,7 +932,7 @@ a {
     padding-bottom: 20px;
     border-bottom: 1px solid #f4f4f4;
     font-size: 15px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     display: block;
 }
 
@@ -928,7 +957,7 @@ a {
 }
 
 .news-bar__caption {
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     font-size: 13px;
     line-height: 17px;
 }
@@ -987,7 +1016,7 @@ a {
 
 
 .block-title h2 {
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
     font-size: 36px;
     font-weight: bold;
     margin-top: 75px;
@@ -1028,7 +1057,7 @@ a {
 
 .action-product{
     font-size: 13px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     position: absolute;
     top: 0;
     left: 0;
@@ -1043,7 +1072,7 @@ a {
 }
 .action-viewed{
     font-size: 13px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     position: absolute;
     top: 0;
     left: 0;
@@ -1081,7 +1110,7 @@ a {
 
 .product__category {
     font-size: 10px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     margin-top: 25px;
     padding: 0 15px;
     color: #8d8d8d;
@@ -1093,7 +1122,7 @@ a {
     line-height: 19px;
     padding: 0 15px;
     min-height: 75px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
 }
 
 .product__price {
@@ -1105,14 +1134,14 @@ a {
 
 .product__price_num {
     font-size: 25px;
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
 }
 
 .product__price_currency {
     font-size: 10px;
     line-height: 16px;
     margin-left: 5px;
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
 }
 
 .popular-dashboard {
@@ -1138,7 +1167,7 @@ a {
     padding: 14px 20px;
     border: 1px solid;
     transition: 0.4s cubic-bezier(0.21, 0.65, 0.4, 0.96);
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
 }
 
 .block-title__btn:hover {
@@ -1198,7 +1227,7 @@ a {
     bottom: 30px;
     left: 25px;
     font-size: 22px;
-    font-family: 'GothamProBold';
+    font-family: 'Roboto-Bold';
     color: white;
     letter-spacing: 0.01px;
     z-index: 1;
@@ -1214,10 +1243,28 @@ a {
 .advertisement__items .owl-prev {
     background: url(../images/home/arrow.svg) center center no-repeat !important;
     background-size: contain !important;
+
+    background: url(../images/home/arrow.svg) center center no-repeat !important;
+    background-size: contain !important;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.advertisement__items .owl-prev:hover {
+    background: black url(../images/home/arrow-black.svg) center center no-repeat !important;
+    background-size: contain !important;
 }
 
 .advertisement__items .owl-next {
     background: url(../images/home/arrow.svg) center center no-repeat !important;
+    background-size: contain !important;
+    transition: 0.3s;
+    border-radius: 50%;
+    margin-left: 20px;
+}
+
+.advertisement__items .owl-next:hover {
+    background: black url(../images/home/arrow-black.svg) center center no-repeat !important;
     background-size: contain !important;
     margin-left: 20px;
 }
@@ -1253,17 +1300,17 @@ a {
 }
 
 .advertisement__date{
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     color: #8d8d8d;
 }
 
 .advertisement__date span{
     font-size: 10px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
 }
 
 .advertisement__title{
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
     font-size: 22px;
     margin-top: 7px;
     margin-bottom: 15px;
@@ -1288,18 +1335,18 @@ a {
 
 .advertisement__price-sum{
     font-size: 22px;
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
 }
 
 .advertisement__price-currency{
     font-size: 13px;
     line-height: 16px;
     margin-left: 5px;
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
 }
 
 .advertisement__read-more{
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     font-size: 15px;
 }
 
@@ -1439,7 +1486,7 @@ a {
     bottom: 30px;
     color: white;
     font-size: 32px;
-    font-family: 'GothamPro-Black';
+    font-family: 'Roboto-Black';
     line-height: 40px;
     letter-spacing: 0;
 }
@@ -1468,9 +1515,24 @@ a {
 .catalog-services__slider .owl-prev {
     background: url(../images/home/arrow.svg) center center no-repeat !important;
     background-size: contain !important;
+    transition: 0.3s;
+    border-radius: 50%;
 }
+
+.catalog-services__slider .owl-prev:hover {
+    background: black url(../images/home/arrow-black.svg) center center no-repeat !important;
+    background-size: contain !important;
+}
+
 .catalog-services__slider .owl-next {
     background: url(../images/home/arrow.svg) center center no-repeat !important;
+    background-size: contain !important;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.catalog-services__slider .owl-next:hover {
+    background: black url(../images/home/arrow-black.svg) center center no-repeat !important;
     background-size: contain !important;
 }
 
@@ -1570,7 +1632,7 @@ a {
     font-size: 15px;
     max-width: 145px;
     line-height: 20px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
 }
 
 .footer__arrow{
@@ -1578,10 +1640,17 @@ a {
     height: 27px;
     background: url("../images/home/arrow.svg") center center no-repeat;
     background-size: contain;
+    border-radius: 50%;
+    transition: 0.3s;
 }
 
 .footer__big-link img{
     max-width: 40px;
+}
+
+.footer__big-link:hover .footer__arrow{
+    background: black url("../images/home/arrow-black.svg") center center no-repeat;
+    background-size: contain;
 }
 
 .footer__btn{
@@ -1617,7 +1686,7 @@ a {
 
 .footer__catalog-item--title{
     font-size: 16px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     text-transform: uppercase;
     margin-bottom: 15px;
     padding-bottom: 15px;
@@ -1638,7 +1707,7 @@ a {
 }
 
 .footer__catalog-link{
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
     color: #444444;
 }
 
@@ -1658,7 +1727,7 @@ a {
 
 .footer__mobile{
     font-size: 13px;
-    font-family: 'GothamPro-Medium';
+    font-family: 'Roboto-Medium';
 }
 
 .footer__social{
@@ -1694,6 +1763,11 @@ a {
     position: absolute;
     right: 0;
     bottom: 0;
+    transition: 0.3s;
+}
+
+.to-top:hover{
+    transform: rotate(-90deg) translateX(5px);
 }
 
 
@@ -1920,9 +1994,73 @@ a {
 
 @media (max-width: 992px) {
 
+    .catalog-bar__tabs{
+        display: none;
+    }
+
     .catalog-bar {
         display: none;
+        margin: 0 -20px;
         margin-bottom: 20px;
+        padding: 15px 10px;
+    }
+
+    .catalog-bar .catalog-bar__items{
+        width: 100%;
+    }
+
+    .catalog-bar .catalog-bar__content{
+        padding: 0 10px;
+    }
+
+    .catalog-bar__item.catalog-bar__item--undercat:after, .catalog-bar__item.catalog-bar__item--hasundercat:after{
+        display: none;
+    }
+
+    .catalog-bar__item--undercat:hover > .catalog-bar__undercategory-second, .catalog-bar__item:hover .catalog-bar__undercategory{
+        display: none;
+    }
+
+    .catalog-bar__content {
+        max-width: 100%;
+    }
+
+    .catalog-bar .catalog-bar__tabs-item:last-child,
+    .catalog-bar .catalog-bar__items:last-child{
+        display: none;
+    }
+
+    .catalog-bar__tabs-item:first-child{
+        width: 100%;
+        display: block;
+        font-size: 20px;
+    }
+
+    .catalog-bar__tabs-item:after {
+        width: 100%;
+        display: none;
+    }
+
+    .catalog-bar .catalog-bar__link{
+        font-size: 15px;
+        border-bottom: 1px solid #eaeaea;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .catalog-bar .catalog-bar__item:last-child .catalog-bar__link{
+        margin-bottom: 0;
+        border: 0;
+    }
+
+    .catalog-bar .catalog-bar__link:before{
+        margin-right: 20px;
+        width: 50px;
+        height: 50px;
+        /*background-image: attr(data-image);*/
+        background-image: var(--background);
+        background-size: contain;
+        background-position: 0;
     }
 
     .home-top__center {
@@ -1940,20 +2078,26 @@ a {
     }
 
     .mobile-catalog {
-        margin-bottom: 40px;
-        margin-top: 40px;
+        /*margin: 25px -20px 10px;*/
         display: flex;
         justify-content: center;
-        font-size: 18px;
-        display: none;
+        font-size: 20px;
+        background: white;
+        padding-top: 25px;
+        margin: 0 -20px 0px;
+        /*display: none;*/
     }
 
     .mobile-catalog a {
-        padding: 8px 35px 8px 40px;
-        background: #dedede;
+        padding: 12px 35px 12px 40px;
+        /*background: #dedede;*/
         display: flex;
         justify-content: center;
         align-items: center;
+        width: 100%;
+        border: 1px solid;
+        margin: 0 7px 15px;
+        border-radius: 4px;
     }
 
     .mobile-catalog a:before {
@@ -1965,6 +2109,7 @@ a {
         position: relative;
         left: -13px;
         top: 0;
+        display: none;
         /*transition: 0.3s cubic-bezier(0.21, 0.65, 0.4, 0.96);*/
     }
 
@@ -1993,7 +2138,7 @@ a {
     }
 
     .advertisement__title {
-        font-family: 'GothamPro-Black';
+        font-family: 'Roboto-Black';
         font-size: 15px;
         line-height: 18px;
         margin-top: 7px;
@@ -2119,7 +2264,8 @@ a {
     .mobile-menu__main-link{
         margin-bottom: 10px;
         display: flex;
-        font-family: 'GothamPro-Medium';
+        font-family: 'Roboto-Medium';
+        font-size: 16px;
     }
 
     .mobile-menu__main-link span{
@@ -2135,6 +2281,9 @@ a {
     }
 
     .mobile-menu__main-link .header__cart{
+        margin-right: 15px;
+    }
+    .header__profile, .header__like, .header__regions {
         margin-right: 15px;
     }
 
@@ -2215,7 +2364,7 @@ a {
     }
 
     .header__menu-link {
-        font-size: 15px;
+        font-size: 17px;
     }
 
     .header__menu-items.open {
@@ -2227,7 +2376,7 @@ a {
         margin-top: -35%;
     }
 
-    .catalog-bar__items{
+    .header__center-inner .catalog-bar__items{
         display: flex;
         margin-bottom: 20px;
         overflow: scroll;
@@ -2236,21 +2385,22 @@ a {
         margin-right: -20px;
     }
 
-    .catalog-bar__item{
-        min-width: 115px;
-        height: 38px;
+    .header__center-inner .catalog-bar__item{
+        min-width: 140px;
+        height: 48px;
         background: #f4f4f4;
-        padding: 6px;
+        padding: 6px 10px;
         margin-right: 3px;
         border-bottom: 1px solid #ff0124;
     }
 
-    .catalog-bar__link {
+    .header__center-inner .catalog-bar__link {
         margin-bottom: 30px;
-        font-size: 10px;
+        font-size: 13px;
+        padding-top: 5px;
     }
 
-    .catalog-bar__link:before {
+    .header__center-inner .catalog-bar__link:before {
         width: 46px;
     }
 }
@@ -2258,6 +2408,7 @@ a {
 @media (max-width: 768px) {
     .wrapper > .block-title__btn{
         display: block;
+        text-align: center;
     }
     .footer__mobile{
         display: none;
@@ -2334,7 +2485,7 @@ a {
         justify-content: space-between;
     }
     .catalog-home-wrap .block-title a{
-        font-family: 'GothamPro-Medium';
+        font-family: 'Roboto-Medium';
     }
     .catalog-home-wrap .block-title h2{
         margin: 0;
@@ -2374,7 +2525,7 @@ a {
         font-size: 14px;
         line-height: 19px;
         padding: 0 15px;
-        font-family: 'GothamPro-Medium';
+        font-family: 'Roboto-Medium';
         padding-bottom: 15px;
     }
 
@@ -2463,12 +2614,12 @@ a {
 
     .home-slider__title {
         font-size: 24px;
-        font-family: 'GothamPro-Medium';
+        font-family: 'Roboto-Medium';
     }
 
     .home-top__category-title {
         font-size: 17px;
-        font-family: 'GothamPro-Medium';
+        font-family: 'Roboto-Medium';
     }
 
     .home-slider__title {
@@ -2617,7 +2768,7 @@ a {
     .header__profile,
     .header__like,
     .header__regions {
-        margin-right: 10px;
+        margin-right: 15px;
     }
 
     .header__center-inner {
@@ -2648,7 +2799,7 @@ a {
         font-size: 12px;
         line-height: 14px;
         padding: 0 10px;
-        font-family: 'GothamPro-Medium';
+        font-family: 'Roboto-Medium';
         padding-bottom: 10px;
     }
 }
