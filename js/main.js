@@ -105,7 +105,7 @@ $(document).ready(function () {
         $('.header__category').toggleClass('open');
     });
     $('.block-title__select').click(function () {
-        $('.block-title__select').toggleClass('open');
+        $(this).toggleClass('open');
     });
 
     $('.header__category-link').click(function () {
@@ -138,6 +138,11 @@ $(document).ready(function () {
 
     $('.popup-city__close').click(function () {
         $(this).closest('.popup-city').removeClass('open');
+    });
+
+    $('.filter__toggle').click(function () {
+         $(this).toggleClass('close');
+         $(this).next().slideToggle();
     });
 
     $(document).click(function (e) {
@@ -186,4 +191,35 @@ $(document).ready(function () {
     if (mac) {
         $('body').addClass('ios');
     }
+
+    $('.product__like').click(function (e) {
+        e.preventDefault();
+    });
+
+    $('.catalog__view-btn--toggle').click(function () {
+         $(this).next().toggleClass('open');
+    });
+    $('.catalog__view-list').click(function () {
+         $(this).toggleClass('open');
+    });
+
+
+    $( function() {
+        var min = parseInt($('.filter__min-num').html().replace(/\s/g, ''));
+        var max = parseInt($('.filter__max-num').html().replace(/\s/g, ''));
+        var handle = $( ".ui-slider-handle" );
+        $( "#slider-range-max" ).slider({
+            min: min,
+            max: max,
+            value: max,
+            range: "max",
+            create: function() {
+                handle.text( $( this ).slider( "value" ) );
+            },
+            slide: function( event, ui ) {
+                handle.attr('data-val', ui.value );
+            }
+        });
+    } );
+
 });
