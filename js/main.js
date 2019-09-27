@@ -16,6 +16,16 @@ $(document).ready(function () {
         smartSpeed: 500
     });
 
+    $('.footer-slider').owlCarousel({
+        loop: true,
+        margin: 15,
+        nav: true,
+        items: 1,
+        dots: false,
+        smartSpeed: 500,
+        autoplay: true
+    });
+
     $('.advertisement__items').owlCarousel({
         loop: true,
         margin: 15,
@@ -56,6 +66,7 @@ $(document).ready(function () {
             nav: false,
             items: 5,
             dots: false,
+            autoHeight:false,
             smartSpeed: 500,
             responsive: {
                 // breakpoint from 0 up
@@ -99,6 +110,8 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).toggleClass('open');
         $('.catalog-bar').slideToggle();
+        $('.filter').slideToggle();
+        $('.search-category').slideToggle();
     });
 
     $('.header__category').click(function () {
@@ -112,7 +125,7 @@ $(document).ready(function () {
         $('.header__category span').html($(this).html());
     });
 
-    $('.to-top').click(function () {
+    $('.to-top, #toUp').click(function () {
         $("html, body").animate({scrollTop: 0}, 1000);
     });
 
@@ -143,6 +156,10 @@ $(document).ready(function () {
     $('.filter__toggle').click(function () {
          $(this).toggleClass('close');
          $(this).next().slideToggle();
+    });
+
+    $('.open-reg-social').click(function () {
+         $('.register-social').slideToggle();
     });
 
     $(document).click(function (e) {
@@ -196,6 +213,11 @@ $(document).ready(function () {
         e.preventDefault();
     });
 
+    $('.product__buy').click(function (e) {
+        e.preventDefault();
+        alert('action code in JS');
+    });
+
     $('.catalog__view-btn--toggle').click(function () {
          $(this).next().toggleClass('open');
     });
@@ -204,22 +226,45 @@ $(document).ready(function () {
     });
 
 
-    $( function() {
-        var min = parseInt($('.filter__min-num').html().replace(/\s/g, ''));
-        var max = parseInt($('.filter__max-num').html().replace(/\s/g, ''));
-        var handle = $( ".ui-slider-handle" );
-        $( "#slider-range-max" ).slider({
-            min: min,
-            max: max,
-            value: max,
-            range: "max",
-            create: function() {
-                handle.text( $( this ).slider( "value" ) );
-            },
-            slide: function( event, ui ) {
-                handle.attr('data-val', ui.value );
-            }
-        });
-    } );
+    if($( "#slider-range-max").length > 0) {
+        $( function() {
+            var min = parseInt($('.filter__min-num').html().replace(/\s/g, ''));
+            var max = parseInt($('.filter__max-num').html().replace(/\s/g, ''));
+            var handle = $( ".ui-slider-handle" );
+            $( "#slider-range-max" ).slider({
+                min: min,
+                max: max,
+                value: max,
+                range: "max",
+                create: function() {
+                    handle.text( $( this ).slider( "value" ) );
+                },
+                slide: function( event, ui ) {
+                    handle.attr('data-val', ui.value );
+                }
+            });
+        } );
+    }
+
+
+    $('.register-field__show-pass').click(function (e) {
+        e.preventDefault();
+        $(this).toggleClass('active');
+        if($(this).prev().attr('type') == 'text'){
+            $(this).prev().attr('type', 'password');
+        } else {
+            $(this).prev().attr('type', 'text');
+        }
+
+    });
+
+
+    $(window).scroll(function () {
+        if($(this)[0].pageYOffset > 900){
+            $('#toUp').addClass('show');
+        } else {
+            $('#toUp').removeClass('show');
+        }
+    });
 
 });
