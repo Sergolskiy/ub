@@ -89,6 +89,18 @@ $(document).ready(function () {
         });
     }
 
+
+    $('.product-block__slider').owlCarousel({
+        loop: true,
+        items: 1,
+        thumbs: true,
+        thumbImage: true,
+        thumbContainerClass: 'owl-thumbs',
+        thumbItemClass: 'owl-thumb-item'
+    });
+
+
+
     $('.mobile-menu-btn, .mobile-menu__close').click(function (e) {
         e.preventDefault();
         $('.mobile-menu').toggleClass('open');
