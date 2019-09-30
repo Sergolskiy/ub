@@ -5,6 +5,7 @@ $(document).ready(function () {
         nav: true,
         items: 1,
         dots: true,
+        thumbs: false,
         smartSpeed: 500
     });
     $('.catalog-services__slider').owlCarousel({
@@ -13,6 +14,7 @@ $(document).ready(function () {
         nav: true,
         items: 1,
         dots: true,
+        thumbs: false,
         smartSpeed: 500
     });
 
@@ -23,6 +25,7 @@ $(document).ready(function () {
         items: 1,
         dots: false,
         smartSpeed: 500,
+        thumbs: false,
         autoplay: true
     });
 
@@ -33,6 +36,7 @@ $(document).ready(function () {
         items: 2,
         dots: true,
         smartSpeed: 500,
+        thumbs: false,
         responsive: {
             0: {
                 items: 1,
@@ -56,6 +60,7 @@ $(document).ready(function () {
             nav: true,
             items: 1,
             dots: true,
+            thumbs: false,
             smartSpeed: 500
         });
     }
@@ -68,6 +73,7 @@ $(document).ready(function () {
             dots: false,
             autoHeight:false,
             smartSpeed: 500,
+            thumbs: false,
             responsive: {
                 // breakpoint from 0 up
                 0: {
@@ -88,6 +94,36 @@ $(document).ready(function () {
             }
         });
     }
+
+    $('.product-bottom .product-slider__inner').owlCarousel({
+        loop: true,
+        margin: 15,
+        nav: false,
+        items: 5,
+        dots: false,
+        autoHeight:false,
+        smartSpeed: 500,
+        thumbs: false,
+        responsive: {
+            // breakpoint from 0 up
+            0: {
+                items: 2,
+            },
+            // breakpoint from 480 up
+            520: {
+                items: 3,
+            },
+            // breakpoint from 768 up
+            768: {
+                items: 4,
+            },
+            930: {
+                items: 4,
+                margin: 45,
+            }
+        }
+    });
+
 
 
     $('.product-block__slider').owlCarousel({
@@ -172,6 +208,25 @@ $(document).ready(function () {
 
     $('.open-reg-social').click(function () {
          $('.register-social').slideToggle();
+    });
+
+    $('.product-tabs__h-item').click(function () {
+         $('.product-tabs__h-item').removeClass('active');
+         $(this).addClass('active');
+
+         $('.product-tabs__content').hide();
+         $('.product-tabs__content').eq($(this).index()).show();
+
+    });
+
+    var flagPhone = true;
+
+    $('.product-fixed__phone').click(function (e) {
+        if(flagPhone){
+            e.preventDefault();
+            $(this).find('span').toggleClass('show');
+            flagPhone = false;
+        }
     });
 
     $(document).click(function (e) {
