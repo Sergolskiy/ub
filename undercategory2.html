@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/jquery-ui.css">
     <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/style.css">
     <link href="images/ub.ico" rel="shortcut icon">
     <title>Document</title>
@@ -430,215 +432,286 @@
 
             <div class="catalog">
                 <div class="catalog__left">
-                    <div class="filter">
-                        <div class="filter__inner">
 
-                            <a href="#" class="block-title__btn">
-                                Додати товар
+                    <div class="filter--fixed-wrap">
+                        <div class="filter--fixed-top">
+                            <a href="javascript:void(0);" class="filter--fixed-close">
+                                <  Назад
                             </a>
-                            <div class="filter__items">
-                                <div class="filter__item">
-                                    <a href="javascript:void(0);" class="filter__toggle">
-                                        Цiна
+                            <a href="javascript:void(0);" class="filter--fixed-clear">
+                                Очистити
+                            </a>
+                        </div>
+
+                        <div class="filter filter--fixed">
+                            <div class="filter__inner">
+
+                                <div class="filter-top-btn">
+                                    <a href="#" class="block-title__btn">
+                                        Додати товар
                                     </a>
-                                    <div class="filter__toggle-block">
-                                        <div class="filter__slider">
-                                            <!--<div id="slider" class="filter-slider">-->
-                                            <!--<div id="custom-handle" class="ui-slider-handle" data-val="1000"></div>-->
-                                            <!--</div>-->
-                                            <div id="slider-range-max" class="filter-slider">
-                                                <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default" data-val="28000" style="left: 55.9074%;"></span>
+                                    <div class="catalog__select">
+                                        <div class="block-title__select">
+                                            Всi товари
+                                            <div class="block-title__select-items">
+                                                <a href="#" class="block-title__select-item">
+                                                    Київ
+                                                </a>
+                                                <a href="#" class="block-title__select-item">
+                                                    Київ
+                                                </a>
+                                                <a href="#" class="block-title__select-item">
+                                                    Київ
+                                                </a>
+                                                <a href="#" class="block-title__select-item">
+                                                    Київ
+                                                </a>
                                             </div>
-                                            <div class="filter__min-max">
-                                                <div class="filter__min">
-                                                    <span class="filter__min-num">1000</span> грн.
+                                        </div>
+                                    </div>
+                                    <div class="catalog__select">
+                                        <div class="block-title__select">
+                                            По рейтингу
+                                            <div class="block-title__select-items">
+                                                <a href="#" class="block-title__select-item">
+                                                    Київ
+                                                </a>
+                                                <a href="#" class="block-title__select-item">
+                                                    Київ
+                                                </a>
+                                                <a href="#" class="block-title__select-item">
+                                                    Київ
+                                                </a>
+                                                <a href="#" class="block-title__select-item">
+                                                    Київ
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="filter__items">
+                                    <div class="filter__item">
+                                        <a href="javascript:void(0);" class="filter__toggle">
+                                            Опт
+                                        </a>
+                                        <div class="filter__toggle-block">
+                                            <div class="filter__btns">
+                                                <a href="javascript:void(0);" class="filter__btn filter__btn--active">
+                                                    Всі товари
+                                                </a>
+                                                <a href="javascript:void(0);" class="filter__btn">
+                                                    Опт
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="filter__item">
+                                        <a href="javascript:void(0);" class="filter__toggle">
+                                            Цiна
+                                        </a>
+                                        <div class="filter__toggle-block">
+                                            <div class="filter__price">
+                                                <div class="filter__price-i">
+                                                        <span>
+                                                            від
+                                                        </span>
+                                                    <input type="text" class="filter__price-field filter__price-field--min">
                                                 </div>
-                                                <div class="filter__max">
-                                                    <span class="filter__max-num">28 000</span> грн.
+                                                <div class="filter__price-i">
+                                                        <span>
+                                                            до
+                                                        </span>
+                                                    <input type="text" class="filter__price-field">
+                                                </div>
+                                                <div class="filter__price-i">
+                                                    <a href="javascript:void(0);" class="filter__price-btn filter__price-field--max">
+                                                        ок
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="filter__item">
+                                        <a href="javascript:void(0);" class="filter__toggle">
+                                            Виробник
+                                        </a>
+                                        <div class="filter__toggle-block">
+                                            <div class="filter__list">
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk">
+                                                    <label for="virobnuk">
+                                                        <span>Bompani</span>
+                                                        <span>3</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk2">
+                                                    <label for="virobnuk2">
+                                                        <span>FABIANO </span>
+                                                        <span>13</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk3">
+                                                    <label for="virobnuk3">
+                                                        <span>LONGRAN </span>
+                                                        <span>45</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk4">
+                                                    <label for="virobnuk4">
+                                                        <span>TELMA </span>
+                                                        <span>4</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk5">
+                                                    <label for="virobnuk5">
+                                                        <span>UKINOX </span>
+                                                        <span>10</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter__item">
+                                        <a href="javascript:void(0);" class="filter__toggle">
+                                            Виробник
+                                        </a>
+                                        <div class="filter__toggle-block">
+                                            <div class="filter__list">
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk11">
+                                                    <label for="virobnuk11">
+                                                        <span>Bompani</span>
+                                                        <span>3</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk12">
+                                                    <label for="virobnuk12">
+                                                        <span>FABIANO </span>
+                                                        <span>13</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk13">
+                                                    <label for="virobnuk13">
+                                                        <span>LONGRAN </span>
+                                                        <span>45</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk14">
+                                                    <label for="virobnuk14">
+                                                        <span>TELMA </span>
+                                                        <span>4</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk15">
+                                                    <label for="virobnuk15">
+                                                        <span>UKINOX </span>
+                                                        <span>10</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter__item">
+                                        <a href="javascript:void(0);" class="filter__toggle">
+                                            Виробник
+                                        </a>
+                                        <div class="filter__toggle-block">
+                                            <div class="filter__list">
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk21">
+                                                    <label for="virobnuk21">
+                                                        <span>Bompani</span>
+                                                        <span>3</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk22">
+                                                    <label for="virobnuk22">
+                                                        <span>FABIANO </span>
+                                                        <span>13</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk23">
+                                                    <label for="virobnuk23">
+                                                        <span>LONGRAN </span>
+                                                        <span>45</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk24">
+                                                    <label for="virobnuk24">
+                                                        <span>TELMA </span>
+                                                        <span>4</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk25">
+                                                    <label for="virobnuk25">
+                                                        <span>UKINOX </span>
+                                                        <span>10</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter__item">
+                                        <a href="javascript:void(0);" class="filter__toggle">
+                                            Виробник
+                                        </a>
+                                        <div class="filter__toggle-block">
+                                            <div class="filter__list">
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk31">
+                                                    <label for="virobnuk31">
+                                                        <span>Bompani</span>
+                                                        <span>3</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk32">
+                                                    <label for="virobnuk32">
+                                                        <span>FABIANO </span>
+                                                        <span>13</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk33">
+                                                    <label for="virobnuk33">
+                                                        <span>LONGRAN </span>
+                                                        <span>45</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk34">
+                                                    <label for="virobnuk34">
+                                                        <span>TELMA </span>
+                                                        <span>4</span>
+                                                    </label>
+                                                </div>
+                                                <div class="filter__checkbox">
+                                                    <input type="checkbox" id="virobnuk35">
+                                                    <label for="virobnuk35">
+                                                        <span>UKINOX </span>
+                                                        <span>10</span>
+                                                    </label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-
                                 </div>
-                                <div class="filter__item">
-                                    <a href="javascript:void(0);" class="filter__toggle">
-                                        Виробник
-                                    </a>
-                                    <div class="filter__toggle-block">
-                                        <div class="filter__list">
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk">
-                                                <label for="virobnuk">
-                                                    <span>Bompani</span>
-                                                    <span>3</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk2">
-                                                <label for="virobnuk2">
-                                                    <span>FABIANO </span>
-                                                    <span>13</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk3">
-                                                <label for="virobnuk3">
-                                                    <span>LONGRAN </span>
-                                                    <span>45</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk4">
-                                                <label for="virobnuk4">
-                                                    <span>TELMA </span>
-                                                    <span>4</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk5">
-                                                <label for="virobnuk5">
-                                                    <span>UKINOX </span>
-                                                    <span>10</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="filter__item">
-                                    <a href="javascript:void(0);" class="filter__toggle">
-                                        Виробник
-                                    </a>
-                                    <div class="filter__toggle-block">
-                                        <div class="filter__list">
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk11">
-                                                <label for="virobnuk11">
-                                                    <span>Bompani</span>
-                                                    <span>3</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk12">
-                                                <label for="virobnuk12">
-                                                    <span>FABIANO </span>
-                                                    <span>13</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk13">
-                                                <label for="virobnuk13">
-                                                    <span>LONGRAN </span>
-                                                    <span>45</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk14">
-                                                <label for="virobnuk14">
-                                                    <span>TELMA </span>
-                                                    <span>4</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk15">
-                                                <label for="virobnuk15">
-                                                    <span>UKINOX </span>
-                                                    <span>10</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="filter__item">
-                                    <a href="javascript:void(0);" class="filter__toggle">
-                                        Виробник
-                                    </a>
-                                    <div class="filter__toggle-block">
-                                        <div class="filter__list">
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk21">
-                                                <label for="virobnuk21">
-                                                    <span>Bompani</span>
-                                                    <span>3</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk22">
-                                                <label for="virobnuk22">
-                                                    <span>FABIANO </span>
-                                                    <span>13</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk23">
-                                                <label for="virobnuk23">
-                                                    <span>LONGRAN </span>
-                                                    <span>45</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk24">
-                                                <label for="virobnuk24">
-                                                    <span>TELMA </span>
-                                                    <span>4</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk25">
-                                                <label for="virobnuk25">
-                                                    <span>UKINOX </span>
-                                                    <span>10</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="filter__item">
-                                    <a href="javascript:void(0);" class="filter__toggle">
-                                        Виробник
-                                    </a>
-                                    <div class="filter__toggle-block">
-                                        <div class="filter__list">
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk31">
-                                                <label for="virobnuk31">
-                                                    <span>Bompani</span>
-                                                    <span>3</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk32">
-                                                <label for="virobnuk32">
-                                                    <span>FABIANO </span>
-                                                    <span>13</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk33">
-                                                <label for="virobnuk33">
-                                                    <span>LONGRAN </span>
-                                                    <span>45</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk34">
-                                                <label for="virobnuk34">
-                                                    <span>TELMA </span>
-                                                    <span>4</span>
-                                                </label>
-                                            </div>
-                                            <div class="filter__checkbox">
-                                                <input type="checkbox" id="virobnuk35">
-                                                <label for="virobnuk35">
-                                                    <span>UKINOX </span>
-                                                    <span>10</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>
@@ -734,6 +807,10 @@
                                 </a>
                             </div>
                         </div>
+
+                        <a href="javascript:void(0)" class="filter-button filter-button-open">
+                            Показати фiльтри  >
+                        </a>
                     </div>
 
                     <div class="catalog__items catalog__items--list">
@@ -1060,6 +1137,26 @@
                                 </ul>
                             </div>
                             <div class="catalog__nav-right">
+
+                                <div class="catalog__select">
+                                    <div class="block-title__select">
+                                        На странице
+                                        <div class="block-title__select-items">
+                                            <a href="#" class="block-title__select-item">
+                                                10
+                                            </a>
+                                            <a href="#" class="block-title__select-item">
+                                                50
+                                            </a>
+                                            <a href="#" class="block-title__select-item">
+                                                70
+                                            </a>
+                                            <a href="#" class="block-title__select-item">
+                                                100
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                                 <a href="#" class="block-title__btn">
                                     Показати ще
                                 </a>
@@ -1397,6 +1494,8 @@
 <script src="js/jquery-3.4.1.min.js"></script>
 <script src="js/jquery-ui.js"></script>
 <script src="js/owl.carousel.min.js"></script>
+<script src="js/header.js"></script>
+<script src="js/footer.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
