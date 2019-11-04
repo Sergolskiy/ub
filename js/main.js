@@ -116,12 +116,14 @@ $(document).ready(function () {
         }
     });
 
-    $.extend($.validator.messages, {
-        required: "Обов'язкове поле",
-        email: "Введіть валідний email",
-    });
+    if($(".form-validate").lenght > 0){
+        $.extend($.validator.messages, {
+            required: "Обов'язкове поле",
+            email: "Введіть валідний email",
+        });
 
-    $(".form-validate").validate();
+        $(".form-validate").validate();
+    }
 
 
     // catalog-bar__items
@@ -378,12 +380,15 @@ $(document).ready(function () {
 
 });
 
-if($(document).find('html').attr('lang') == 'ru'){
-    window.MagicZoom.optionCustomRu();
+if($('.MagicZoom').length > 0){
+    if($(document).find('html').attr('lang') == 'ru'){
+        window.MagicZoom.optionCustomRu();
+    }
+    if($(document).find('html').attr('lang') == 'en'){
+        window.MagicZoom.optionCustomEn();
+    }
+    if($(document).find('html').attr('lang') == 'ua'){
+        window.MagicZoom.optionCustomUa();
+    }
 }
-if($(document).find('html').attr('lang') == 'en'){
-    window.MagicZoom.optionCustomEn();
-}
-if($(document).find('html').attr('lang') == 'ua'){
-    window.MagicZoom.optionCustomUa();
-}
+

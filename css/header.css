@@ -683,7 +683,7 @@ html body .MagicZoom a{
     top: -80vh;
     left: -10vw;
     width: 150vw;
-    height: 100%;
+    height: 300vh;
     background: rgba(0, 0, 0, 0.54);
     z-index: 1;
 }
@@ -733,6 +733,7 @@ html body .MagicZoom a{
     max-height: 491px;
     overflow: auto;
     overflow-x: hidden;
+    display: block !important;
 }
 
 .catalog-bar__items--active .catalog-bar__items--active:after {

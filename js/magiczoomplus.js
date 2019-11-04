@@ -1,5364 +1,4557 @@
-'use strict';
-window.MagicZoom = function() {
-    /**
-     * @param {string} tstr
-     * @return {?}
-     */
-    function transform(tstr) {
-        var output;
-        var i;
-        /** @type {string} */
-        output = "";
-        /** @type {number} */
-        i = 0;
-        for (; i < tstr.length; i++) {
-            /** @type {string} */
-            output = output + String.fromCharCode(14 ^ tstr.charCodeAt(i));
-        }
-        return output;
-    }
-    /**
-     * @param {!Object} name
-     * @return {?}
-     */
-    function cb(name) {
-        /** @type {!Array} */
-        var cnameParts = [];
-        /** @type {null} */
-        var n = null;
-        if (name && (n = callback(name))) {
-            cnameParts = result.filter(function(f) {
-                return f.placeholder === n;
-            });
-        }
-        return cnameParts.length ? cnameParts[0] : null;
-    }
-    /**
-     * @param {number} offset
-     * @return {?}
-     */
-    function extend(offset) {
-        var options = callback(window).jGetSize();
-        var markerCoord = callback(window).jGetScroll();
-        offset = offset || 0;
-        return {
-            left : offset,
-            right : options.width - offset,
-            top : offset,
-            bottom : options.height - offset,
-            x : markerCoord.x,
-            y : markerCoord.y
-        };
-    }
-    /**
-     * @param {!Object} evt
-     * @return {?}
-     */
-    function handleTouch(evt) {
-        return Object.assign({}, evt, {
-            type : evt.type,
-            pageX : evt.pageX,
-            pageY : evt.pageY,
-            screenX : evt.screenX,
-            screenY : evt.screenY,
-            clientX : evt.clientX,
-            clientY : evt.clientY,
-            cloned : true
-        });
-    }
-    /**
-     * @return {undefined}
-     */
-    function bind() {
-        var cmd_args = $.$A(arguments);
-        var name = cmd_args.shift();
-        var container = containers[name];
-        if (container) {
-            /** @type {number} */
-            var i = 0;
-            for (; i < container.length; i++) {
-                container[i].apply(null, cmd_args);
-            }
-        }
-    }
-    /**
-     * @return {undefined}
-     */
-    function render() {
-        var el = arguments[0];
-        var dir;
-        var id;
-        /** @type {!Array} */
-        var closeTagsForsummaryText = [];
-        try {
-            do {
-                id = el.tagName;
-                if (/^[A-Za-z]*$/.test(id)) {
-                    if (dir = el.getAttribute("id")) {
-                        if (/^[A-Za-z][-A-Za-z0-9_]*/.test(dir)) {
-                            /** @type {string} */
-                            id = id + ("#" + dir);
-                        }
+/*
+
+
+   Magic Zoom Plus v5.3.2 for MagicToolbox.com
+   Copyright 2019 Magic Toolbox
+   Buy a license: https://www.magictoolbox.com/magiczoomplus/
+   License agreement: https://www.magictoolbox.com/license/
+
+
+*/
+window.MagicZoom = (function() {
+    var B, q;
+    B = q = (function() {
+        var W = {
+            version: "v3.3.4",
+            UUID: 0,
+            storage: {},
+            $uuid: function(aa) {
+                return (aa.$J_UUID || (aa.$J_UUID = ++Q.UUID))
+            },
+            getStorage: function(aa) {
+                return (Q.storage[aa] || (Q.storage[aa] = {}))
+            },
+            $F: function() {},
+            $false: function() {
+                return false
+            },
+            $true: function() {
+                return true
+            },
+            stylesId: "mjs-" + Math.floor(Math.random() * new Date().getTime()),
+            defined: function(aa) {
+                return (undefined != aa)
+            },
+            ifndef: function(ab, aa) {
+                return (undefined != ab) ? ab : aa
+            },
+            exists: function(aa) {
+                return !!(aa)
+            },
+            jTypeOf: function(aa) {
+                if (!Q.defined(aa)) {
+                    return false
+                }
+                if (aa.$J_TYPE) {
+                    return aa.$J_TYPE
+                }
+                if (!!aa.nodeType) {
+                    if (1 == aa.nodeType) {
+                        return "element"
                     }
-                    closeTagsForsummaryText.push(id);
-                }
-                el = el.parentNode;
-            } while (el && el !== document.documentElement);
-            /** @type {!Array} */
-            closeTagsForsummaryText = closeTagsForsummaryText.reverse();
-            $.addCSS(closeTagsForsummaryText.join(" ") + "> .mz-figure > img", {
-                transition : "none",
-                transform : "none"
-            }, "mz-runtime-css", true);
-            $.addCSS(closeTagsForsummaryText.join(" ") + ":not(.mz-no-rt-width-css)> .mz-figure:not(.mz-no-rt-width-css) > img", {
-                width : "100% !important;"
-            }, "mz-runtime-css", true);
-        } catch (M) {
-        }
-    }
-    /**
-     * @return {?}
-     */
-    function resize() {
-        /** @type {null} */
-        var L = null;
-        /** @type {null} */
-        var t = null;
-        /**
-         * @return {undefined}
-         */
-        var render = function() {
-            window.scrollTo(document.body.scrollLeft, document.body.scrollTop);
-            window.dispatchEvent(new Event("resize"));
-        };
-        /** @type {number} */
-        t = setInterval(function() {
-            /** @type {boolean} */
-            var $fixed_footer_active = window.orientation === 90 || window.orientation === -90;
-            /** @type {number} */
-            var fixed_footer_tick_lastPosition = window.innerHeight;
-            /** @type {number} */
-            var $fixed_footer_trigger_offset = ($fixed_footer_active ? screen.availWidth : screen.availHeight) * .85;
-            if ((L === null || L === false) && ($fixed_footer_active && fixed_footer_tick_lastPosition < $fixed_footer_trigger_offset || !$fixed_footer_active && fixed_footer_tick_lastPosition < $fixed_footer_trigger_offset)) {
-                /** @type {boolean} */
-                L = true;
-                render();
-            } else {
-                if ((L === null || L === true) && ($fixed_footer_active && fixed_footer_tick_lastPosition > $fixed_footer_trigger_offset || !$fixed_footer_active && fixed_footer_tick_lastPosition > $fixed_footer_trigger_offset)) {
-                    /** @type {boolean} */
-                    L = false;
-                    render();
-                }
-            }
-        }, 250);
-        return t;
-    }
-    /**
-     * @return {undefined}
-     */
-    function initMidi() {
-        $.addCSS(".magic-hidden-wrapper, .magic-temporary-img", {
-            display : "block !important",
-            "min-height" : "0 !important",
-            "min-width" : "0 !important",
-            "max-height" : "none !important",
-            "max-width" : "none !important",
-            width : "10px !important",
-            height : "10px !important",
-            position : "absolute !important",
-            top : "-10000px !important",
-            left : "0 !important",
-            overflow : "hidden !important",
-            "-webkit-transform" : "none !important",
-            transform : "none !important",
-            "-webkit-transition" : "none !important",
-            transition : "none !important"
-        }, "magiczoom-reset-css");
-        $.addCSS(".magic-temporary-img img, .magic-temporary-img picture", {
-            display : "inline-block !important",
-            border : "0 !important",
-            padding : "0 !important",
-            "min-height" : "0 !important",
-            "min-width" : "0 !important",
-            "max-height" : "none !important",
-            "max-width" : "none !important",
-            "-webkit-transform" : "none !important",
-            transform : "none !important",
-            "-webkit-transition" : "none !important",
-            transition : "none !important"
-        }, "magiczoom-reset-css");
-        $.addCSS(".magic-temporary-img picture, .magic-temporary-img picture > img", {
-            width : "auto !important",
-            height : "auto !important"
-        }, "magiczoom-reset-css");
-        if ($.browser.androidBrowser) {
-            $.addCSS(".mobile-magic .mz-expand .mz-expand-bg", {
-                display : "none !important"
-            }, "magiczoom-reset-css");
-        }
-        if ($.browser.androidBrowser && ($.browser.uaName !== "chrome" || $.browser.uaVersion === 44)) {
-            $.addCSS(".mobile-magic .mz-zoom-window.mz-magnifier, .mobile-magic .mz-zoom-window.mz-magnifier:before", {
-                "border-radius" : "0 !important"
-            }, "magiczoom-reset-css");
-        }
-    }
-    var jQuery;
-    var $;
-    jQuery = $ = function() {
-        /**
-         * @param {string} prop
-         * @return {?}
-         */
-        function getPrefixedProp(prop) {
-            var styleProp = prop.charAt(0).toUpperCase() + prop.slice(1);
-            return prop in s || "Webkit" + styleProp in s || "Moz" + styleProp in s || "ms" + styleProp in s || "O" + styleProp in s;
-        }
-        /**
-         * @param {string} item
-         * @return {?}
-         */
-        function render(item) {
-            var coords;
-            var ab;
-            /** @type {boolean} */
-            ab = $.browser.webkit && "filter" == item ? false : item in s;
-            if (!ab) {
-                coords = $.browser.cssDomPrefix + item.charAt(0).toUpperCase() + item.slice(1);
-                if (coords in s) {
-                    return coords;
-                }
-            }
-            return item;
-        }
-        var self = {
-            version : "v3.3.4",
-            UUID : 0,
-            storage : {},
-            $uuid : function(objOrTsid) {
-                return objOrTsid.$J_UUID || (objOrTsid.$J_UUID = ++$.UUID);
-            },
-            getStorage : function(name) {
-                return $.storage[name] || ($.storage[name] = {});
-            },
-            $F : function() {
-            },
-            $false : function() {
-                return false;
-            },
-            $true : function() {
-                return true;
-            },
-            stylesId : "mjs-" + Math.floor(Math.random() * (new Date).getTime()),
-            defined : function(string) {
-                return undefined != string;
-            },
-            ifndef : function(min, value) {
-                return undefined != min ? min : value;
-            },
-            exists : function(val) {
-                return !!val;
-            },
-            jTypeOf : function(obj) {
-                if (!$.defined(obj)) {
-                    return false;
-                }
-                if (obj.$J_TYPE) {
-                    return obj.$J_TYPE;
-                }
-                if (!!obj.nodeType) {
-                    if (1 == obj.nodeType) {
-                        return "element";
-                    }
-                    if (3 == obj.nodeType) {
-                        return "textnode";
+                    if (3 == aa.nodeType) {
+                        return "textnode"
                     }
                 }
-                if (obj.length && obj.item) {
-                    return "collection";
+                if (aa.length && aa.item) {
+                    return "collection"
                 }
-                if (obj.length && obj.callee) {
-                    return "arguments";
+                if (aa.length && aa.callee) {
+                    return "arguments"
                 }
-                if ((obj instanceof window.Object || obj instanceof window.Function) && obj.constructor === $.Class) {
-                    return "class";
+                if ((aa instanceof window.Object || aa instanceof window.Function) && aa.constructor === Q.Class) {
+                    return "class"
                 }
-                if (obj instanceof window.Array) {
-                    return "array";
+                if (aa instanceof window.Array) {
+                    return "array"
                 }
-                if (obj instanceof window.Function) {
-                    return "function";
+                if (aa instanceof window.Function) {
+                    return "function"
                 }
-                if (obj instanceof window.String) {
-                    return "string";
+                if (aa instanceof window.String) {
+                    return "string"
                 }
-                if ($.browser.trident) {
-                    if ($.defined(obj.cancelBubble)) {
-                        return "event";
+                if (Q.browser.trident) {
+                    if (Q.defined(aa.cancelBubble)) {
+                        return "event"
                     }
                 } else {
-                    if (obj === window.event || obj.constructor == window.Event || obj.constructor == window.MouseEvent || obj.constructor == window.UIEvent || obj.constructor == window.KeyboardEvent || obj.constructor == window.KeyEvent) {
-                        return "event";
+                    if (aa === window.event || aa.constructor == window.Event || aa.constructor == window.MouseEvent || aa.constructor == window.UIEvent || aa.constructor == window.KeyboardEvent || aa.constructor == window.KeyEvent) {
+                        return "event"
                     }
                 }
-                if (obj instanceof window.Date) {
-                    return "date";
+                if (aa instanceof window.Date) {
+                    return "date"
                 }
-                if (obj instanceof window.RegExp) {
-                    return "regexp";
+                if (aa instanceof window.RegExp) {
+                    return "regexp"
                 }
-                if (obj === window) {
-                    return "window";
+                if (aa === window) {
+                    return "window"
                 }
-                if (obj === document) {
-                    return "document";
+                if (aa === document) {
+                    return "document"
                 }
-                return typeof obj;
+                return typeof(aa)
             },
-            extend : function(data, source) {
-                if (!(data instanceof window.Array)) {
-                    /** @type {!Array} */
-                    data = [data];
+            extend: function(af, ae) {
+                if (!(af instanceof window.Array)) {
+                    af = [af]
                 }
-                if (!source) {
-                    return data[0];
+                if (!ae) {
+                    return af[0]
                 }
-                /** @type {number} */
-                var i = 0;
-                var tldCount = data.length;
-                for (; i < tldCount; i++) {
-                    if (!$.defined(data)) {
-                        continue;
+                for (var ad = 0, ab = af.length; ad < ab; ad++) {
+                    if (!Q.defined(af)) {
+                        continue
                     }
-                    var name;
-                    for (name in source) {
-                        if (!Object.prototype.hasOwnProperty.call(source, name)) {
-                            continue;
+                    for (var ac in ae) {
+                        if (!Object.prototype.hasOwnProperty.call(ae, ac)) {
+                            continue
                         }
                         try {
-                            data[i][name] = source[name];
-                        } catch (aa) {
+                            af[ad][ac] = ae[ac]
+                        } catch (aa) {}
+                    }
+                }
+                return af[0]
+            },
+            implement: function(ae, ad) {
+                if (!(ae instanceof window.Array)) {
+                    ae = [ae]
+                }
+                for (var ac = 0, aa = ae.length; ac < aa; ac++) {
+                    if (!Q.defined(ae[ac])) {
+                        continue
+                    }
+                    if (!ae[ac].prototype) {
+                        continue
+                    }
+                    for (var ab in (ad || {})) {
+                        if (!ae[ac].prototype[ab]) {
+                            ae[ac].prototype[ab] = ad[ab]
                         }
                     }
                 }
-                return data[0];
+                return ae[0]
             },
-            implement : function(obj, params) {
-                if (!(obj instanceof window.Array)) {
-                    /** @type {!Array} */
-                    obj = [obj];
+            nativize: function(ac, ab) {
+                if (!Q.defined(ac)) {
+                    return ac
                 }
-                /** @type {number} */
-                var prop = 0;
-                var len = obj.length;
-                for (; prop < len; prop++) {
-                    if (!$.defined(obj[prop])) {
-                        continue;
-                    }
-                    if (!obj[prop].prototype) {
-                        continue;
-                    }
-                    var name;
-                    for (name in params || {}) {
-                        if (!obj[prop].prototype[name]) {
-                            obj[prop].prototype[name] = params[name];
-                        }
+                for (var aa in (ab || {})) {
+                    if (!ac[aa]) {
+                        ac[aa] = ab[aa]
                     }
                 }
-                return obj[0];
+                return ac
             },
-            nativize : function(result, headers) {
-                if (!$.defined(result)) {
-                    return result;
-                }
-                var name;
-                for (name in headers || {}) {
-                    if (!result[name]) {
-                        result[name] = headers[name];
-                    }
-                }
-                return result;
-            },
-            $try : function() {
-                /** @type {number} */
-                var i = 0;
-                /** @type {number} */
-                var argl = arguments.length;
-                for (; i < argl; i++) {
+            $try: function() {
+                for (var ab = 0, aa = arguments.length; ab < aa; ab++) {
                     try {
-                        return arguments[i]();
-                    } catch (ac) {
+                        return arguments[ab]()
+                    } catch (ac) {}
+                }
+                return null
+            },
+            $A: function(ac) {
+                if (!Q.defined(ac)) {
+                    return Q.$([])
+                }
+                if (ac.toArray) {
+                    return Q.$(ac.toArray())
+                }
+                if (ac.item) {
+                    var ab = ac.length || 0,
+                        aa = new Array(ab);
+                    while (ab--) {
+                        aa[ab] = ac[ab]
                     }
+                    return Q.$(aa)
                 }
-                return null;
+                return Q.$(Array.prototype.slice.call(ac))
             },
-            $A : function(obj) {
-                if (!$.defined(obj)) {
-                    return $.$([]);
-                }
-                if (obj.toArray) {
-                    return $.$(obj.toArray());
-                }
-                if (obj.item) {
-                    var t = obj.length || 0;
-                    /** @type {!Array} */
-                    var f = new Array(t);
-                    for (; t--;) {
-                        f[t] = obj[t];
-                    }
-                    return $.$(f);
-                }
-                return $.$(Array.prototype.slice.call(obj));
+            now: function() {
+                return new Date().getTime()
             },
-            now : function() {
-                return (new Date).getTime();
-            },
-            detach : function(obj) {
-                var binding;
-                switch($.jTypeOf(obj)) {
+            detach: function(ae) {
+                var ac;
+                switch (Q.jTypeOf(ae)) {
                     case "object":
-                        binding = {};
-                        var prop;
-                        for (prop in obj) {
-                            binding[prop] = $.detach(obj[prop]);
+                        ac = {};
+                        for (var ad in ae) {
+                            ac[ad] = Q.detach(ae[ad])
                         }
                         break;
                     case "array":
-                        /** @type {!Array} */
-                        binding = [];
-                        /** @type {number} */
-                        var i = 0;
-                        var patchLen = obj.length;
-                        for (; i < patchLen; i++) {
-                            binding[i] = $.detach(obj[i]);
+                        ac = [];
+                        for (var ab = 0, aa = ae.length; ab < aa; ab++) {
+                            ac[ab] = Q.detach(ae[ab])
                         }
                         break;
                     default:
-                        return obj;
+                        return ae
                 }
-                return $.$(binding);
+                return Q.$(ac)
             },
-            $ : function(obj) {
-                /** @type {boolean} */
+            $: function(ac) {
                 var aa = true;
-                if (!$.defined(obj)) {
-                    return null;
+                if (!Q.defined(ac)) {
+                    return null
                 }
-                if (obj.$J_EXT) {
-                    return obj;
+                if (ac.$J_EXT) {
+                    return ac
                 }
-                switch($.jTypeOf(obj)) {
+                switch (Q.jTypeOf(ac)) {
                     case "array":
-                        obj = $.nativize(obj, $.extend($.Array, {
-                            $J_EXT : $.$F
+                        ac = Q.nativize(ac, Q.extend(Q.Array, {
+                            $J_EXT: Q.$F
                         }));
-                        obj.jEach = obj.forEach;
-                        /** @type {function(!Object, undefined): ?} */
-                        obj.contains = $.Array.contains;
-                        return obj;
+                        ac.jEach = ac.forEach;
+                        ac.contains = Q.Array.contains;
+                        return ac;
                         break;
                     case "string":
-                        /** @type {(Element|null)} */
-                        var data = document.getElementById(obj);
-                        if ($.defined(data)) {
-                            return $.$(data);
+                        var ab = document.getElementById(ac);
+                        if (Q.defined(ab)) {
+                            return Q.$(ab)
                         }
                         return null;
                         break;
                     case "window":
                     case "document":
-                        $.$uuid(obj);
-                        obj = $.extend(obj, $.Doc);
+                        Q.$uuid(ac);
+                        ac = Q.extend(ac, Q.Doc);
                         break;
                     case "element":
-                        $.$uuid(obj);
-                        obj = $.extend(obj, $.Element);
+                        Q.$uuid(ac);
+                        ac = Q.extend(ac, Q.Element);
                         break;
                     case "event":
-                        obj = $.extend(obj, $.Event);
+                        ac = Q.extend(ac, Q.Event);
                         break;
                     case "textnode":
                     case "function":
                     case "array":
                     case "date":
                     default:
-                        /** @type {boolean} */
                         aa = false;
-                        break;
+                        break
                 }
                 if (aa) {
-                    return $.extend(obj, {
-                        $J_EXT : $.$F
-                    });
+                    return Q.extend(ac, {
+                        $J_EXT: Q.$F
+                    })
                 } else {
-                    return obj;
+                    return ac
                 }
             },
-            $new : function(name, url, parent) {
-                return $.$($.doc.createElement(name)).setProps(url || {}).jSetCss(parent || {});
+            $new: function(aa, ac, ab) {
+                return Q.$(Q.doc.createElement(aa)).setProps(ac || {}).jSetCss(ab || {})
             },
-            addCSS : function(selector, css, options) {
-                var style;
-                var sheet;
-                var i;
-                /** @type {!Array} */
-                var drilldownLevelLabels = [];
-                /** @type {number} */
-                var rule = -1;
-                if (!options) {
-                    /** @type {string} */
-                    options = $.stylesId;
-                }
-                style = $.$(options) || $.$new("style", {
-                    id : options,
-                    type : "text/css"
-                }).jAppendTo(document.head || document.body, "top");
-                sheet = style.sheet || style.styleSheet;
-                if ("string" != $.jTypeOf(css)) {
-                    for (i in css) {
-                        drilldownLevelLabels.push(i + ":" + css[i]);
+            addCSS: function(ad, ae, ab) {
+                var aa, ag, ac, ai = [],
+                    ah = -1;
+                ab || (ab = Q.stylesId);
+                aa = Q.$(ab) || Q.$new("style", {
+                    id: ab,
+                    type: "text/css"
+                }).jAppendTo((document.head || document.body), "top");
+                ag = aa.sheet || aa.styleSheet;
+                if ("string" != Q.jTypeOf(ae)) {
+                    for (var ac in ae) {
+                        ai.push(ac + ":" + ae[ac])
                     }
-                    /** @type {string} */
-                    css = drilldownLevelLabels.join(";");
+                    ae = ai.join(";")
                 }
-                if (sheet.insertRule) {
-                    rule = sheet.insertRule(selector + " {" + css + "}", sheet.cssRules.length);
+                if (ag.insertRule) {
+                    ah = ag.insertRule(ad + " {" + ae + "}", ag.cssRules.length)
                 } else {
                     try {
-                        rule = sheet.addRule(selector, css, sheet.rules.length);
-                    } catch (af) {
-                    }
+                        ah = ag.addRule(ad, ae, ag.rules.length)
+                    } catch (af) {}
                 }
-                return rule;
+                return ah
             },
-            removeCSS : function(node, index) {
-                var el;
-                var sheet;
-                el = $.$(node);
-                if ("element" !== $.jTypeOf(el)) {
-                    return;
+            removeCSS: function(ad, aa) {
+                var ac, ab;
+                ac = Q.$(ad);
+                if ("element" !== Q.jTypeOf(ac)) {
+                    return
                 }
-                sheet = el.sheet || el.styleSheet;
-                if (sheet.deleteRule) {
-                    sheet.deleteRule(index);
+                ab = ac.sheet || ac.styleSheet;
+                if (ab.deleteRule) {
+                    ab.deleteRule(aa)
                 } else {
-                    if (sheet.removeRule) {
-                        sheet.removeRule(index);
+                    if (ab.removeRule) {
+                        ab.removeRule(aa)
                     }
                 }
             },
-            generateUUID : function() {
-                return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
-                    /** @type {number} */
-                    var r = Math.random() * 16 | 0;
-                    /** @type {number} */
-                    var v = c == "x" ? r : r & 3 | 8;
-                    return v.toString(16);
-                }).toUpperCase();
+            generateUUID: function() {
+                return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(ac) {
+                    var ab = Math.random() * 16 | 0,
+                        aa = ac == "x" ? ab : (ab & 3 | 8);
+                    return aa.toString(16)
+                }).toUpperCase()
             },
-            getAbsoluteURL : function() {
-                var node;
-                return function(X) {
-                    if (!node) {
-                        /** @type {!Element} */
-                        node = document.createElement("a");
+            getAbsoluteURL: (function() {
+                var aa;
+                return function(ab) {
+                    if (!aa) {
+                        aa = document.createElement("a")
                     }
-                    node.setAttribute("href", X);
-                    return ("!!" + node.href).replace("!!", "");
-                };
-            }(),
-            getHashCode : function(s) {
-                /** @type {number} */
-                var hash = 0;
-                var l = s.length;
-                /** @type {number} */
-                var i = 0;
-                for (; i < l; ++i) {
-                    hash = 31 * hash + s.charCodeAt(i);
-                    /** @type {number} */
-                    hash = hash % 4294967296;
+                    aa.setAttribute("href", ab);
+                    return ("!!" + aa.href).replace("!!", "")
                 }
-                return hash;
+            })(),
+            getHashCode: function(ac) {
+                var ad = 0,
+                    aa = ac.length;
+                for (var ab = 0; ab < aa; ++ab) {
+                    ad = 31 * ad + ac.charCodeAt(ab);
+                    ad %= 4294967296
+                }
+                return ad
             }
         };
-        var $ = self;
-        /** @type {function(!Object): ?} */
-        var $this = self.$;
+        var Q = W;
+        var R = W.$;
         if (!window.magicJS) {
-            window.magicJS = self;
-            /** @type {function(!Object): ?} */
-            window.$mjs = self.$;
+            window.magicJS = W;
+            window.$mjs = W.$
         }
-        $.Array = {
-            $J_TYPE : "array",
-            indexOf : function(num, from) {
-                var l = this.length;
-                var length = this.length;
-                var index = from < 0 ? Math.max(0, length + from) : from || 0;
-                for (; index < length; index++) {
-                    if (this[index] === num) {
-                        return index;
+        Q.Array = {
+            $J_TYPE: "array",
+            indexOf: function(ad, ae) {
+                var aa = this.length;
+                for (var ab = this.length, ac = (ae < 0) ? Math.max(0, ab + ae) : ae || 0; ac < ab; ac++) {
+                    if (this[ac] === ad) {
+                        return ac
                     }
                 }
-                return -1;
+                return -1
             },
-            contains : function(start, value) {
-                return this.indexOf(start, value) != -1;
+            contains: function(aa, ab) {
+                return this.indexOf(aa, ab) != -1
             },
-            forEach : function(context, callback) {
-                /** @type {number} */
-                var i = 0;
-                var l = this.length;
-                for (; i < l; i++) {
-                    if (i in this) {
-                        context.call(callback, this[i], i, this);
+            forEach: function(aa, ad) {
+                for (var ac = 0, ab = this.length; ac < ab; ac++) {
+                    if (ac in this) {
+                        aa.call(ad, this[ac], ac, this)
                     }
                 }
             },
-            filter : function(callback, thisp) {
-                /** @type {!Array} */
-                var result = [];
-                /** @type {number} */
-                var i = 0;
-                var l = this.length;
-                for (; i < l; i++) {
-                    if (i in this) {
-                        var rpcSetting = this[i];
-                        if (callback.call(thisp, this[i], i, this)) {
-                            result.push(rpcSetting);
+            filter: function(aa, af) {
+                var ae = [];
+                for (var ad = 0, ab = this.length; ad < ab; ad++) {
+                    if (ad in this) {
+                        var ac = this[ad];
+                        if (aa.call(af, this[ad], ad, this)) {
+                            ae.push(ac)
                         }
                     }
                 }
-                return result;
+                return ae
             },
-            map : function(callback, thisp) {
-                /** @type {!Array} */
-                var result = [];
-                /** @type {number} */
-                var i = 0;
-                var l = this.length;
-                for (; i < l; i++) {
-                    if (i in this) {
-                        result[i] = callback.call(thisp, this[i], i, this);
+            map: function(aa, ae) {
+                var ad = [];
+                for (var ac = 0, ab = this.length; ac < ab; ac++) {
+                    if (ac in this) {
+                        ad[ac] = aa.call(ae, this[ac], ac, this)
                     }
                 }
-                return result;
+                return ad
             }
         };
-        $.implement(String, {
-            $J_TYPE : "string",
-            jTrim : function() {
-                return this.replace(/^\s+|\s+$/g, "");
+        Q.implement(String, {
+            $J_TYPE: "string",
+            jTrim: function() {
+                return this.replace(/^\s+|\s+$/g, "")
             },
-            eq : function(callback, table) {
-                return table || false ? this.toString() === callback.toString() : this.toLowerCase().toString() === callback.toLowerCase().toString();
+            eq: function(aa, ab) {
+                return (ab || false) ? (this.toString() === aa.toString()) : (this.toLowerCase().toString() === aa.toLowerCase().toString())
             },
-            jCamelize : function() {
-                return this.replace(/-\D/g, function(hashComponent) {
-                    return hashComponent.charAt(1).toUpperCase();
-                });
+            jCamelize: function() {
+                return this.replace(/-\D/g, function(aa) {
+                    return aa.charAt(1).toUpperCase()
+                })
             },
-            dashize : function() {
-                return this.replace(/[A-Z]/g, function(hashComponent) {
-                    return "-" + hashComponent.charAt(0).toLowerCase();
-                });
+            dashize: function() {
+                return this.replace(/[A-Z]/g, function(aa) {
+                    return ("-" + aa.charAt(0).toLowerCase())
+                })
             },
-            jToInt : function(radix) {
-                return parseInt(this, radix || 10);
+            jToInt: function(aa) {
+                return parseInt(this, aa || 10)
             },
-            toFloat : function() {
-                return parseFloat(this);
+            toFloat: function() {
+                return parseFloat(this)
             },
-            jToBool : function() {
-                return !this.replace(/true/i, "").jTrim();
+            jToBool: function() {
+                return !this.replace(/true/i, "").jTrim()
             },
-            has : function(key, value) {
-                value = value || "";
-                return (value + this + value).indexOf(value + key + value) > -1;
+            has: function(ab, aa) {
+                aa = aa || "";
+                return (aa + this + aa).indexOf(aa + ab + aa) > -1
             }
         });
-        self.implement(Function, {
-            $J_TYPE : "function",
-            jBind : function() {
-                var args = $.$A(arguments);
-                var f = this;
-                var c = args.shift();
+        W.implement(Function, {
+            $J_TYPE: "function",
+            jBind: function() {
+                var ab = Q.$A(arguments),
+                    aa = this,
+                    ac = ab.shift();
                 return function() {
-                    return f.apply(c || null, args.concat($.$A(arguments)));
-                };
+                    return aa.apply(ac || null, ab.concat(Q.$A(arguments)))
+                }
             },
-            jBindAsEvent : function() {
-                var args = $.$A(arguments);
-                var f = this;
-                var c = args.shift();
-                return function(canCreateDiscussions) {
-                    return f.apply(c || null, $.$([canCreateDiscussions || ($.browser.ieMode ? window.event : null)]).concat(args));
-                };
+            jBindAsEvent: function() {
+                var ab = Q.$A(arguments),
+                    aa = this,
+                    ac = ab.shift();
+                return function(ad) {
+                    return aa.apply(ac || null, Q.$([ad || (Q.browser.ieMode ? window.event : null)]).concat(ab))
+                }
             },
-            jDelay : function() {
-                var cmd_args = $.$A(arguments);
-                var item = this;
-                var timeout = cmd_args.shift();
+            jDelay: function() {
+                var ab = Q.$A(arguments),
+                    aa = this,
+                    ac = ab.shift();
                 return window.setTimeout(function() {
-                    return item.apply(item, cmd_args);
-                }, timeout || 0);
+                    return aa.apply(aa, ab)
+                }, ac || 0)
             },
-            jDefer : function() {
-                var cmd_args = $.$A(arguments);
-                var myHooks = this;
+            jDefer: function() {
+                var ab = Q.$A(arguments),
+                    aa = this;
                 return function() {
-                    return myHooks.jDelay.apply(myHooks, cmd_args);
-                };
+                    return aa.jDelay.apply(aa, ab)
+                }
             },
-            interval : function() {
-                var cmd_args = $.$A(arguments);
-                var item = this;
-                var inInterval = cmd_args.shift();
+            interval: function() {
+                var ab = Q.$A(arguments),
+                    aa = this,
+                    ac = ab.shift();
                 return window.setInterval(function() {
-                    return item.apply(item, cmd_args);
-                }, inInterval || 0);
+                    return aa.apply(aa, ab)
+                }, ac || 0)
             }
         });
-        var map = {};
-        /** @type {string} */
-        var prefixpart = navigator.userAgent.toLowerCase();
-        /** @type {(Array<string>|null)} */
-        var m = prefixpart.match(/(webkit|gecko|trident|presto)\/(\d+\.?\d*)/i);
-        /** @type {(Array<string>|null)} */
-        var match = prefixpart.match(/(edge|opr)\/(\d+\.?\d*)/i) || prefixpart.match(/(crios|chrome|safari|firefox|opera|opr)\/(\d+\.?\d*)/i);
-        /** @type {(Array<string>|null)} */
-        var degreeMatch = prefixpart.match(/version\/(\d+\.?\d*)/i);
-        /** @type {!CSSStyleDeclaration} */
-        var s = document.documentElement.style;
-        $.browser = {
-            features : {
-                xpath : !!document.evaluate,
-                air : !!window.runtime,
-                query : !!document.querySelector,
-                fullScreen : !!(document.fullscreenEnabled || document.msFullscreenEnabled || document.exitFullscreen || document.cancelFullScreen || document.webkitexitFullscreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || document.oCancelFullScreen || document.msCancelFullScreen),
-                xhr2 : !!window.ProgressEvent && !!window.FormData && (window.XMLHttpRequest && "withCredentials" in new XMLHttpRequest),
-                transition : getPrefixedProp("transition"),
-                transform : getPrefixedProp("transform"),
-                perspective : getPrefixedProp("perspective"),
-                animation : getPrefixedProp("animation"),
-                requestAnimationFrame : false,
-                multibackground : false,
-                cssFilters : false,
-                canvas : false,
-                svg : function() {
-                    return document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Image", "1.1");
-                }()
+        var X = {};
+        var P = navigator.userAgent.toLowerCase();
+        var O = P.match(/(webkit|gecko|trident|presto)\/(\d+\.?\d*)/i);
+        var T = P.match(/(edge|opr)\/(\d+\.?\d*)/i) || P.match(/(crios|chrome|safari|firefox|opera|opr)\/(\d+\.?\d*)/i);
+        var V = P.match(/version\/(\d+\.?\d*)/i);
+        var K = document.documentElement.style;
+
+        function L(ab) {
+            var aa = ab.charAt(0).toUpperCase() + ab.slice(1);
+            return ab in K || ("Webkit" + aa) in K || ("Moz" + aa) in K || ("ms" + aa) in K || ("O" + aa) in K
+        }
+        Q.browser = {
+            features: {
+                xpath: !!(document.evaluate),
+                air: !!(window.runtime),
+                query: !!(document.querySelector),
+                fullScreen: !!(document.fullscreenEnabled || document.msFullscreenEnabled || document.exitFullscreen || document.cancelFullScreen || document.webkitexitFullscreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || document.oCancelFullScreen || document.msCancelFullScreen),
+                xhr2: !!(window.ProgressEvent) && !!(window.FormData) && (window.XMLHttpRequest && "withCredentials" in new XMLHttpRequest),
+                transition: L("transition"),
+                transform: L("transform"),
+                perspective: L("perspective"),
+                animation: L("animation"),
+                requestAnimationFrame: false,
+                multibackground: false,
+                cssFilters: false,
+                canvas: false,
+                svg: (function() {
+                    return document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Image", "1.1")
+                }())
             },
-            touchScreen : function() {
-                return "ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
-            }(),
-            mobile : !!prefixpart.match(/(android|bb\d+|meego).+|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/),
-            engine : m && m[1] ? m[1].toLowerCase() : window.opera ? "presto" : !!window.ActiveXObject ? "trident" : document.getBoxObjectFor !== undefined || window.mozInnerScreenY !== null ? "gecko" : window.WebKitPoint !== null || !navigator.taintEnabled ? "webkit" : "unknown",
-            version : m && m[2] ? parseFloat(m[2]) : 0,
-            uaName : match && match[1] ? match[1].toLowerCase() : "",
-            uaVersion : match && match[2] ? parseFloat(match[2]) : 0,
-            cssPrefix : "",
-            cssDomPrefix : "",
-            domPrefix : "",
-            ieMode : 0,
-            platform : prefixpart.match(/ip(?:ad|od|hone)/) ? "ios" : (prefixpart.match(/(?:webos|android)/) || navigator.platform.match(/mac|win|linux/i) || ["other"])[0].toLowerCase(),
-            backCompat : document.compatMode && document.compatMode.toLowerCase() === "backcompat",
-            scrollbarsWidth : 0,
-            getDoc : function() {
-                return document.compatMode && document.compatMode.toLowerCase() === "backcompat" ? document.body : document.documentElement;
+            touchScreen: (function() {
+                return "ontouchstart" in window || (window.DocumentTouch && document instanceof DocumentTouch) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0)
+            }()),
+            mobile: !!P.match(/(android|bb\d+|meego).+|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/),
+            engine: (O && O[1]) ? O[1].toLowerCase() : (window.opera) ? "presto" : !!(window.ActiveXObject) ? "trident" : (document.getBoxObjectFor !== undefined || window.mozInnerScreenY !== null) ? "gecko" : (window.WebKitPoint !== null || !navigator.taintEnabled) ? "webkit" : "unknown",
+            version: (O && O[2]) ? parseFloat(O[2]) : 0,
+            uaName: (T && T[1]) ? T[1].toLowerCase() : "",
+            uaVersion: (T && T[2]) ? parseFloat(T[2]) : 0,
+            cssPrefix: "",
+            cssDomPrefix: "",
+            domPrefix: "",
+            ieMode: 0,
+            platform: P.match(/ip(?:ad|od|hone)/) ? "ios" : (P.match(/(?:webos|android)/) || navigator.platform.match(/mac|win|linux/i) || ["other"])[0].toLowerCase(),
+            backCompat: document.compatMode && document.compatMode.toLowerCase() === "backcompat",
+            scrollbarsWidth: 0,
+            getDoc: function() {
+                return (document.compatMode && document.compatMode.toLowerCase() === "backcompat") ? document.body : document.documentElement
             },
-            requestAnimationFrame : window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || undefined,
-            cancelAnimationFrame : window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.mozCancelAnimationFrame || window.oCancelAnimationFrame || window.msCancelAnimationFrame || window.webkitCancelRequestAnimationFrame || undefined,
-            ready : false,
-            onready : function() {
-                if ($.browser.ready) {
-                    return;
+            requestAnimationFrame: window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || undefined,
+            cancelAnimationFrame: window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.mozCancelAnimationFrame || window.oCancelAnimationFrame || window.msCancelAnimationFrame || window.webkitCancelRequestAnimationFrame || undefined,
+            ready: false,
+            onready: function() {
+                if (Q.browser.ready) {
+                    return
                 }
-                var tester;
-                var rule;
-                /** @type {boolean} */
-                $.browser.ready = true;
-                $.body = $.$(document.body);
-                $.win = $.$(window);
+                var ad;
+                var ac;
+                Q.browser.ready = true;
+                Q.body = Q.$(document.body);
+                Q.win = Q.$(window);
                 try {
-                    var myDom = $.$new("div").jSetCss({
-                        width : 100,
-                        height : 100,
-                        overflow : "scroll",
-                        position : "absolute",
-                        top : -9999
+                    var ab = Q.$new("div").jSetCss({
+                        width: 100,
+                        height: 100,
+                        overflow: "scroll",
+                        position: "absolute",
+                        top: -9999
                     }).jAppendTo(document.body);
-                    /** @type {number} */
-                    $.browser.scrollbarsWidth = myDom.offsetWidth - myDom.clientWidth;
-                    myDom.jRemove();
-                } catch (aa) {
+                    Q.browser.scrollbarsWidth = ab.offsetWidth - ab.clientWidth;
+                    ab.jRemove()
+                } catch (aa) {}
+                try {
+                    ad = Q.$new("div");
+                    ac = ad.style;
+                    ac.cssText = "background:url(https://),url(https://),red url(https://)";
+                    Q.browser.features.multibackground = (/(url\s*\(.*?){3}/).test(ac.background);
+                    ac = null;
+                    ad = null
+                } catch (aa) {}
+                if (!Q.browser.cssTransformProp) {
+                    Q.browser.cssTransformProp = Q.normalizeCSS("transform").dashize()
                 }
                 try {
-                    tester = $.$new("div");
-                    rule = tester.style;
-                    /** @type {string} */
-                    rule.cssText = "background:url(https://),url(https://),red url(https://)";
-                    /** @type {boolean} */
-                    $.browser.features.multibackground = /(url\s*\(.*?){3}/.test(rule.background);
-                    /** @type {null} */
-                    rule = null;
-                    /** @type {null} */
-                    tester = null;
-                } catch (aa) {
-                }
-                if (!$.browser.cssTransformProp) {
-                    $.browser.cssTransformProp = $.normalizeCSS("transform").dashize();
+                    ad = Q.$new("div");
+                    ad.style.cssText = Q.normalizeCSS("filter").dashize() + ":blur(2px);";
+                    Q.browser.features.cssFilters = !!ad.style.length && (!Q.browser.ieMode || Q.browser.ieMode > 9);
+                    ad = null
+                } catch (aa) {}
+                if (!Q.browser.features.cssFilters) {
+                    Q.$(document.documentElement).jAddClass("no-cssfilters-magic")
                 }
                 try {
-                    tester = $.$new("div");
-                    tester.style.cssText = $.normalizeCSS("filter").dashize() + ":blur(2px);";
-                    /** @type {boolean} */
-                    $.browser.features.cssFilters = !!tester.style.length && (!$.browser.ieMode || $.browser.ieMode > 9);
-                    /** @type {null} */
-                    tester = null;
-                } catch (aa) {
-                }
-                if (!$.browser.features.cssFilters) {
-                    $.$(document.documentElement).jAddClass("no-cssfilters-magic");
-                }
-                try {
-                    $.browser.features.canvas = function() {
-                        var textedCanvas = $.$new("canvas");
-                        return !!(textedCanvas.getContext && textedCanvas.getContext("2d"));
-                    }();
-                } catch (aa) {
-                }
+                    Q.browser.features.canvas = (function() {
+                        var ae = Q.$new("canvas");
+                        return !!(ae.getContext && ae.getContext("2d"))
+                    }())
+                } catch (aa) {}
                 if (window.TransitionEvent === undefined && window.WebKitTransitionEvent !== undefined) {
-                    /** @type {string} */
-                    map.transitionend = "webkitTransitionEnd";
+                    X.transitionend = "webkitTransitionEnd"
                 }
-                $.Doc.jCallEvent.call($.$(document), "domready");
+                Q.Doc.jCallEvent.call(Q.$(document), "domready")
             }
         };
         (function() {
-            /**
-             * @return {?}
-             */
-            function onProcessMouse() {
-                return !!arguments.callee.caller;
+            var ab = [],
+                ae, ad, af;
+
+            function aa() {
+                return !!(arguments.callee.caller)
             }
-            /** @type {!Array} */
-            var pos_args = [];
-            var items;
-            var version;
-            var el;
-            switch($.browser.engine) {
+            switch (Q.browser.engine) {
                 case "trident":
-                    if (!$.browser.version) {
-                        /** @type {number} */
-                        $.browser.version = !!window.XMLHttpRequest ? 3 : 2;
+                    if (!Q.browser.version) {
+                        Q.browser.version = !!(window.XMLHttpRequest) ? 3 : 2
                     }
                     break;
                 case "gecko":
-                    /** @type {number} */
-                    $.browser.version = match && match[2] ? parseFloat(match[2]) : 0;
-                    break;
+                    Q.browser.version = (T && T[2]) ? parseFloat(T[2]) : 0;
+                    break
             }
-            /** @type {boolean} */
-            $.browser[$.browser.engine] = true;
-            if (match && match[1] === "crios") {
-                /** @type {string} */
-                $.browser.uaName = "chrome";
+            Q.browser[Q.browser.engine] = true;
+            if (T && T[1] === "crios") {
+                Q.browser.uaName = "chrome"
             }
             if (!!window.chrome) {
-                /** @type {boolean} */
-                $.browser.chrome = true;
+                Q.browser.chrome = true
             }
-            if (match && match[1] === "opr") {
-                /** @type {string} */
-                $.browser.uaName = "opera";
-                /** @type {boolean} */
-                $.browser.opera = true;
+            if (T && T[1] === "opr") {
+                Q.browser.uaName = "opera";
+                Q.browser.opera = true
             }
-            if ($.browser.uaName === "safari" && (degreeMatch && degreeMatch[1])) {
-                /** @type {number} */
-                $.browser.uaVersion = parseFloat(degreeMatch[1]);
+            if (Q.browser.uaName === "safari" && (V && V[1])) {
+                Q.browser.uaVersion = parseFloat(V[1])
             }
-            if ($.browser.platform === "android" && $.browser.webkit && (degreeMatch && degreeMatch[1])) {
-                /** @type {boolean} */
-                $.browser.androidBrowser = true;
+            if (Q.browser.platform === "android" && Q.browser.webkit && (V && V[1])) {
+                Q.browser.androidBrowser = true
             }
-            items = {
-                gecko : ["-moz-", "Moz", "moz"],
-                webkit : ["-webkit-", "Webkit", "webkit"],
-                trident : ["-ms-", "ms", "ms"],
-                presto : ["-o-", "O", "o"]
-            }[$.browser.engine] || ["", "", ""];
-            $.browser.cssPrefix = items[0];
-            $.browser.cssDomPrefix = items[1];
-            $.browser.domPrefix = items[2];
-            $.browser.ieMode = !$.browser.trident ? undefined : document.documentMode ? document.documentMode : function() {
-                /** @type {number} */
+            ae = ({
+                gecko: ["-moz-", "Moz", "moz"],
+                webkit: ["-webkit-", "Webkit", "webkit"],
+                trident: ["-ms-", "ms", "ms"],
+                presto: ["-o-", "O", "o"]
+            })[Q.browser.engine] || ["", "", ""];
+            Q.browser.cssPrefix = ae[0];
+            Q.browser.cssDomPrefix = ae[1];
+            Q.browser.domPrefix = ae[2];
+            Q.browser.ieMode = !Q.browser.trident ? undefined : (document.documentMode) ? document.documentMode : (function() {
                 var ag = 0;
-                if ($.browser.backCompat) {
-                    return 5;
+                if (Q.browser.backCompat) {
+                    return 5
                 }
-                switch($.browser.version) {
+                switch (Q.browser.version) {
                     case 2:
-                        /** @type {number} */
                         ag = 6;
                         break;
                     case 3:
-                        /** @type {number} */
                         ag = 7;
-                        break;
+                        break
                 }
-                return ag;
-            }();
-            if (!$.browser.mobile && $.browser.platform === "mac" && $.browser.touchScreen) {
-                /** @type {boolean} */
-                $.browser.mobile = true;
-                /** @type {string} */
-                $.browser.platform = "ios";
+                return ag
+            }());
+            if (!Q.browser.mobile && Q.browser.platform === "mac" && Q.browser.touchScreen) {
+                Q.browser.mobile = true;
+                Q.browser.platform = "ios"
             }
-            pos_args.push($.browser.platform + "-magic");
-            if ($.browser.mobile) {
-                pos_args.push("mobile-magic");
+            ab.push(Q.browser.platform + "-magic");
+            if (Q.browser.mobile) {
+                ab.push("mobile-magic")
             }
-            if ($.browser.androidBrowser) {
-                pos_args.push("android-browser-magic");
+            if (Q.browser.androidBrowser) {
+                ab.push("android-browser-magic")
             }
-            if ($.browser.ieMode) {
-                /** @type {string} */
-                $.browser.uaName = "ie";
-                $.browser.uaVersion = $.browser.ieMode;
-                pos_args.push("ie" + $.browser.ieMode + "-magic");
-                /** @type {number} */
-                version = 11;
-                for (; version > $.browser.ieMode; version--) {
-                    pos_args.push("lt-ie" + version + "-magic");
+            if (Q.browser.ieMode) {
+                Q.browser.uaName = "ie";
+                Q.browser.uaVersion = Q.browser.ieMode;
+                ab.push("ie" + Q.browser.ieMode + "-magic");
+                for (ad = 11; ad > Q.browser.ieMode; ad--) {
+                    ab.push("lt-ie" + ad + "-magic")
                 }
             }
-            if ($.browser.webkit && $.browser.version < 536) {
-                /** @type {boolean} */
-                $.browser.features.fullScreen = false;
+            if (Q.browser.webkit && Q.browser.version < 536) {
+                Q.browser.features.fullScreen = false
             }
-            if ($.browser.requestAnimationFrame) {
-                $.browser.requestAnimationFrame.call(window, function() {
-                    /** @type {boolean} */
-                    $.browser.features.requestAnimationFrame = true;
-                });
+            if (Q.browser.requestAnimationFrame) {
+                Q.browser.requestAnimationFrame.call(window, function() {
+                    Q.browser.features.requestAnimationFrame = true
+                })
             }
-            if ($.browser.features.svg) {
-                pos_args.push("svg-magic");
+            if (Q.browser.features.svg) {
+                ab.push("svg-magic")
             } else {
-                pos_args.push("no-svg-magic");
+                ab.push("no-svg-magic")
             }
-            el = (document.documentElement.className || "").match(/\S+/g) || [];
-            document.documentElement.className = $.$(el).concat(pos_args).join(" ");
+            af = (document.documentElement.className || "").match(/\S+/g) || [];
+            document.documentElement.className = Q.$(af).concat(ab).join(" ");
             try {
-                document.documentElement.setAttribute("data-magic-ua", $.browser.uaName);
-                document.documentElement.setAttribute("data-magic-ua-ver", $.browser.uaVersion);
-                document.documentElement.setAttribute("data-magic-engine", $.browser.engine);
-                document.documentElement.setAttribute("data-magic-engine-ver", $.browser.version);
-            } catch (ac) {
-            }
-            if ($.browser.ieMode && $.browser.ieMode < 9) {
+                document.documentElement.setAttribute("data-magic-ua", Q.browser.uaName);
+                document.documentElement.setAttribute("data-magic-ua-ver", Q.browser.uaVersion);
+                document.documentElement.setAttribute("data-magic-engine", Q.browser.engine);
+                document.documentElement.setAttribute("data-magic-engine-ver", Q.browser.version)
+            } catch (ac) {}
+            if (Q.browser.ieMode && Q.browser.ieMode < 9) {
                 document.createElement("figure");
-                document.createElement("figcaption");
+                document.createElement("figcaption")
             }
             if (!window.navigator.pointerEnabled) {
-                $.$(["Down", "Up", "Move", "Over", "Out"]).jEach(function(cap) {
-                    /** @type {(number|string)} */
-                    map["pointer" + cap.toLowerCase()] = window.navigator.msPointerEnabled ? "MSPointer" + cap : -1;
-                });
+                Q.$(["Down", "Up", "Move", "Over", "Out"]).jEach(function(ag) {
+                    X["pointer" + ag.toLowerCase()] = window.navigator.msPointerEnabled ? "MSPointer" + ag : -1
+                })
             }
-        })();
+        }());
         (function() {
-            $.browser.fullScreen = {
-                capable : $.browser.features.fullScreen,
-                enabled : function() {
-                    return !!(document.fullscreenElement || document[$.browser.domPrefix + "FullscreenElement"] || document.fullScreen || document.webkitIsFullScreen || document[$.browser.domPrefix + "FullScreen"]);
+            Q.browser.fullScreen = {
+                capable: Q.browser.features.fullScreen,
+                enabled: function() {
+                    return !!(document.fullscreenElement || document[Q.browser.domPrefix + "FullscreenElement"] || document.fullScreen || document.webkitIsFullScreen || document[Q.browser.domPrefix + "FullScreen"])
                 },
-                request : function(elem, state) {
-                    if (!state) {
-                        state = {};
+                request: function(aa, ab) {
+                    if (!ab) {
+                        ab = {}
                     }
                     if (this.capable) {
-                        $.$(document).jAddEvent(this.changeEventName, this.onchange = function(canCreateDiscussions) {
+                        Q.$(document).jAddEvent(this.changeEventName, this.onchange = function(ac) {
                             if (this.enabled()) {
-                                if (state.onEnter) {
-                                    state.onEnter();
+                                if (ab.onEnter) {
+                                    ab.onEnter()
                                 }
                             } else {
-                                $.$(document).jRemoveEvent(this.changeEventName, this.onchange);
-                                if (state.onExit) {
-                                    state.onExit();
+                                Q.$(document).jRemoveEvent(this.changeEventName, this.onchange);
+                                if (ab.onExit) {
+                                    ab.onExit()
                                 }
                             }
                         }.jBindAsEvent(this));
-                        $.$(document).jAddEvent(this.errorEventName, this.onerror = function(canCreateDiscussions) {
-                            if (state.fallback) {
-                                state.fallback();
+                        Q.$(document).jAddEvent(this.errorEventName, this.onerror = function(ac) {
+                            if (ab.fallback) {
+                                ab.fallback()
                             }
-                            $.$(document).jRemoveEvent(this.errorEventName, this.onerror);
+                            Q.$(document).jRemoveEvent(this.errorEventName, this.onerror)
                         }.jBindAsEvent(this));
-                        (elem.requestFullscreen || elem[$.browser.domPrefix + "RequestFullscreen"] || elem[$.browser.domPrefix + "RequestFullScreen"] || function() {
-                        }).call(elem);
+                        (aa.requestFullscreen || aa[Q.browser.domPrefix + "RequestFullscreen"] || aa[Q.browser.domPrefix + "RequestFullScreen"] || function() {}).call(aa)
                     } else {
-                        if (state.fallback) {
-                            state.fallback();
+                        if (ab.fallback) {
+                            ab.fallback()
                         }
                     }
                 },
-                cancel : (document.exitFullscreen || document.cancelFullScreen || document[$.browser.domPrefix + "ExitFullscreen"] || document[$.browser.domPrefix + "CancelFullScreen"] || function() {
-                }).jBind(document),
-                changeEventName : document.msExitFullscreen ? "MSFullscreenChange" : (document.exitFullscreen ? "" : $.browser.domPrefix) + "fullscreenchange",
-                errorEventName : document.msExitFullscreen ? "MSFullscreenError" : (document.exitFullscreen ? "" : $.browser.domPrefix) + "fullscreenerror",
-                prefix : $.browser.domPrefix,
-                activeElement : null
-            };
-        })();
-        /** @type {!RegExp} */
-        var _digitExpr = /\S+/g;
-        /** @type {!RegExp} */
-        var unitsElement = /^(border(Top|Bottom|Left|Right)Width)|((padding|margin)(Top|Bottom|Left|Right))$/;
-        var ret = {
-            "float" : "undefined" === typeof s.styleFloat ? "cssFloat" : "styleFloat"
-        };
-        var CSS_NO_PX = {
-            fontWeight : true,
-            lineHeight : true,
-            opacity : true,
-            zIndex : true,
-            zoom : true
-        };
-        /** @type {function(?, string): ?} */
-        var awaitTransitionEnd = window.getComputedStyle ? function(elem, name) {
-            var computed = window.getComputedStyle(elem, null);
-            return computed ? computed.getPropertyValue(name) || computed[name] : null;
-        } : function(o, name) {
-            var style = o.currentStyle;
-            /** @type {null} */
-            var input = null;
-            input = style ? style[name] : null;
-            if (null == input && o.style && o.style[name]) {
-                input = o.style[name];
+                cancel: (document.exitFullscreen || document.cancelFullScreen || document[Q.browser.domPrefix + "ExitFullscreen"] || document[Q.browser.domPrefix + "CancelFullScreen"] || function() {}).jBind(document),
+                changeEventName: document.msExitFullscreen ? "MSFullscreenChange" : (document.exitFullscreen ? "" : Q.browser.domPrefix) + "fullscreenchange",
+                errorEventName: document.msExitFullscreen ? "MSFullscreenError" : (document.exitFullscreen ? "" : Q.browser.domPrefix) + "fullscreenerror",
+                prefix: Q.browser.domPrefix,
+                activeElement: null
             }
-            return input;
-        };
-        /** @type {function(string): ?} */
-        $.normalizeCSS = render;
-        $.Element = {
-            jHasClass : function(data) {
-                return !(data || "").has(" ") && (this.className || "").has(data, " ");
+        }());
+        var Z = /\S+/g,
+            N = /^(border(Top|Bottom|Left|Right)Width)|((padding|margin)(Top|Bottom|Left|Right))$/,
+            S = {
+                "float": ("undefined" === typeof(K.styleFloat)) ? "cssFloat" : "styleFloat"
             },
-            jAddClass : function(name) {
-                var el = (this.className || "").match(_digitExpr) || [];
-                var a = (name || "").match(_digitExpr) || [];
-                var startLen = a.length;
-                /** @type {number} */
-                var j = 0;
-                for (; j < startLen; j++) {
-                    if (!$.$(el).contains(a[j])) {
-                        el.push(a[j]);
+            U = {
+                fontWeight: true,
+                lineHeight: true,
+                opacity: true,
+                zIndex: true,
+                zoom: true
+            },
+            M = (window.getComputedStyle) ? function(ac, aa) {
+                var ab = window.getComputedStyle(ac, null);
+                return ab ? ab.getPropertyValue(aa) || ab[aa] : null
+            } : function(ad, ab) {
+                var ac = ad.currentStyle,
+                    aa = null;
+                aa = ac ? ac[ab] : null;
+                if (null == aa && ad.style && ad.style[ab]) {
+                    aa = ad.style[ab]
+                }
+                return aa
+            };
+
+        function Y(ac) {
+            var aa, ab;
+            ab = (Q.browser.webkit && "filter" == ac) ? false : (ac in K);
+            if (!ab) {
+                aa = Q.browser.cssDomPrefix + ac.charAt(0).toUpperCase() + ac.slice(1);
+                if (aa in K) {
+                    return aa
+                }
+            }
+            return ac
+        }
+        Q.normalizeCSS = Y;
+        Q.Element = {
+            jHasClass: function(aa) {
+                return !(aa || "").has(" ") && (this.className || "").has(aa, " ")
+            },
+            jAddClass: function(ae) {
+                var ab = (this.className || "").match(Z) || [],
+                    ad = (ae || "").match(Z) || [],
+                    aa = ad.length,
+                    ac = 0;
+                for (; ac < aa; ac++) {
+                    if (!Q.$(ab).contains(ad[ac])) {
+                        ab.push(ad[ac])
                     }
                 }
-                this.className = el.join(" ");
-                return this;
+                this.className = ab.join(" ");
+                return this
             },
-            jRemoveClass : function(name) {
-                var file = (this.className || "").match(_digitExpr) || [];
-                var whitelistWildcardTerms = (name || "").match(_digitExpr) || [];
-                var combLen = whitelistWildcardTerms.length;
-                /** @type {number} */
-                var w = 0;
-                var range_start;
-                for (; w < combLen; w++) {
-                    if ((range_start = $.$(file).indexOf(whitelistWildcardTerms[w])) > -1) {
-                        file.splice(range_start, 1);
+            jRemoveClass: function(af) {
+                var ab = (this.className || "").match(Z) || [],
+                    ae = (af || "").match(Z) || [],
+                    aa = ae.length,
+                    ad = 0,
+                    ac;
+                for (; ad < aa; ad++) {
+                    if ((ac = Q.$(ab).indexOf(ae[ad])) > -1) {
+                        ab.splice(ac, 1)
                     }
                 }
-                this.className = name ? file.join(" ") : "";
-                return this;
+                this.className = af ? ab.join(" ") : "";
+                return this
             },
-            jToggleClass : function(value) {
-                return this.jHasClass(value) ? this.jRemoveClass(value) : this.jAddClass(value);
+            jToggleClass: function(aa) {
+                return this.jHasClass(aa) ? this.jRemoveClass(aa) : this.jAddClass(aa)
             },
-            jGetCss : function(style) {
-                var i = style.jCamelize();
-                /** @type {null} */
-                var value = null;
-                style = ret[i] || (ret[i] = render(i));
-                value = awaitTransitionEnd(this, style);
-                if ("auto" === value) {
-                    /** @type {null} */
-                    value = null;
+            jGetCss: function(ab) {
+                var ac = ab.jCamelize(),
+                    aa = null;
+                ab = S[ac] || (S[ac] = Y(ac));
+                aa = M(this, ab);
+                if ("auto" === aa) {
+                    aa = null
                 }
-                if (null !== value) {
-                    if ("opacity" == style) {
-                        return $.defined(value) ? parseFloat(value) : 1;
+                if (null !== aa) {
+                    if ("opacity" == ab) {
+                        return Q.defined(aa) ? parseFloat(aa) : 1
                     }
-                    if (unitsElement.test(style)) {
-                        value = parseInt(value, 10) ? value : "0px";
+                    if (N.test(ab)) {
+                        aa = parseInt(aa, 10) ? aa : "0px"
                     }
                 }
-                return value;
+                return aa
             },
-            jSetCssProp : function(style, value) {
-                var i = style.jCamelize();
+            jSetCssProp: function(ab, aa) {
+                var ad = ab.jCamelize();
                 try {
-                    if ("opacity" == style) {
-                        this.jSetOpacity(value);
-                        return this;
+                    if ("opacity" == ab) {
+                        this.jSetOpacity(aa);
+                        return this
                     }
-                    style = ret[i] || (ret[i] = render(i));
-                    /** @type {string} */
-                    this.style[style] = value + ("number" == $.jTypeOf(value) && !CSS_NO_PX[i] ? "px" : "");
-                } catch (ac) {
-                }
-                return this;
+                    ab = S[ad] || (S[ad] = Y(ad));
+                    this.style[ab] = aa + (("number" == Q.jTypeOf(aa) && !U[ad]) ? "px" : "")
+                } catch (ac) {}
+                return this
             },
-            jSetCss : function(f) {
-                var D;
-                for (D in f) {
-                    this.jSetCssProp(D, f[D]);
+            jSetCss: function(ab) {
+                for (var aa in ab) {
+                    this.jSetCssProp(aa, ab[aa])
                 }
-                return this;
+                return this
             },
-            jGetStyles : function() {
-                var addonPromises = {};
-                $.$A(arguments).jEach(function(name) {
-                    addonPromises[name] = this.jGetCss(name);
+            jGetStyles: function() {
+                var aa = {};
+                Q.$A(arguments).jEach(function(ab) {
+                    aa[ab] = this.jGetCss(ab)
                 }, this);
-                return addonPromises;
+                return aa
             },
-            jSetOpacity : function(val, oldAncestors) {
+            jSetOpacity: function(ac, aa) {
                 var ab;
-                oldAncestors = oldAncestors || false;
-                /** @type {number} */
-                this.style.opacity = val;
-                /** @type {number} */
-                val = parseInt(parseFloat(val) * 100);
-                if (oldAncestors) {
-                    if (0 === val) {
+                aa = aa || false;
+                this.style.opacity = ac;
+                ac = parseInt(parseFloat(ac) * 100);
+                if (aa) {
+                    if (0 === ac) {
                         if ("hidden" != this.style.visibility) {
-                            /** @type {string} */
-                            this.style.visibility = "hidden";
+                            this.style.visibility = "hidden"
                         }
                     } else {
                         if ("visible" != this.style.visibility) {
-                            /** @type {string} */
-                            this.style.visibility = "visible";
+                            this.style.visibility = "visible"
                         }
                     }
                 }
-                if ($.browser.ieMode && $.browser.ieMode < 9) {
-                    if (!isNaN(val)) {
+                if (Q.browser.ieMode && Q.browser.ieMode < 9) {
+                    if (!isNaN(ac)) {
                         if (!~this.style.filter.indexOf("Alpha")) {
-                            this.style.filter += " progid:DXImageTransform.Microsoft.Alpha(Opacity=" + val + ")";
+                            this.style.filter += " progid:DXImageTransform.Microsoft.Alpha(Opacity=" + ac + ")"
                         } else {
-                            this.style.filter = this.style.filter.replace(/Opacity=\d*/i, "Opacity=" + val);
+                            this.style.filter = this.style.filter.replace(/Opacity=\d*/i, "Opacity=" + ac)
                         }
                     } else {
                         this.style.filter = this.style.filter.replace(/progid:DXImageTransform.Microsoft.Alpha\(Opacity=\d*\)/i, "").jTrim();
                         if ("" === this.style.filter) {
-                            this.style.removeAttribute("filter");
+                            this.style.removeAttribute("filter")
                         }
                     }
                 }
-                return this;
+                return this
             },
-            setProps : function(data) {
-                var key;
-                for (key in data) {
-                    if ("class" === key) {
-                        this.jAddClass("" + data[key]);
+            setProps: function(aa) {
+                for (var ab in aa) {
+                    if ("class" === ab) {
+                        this.jAddClass("" + aa[ab])
                     } else {
-                        this.setAttribute(key, "" + data[key]);
+                        this.setAttribute(ab, "" + aa[ab])
                     }
                 }
-                return this;
+                return this
             },
-            jGetTransitionDuration : function() {
-                /** @type {number} */
-                var str = 0;
-                /** @type {number} */
-                var item = 0;
-                str = this.jGetCss("transition-duration");
-                item = this.jGetCss("transition-delay");
-                /** @type {number} */
-                str = str.indexOf("ms") > -1 ? parseFloat(str) : str.indexOf("s") > -1 ? parseFloat(str) * 1E3 : 0;
-                /** @type {number} */
-                item = item.indexOf("ms") > -1 ? parseFloat(item) : item.indexOf("s") > -1 ? parseFloat(item) * 1E3 : 0;
-                return str + item;
+            jGetTransitionDuration: function() {
+                var ab = 0,
+                    aa = 0;
+                ab = this.jGetCss("transition-duration");
+                aa = this.jGetCss("transition-delay");
+                ab = ab.indexOf("ms") > -1 ? parseFloat(ab) : ab.indexOf("s") > -1 ? parseFloat(ab) * 1000 : 0;
+                aa = aa.indexOf("ms") > -1 ? parseFloat(aa) : aa.indexOf("s") > -1 ? parseFloat(aa) * 1000 : 0;
+                return ab + aa
             },
-            hide : function() {
+            hide: function() {
                 return this.jSetCss({
-                    display : "none",
-                    visibility : "hidden"
-                });
+                    display: "none",
+                    visibility: "hidden"
+                })
             },
-            show : function() {
+            show: function() {
                 return this.jSetCss({
-                    display : "",
-                    visibility : "visible"
-                });
+                    display: "",
+                    visibility: "visible"
+                })
             },
-            jGetSize : function() {
+            jGetSize: function() {
                 return {
-                    width : this.offsetWidth,
-                    height : this.offsetHeight
-                };
-            },
-            getInnerSize : function(el) {
-                var s = this.jGetSize();
-                s.width -= parseFloat(this.jGetCss("border-left-width") || 0) + parseFloat(this.jGetCss("border-right-width") || 0);
-                s.height -= parseFloat(this.jGetCss("border-top-width") || 0) + parseFloat(this.jGetCss("border-bottom-width") || 0);
-                if (!el) {
-                    s.width -= parseFloat(this.jGetCss("padding-left") || 0) + parseFloat(this.jGetCss("padding-right") || 0);
-                    s.height -= parseFloat(this.jGetCss("padding-top") || 0) + parseFloat(this.jGetCss("padding-bottom") || 0);
+                    width: this.offsetWidth,
+                    height: this.offsetHeight
                 }
-                return s;
             },
-            jGetScroll : function() {
+            getInnerSize: function(ab) {
+                var aa = this.jGetSize();
+                aa.width -= (parseFloat(this.jGetCss("border-left-width") || 0) + parseFloat(this.jGetCss("border-right-width") || 0));
+                aa.height -= (parseFloat(this.jGetCss("border-top-width") || 0) + parseFloat(this.jGetCss("border-bottom-width") || 0));
+                if (!ab) {
+                    aa.width -= (parseFloat(this.jGetCss("padding-left") || 0) + parseFloat(this.jGetCss("padding-right") || 0));
+                    aa.height -= (parseFloat(this.jGetCss("padding-top") || 0) + parseFloat(this.jGetCss("padding-bottom") || 0))
+                }
+                return aa
+            },
+            jGetScroll: function() {
                 return {
-                    top : this.scrollTop,
-                    left : this.scrollLeft
-                };
+                    top: this.scrollTop,
+                    left: this.scrollLeft
+                }
             },
-            jGetFullScroll : function() {
-                var parentElm = this;
-                var anitarget = {
-                    top : 0,
-                    left : 0
-                };
-                do {
-                    anitarget.left += parentElm.scrollLeft || 0;
-                    anitarget.top += parentElm.scrollTop || 0;
-                    parentElm = parentElm.parentNode;
-                } while (parentElm);
-                return anitarget;
-            },
-            jGetPosition : function() {
-                var offsetParent = this;
-                /** @type {number} */
-                var _rowPosition = 0;
-                /** @type {number} */
-                var addtop = 0;
-                if ($.defined(document.documentElement.getBoundingClientRect)) {
-                    var boundingRect = this.getBoundingClientRect();
-                    var coordinates = $.$(document).jGetScroll();
-                    var body = $.browser.getDoc();
-                    return {
-                        top : boundingRect.top + coordinates.y - body.clientTop,
-                        left : boundingRect.left + coordinates.x - body.clientLeft
+            jGetFullScroll: function() {
+                var aa = this,
+                    ab = {
+                        top: 0,
+                        left: 0
                     };
+                do {
+                    ab.left += aa.scrollLeft || 0;
+                    ab.top += aa.scrollTop || 0;
+                    aa = aa.parentNode
+                } while (aa);
+                return ab
+            },
+            jGetPosition: function() {
+                var ae = this,
+                    ab = 0,
+                    ad = 0;
+                if (Q.defined(document.documentElement.getBoundingClientRect)) {
+                    var aa = this.getBoundingClientRect(),
+                        ac = Q.$(document).jGetScroll(),
+                        af = Q.browser.getDoc();
+                    return {
+                        top: aa.top + ac.y - af.clientTop,
+                        left: aa.left + ac.x - af.clientLeft
+                    }
                 }
                 do {
-                    _rowPosition = _rowPosition + (offsetParent.offsetLeft || 0);
-                    addtop = addtop + (offsetParent.offsetTop || 0);
-                    offsetParent = offsetParent.offsetParent;
-                } while (offsetParent && !/^(?:body|html)$/i.test(offsetParent.tagName));
+                    ab += ae.offsetLeft || 0;
+                    ad += ae.offsetTop || 0;
+                    ae = ae.offsetParent
+                } while (ae && !(/^(?:body|html)$/i).test(ae.tagName));
                 return {
-                    top : addtop,
-                    left : _rowPosition
-                };
-            },
-            jGetRect : function() {
-                var cropRegion = this.jGetPosition();
-                var dimensionsOnActivate = this.jGetSize();
-                return {
-                    top : cropRegion.top,
-                    bottom : cropRegion.top + dimensionsOnActivate.height,
-                    left : cropRegion.left,
-                    right : cropRegion.left + dimensionsOnActivate.width
-                };
-            },
-            changeContent : function(value) {
-                try {
-                    /** @type {string} */
-                    this.innerHTML = value;
-                } catch (aa) {
-                    /** @type {string} */
-                    this.innerText = value;
+                    top: ad,
+                    left: ab
                 }
-                return this;
             },
-            jRemove : function() {
-                return this.parentNode ? this.parentNode.removeChild(this) : this;
+            jGetRect: function() {
+                var ab = this.jGetPosition();
+                var aa = this.jGetSize();
+                return {
+                    top: ab.top,
+                    bottom: ab.top + aa.height,
+                    left: ab.left,
+                    right: ab.left + aa.width
+                }
             },
-            kill : function() {
-                $.$A(this.childNodes).jEach(function(binding) {
-                    if (3 == binding.nodeType || 8 == binding.nodeType) {
-                        return;
+            changeContent: function(ab) {
+                try {
+                    this.innerHTML = ab
+                } catch (aa) {
+                    this.innerText = ab
+                }
+                return this
+            },
+            jRemove: function() {
+                return (this.parentNode) ? this.parentNode.removeChild(this) : this
+            },
+            kill: function() {
+                Q.$A(this.childNodes).jEach(function(aa) {
+                    if (3 == aa.nodeType || 8 == aa.nodeType) {
+                        return
                     }
-                    $.$(binding).kill();
+                    Q.$(aa).kill()
                 });
                 this.jRemove();
                 this.jClearEvents();
                 if (this.$J_UUID) {
-                    /** @type {null} */
-                    $.storage[this.$J_UUID] = null;
-                    delete $.storage[this.$J_UUID];
+                    Q.storage[this.$J_UUID] = null;
+                    delete Q.storage[this.$J_UUID]
                 }
-                return null;
+                return null
             },
-            append : function(value, position) {
-                position = position || "bottom";
-                var child = this.firstChild;
-                if ("top" == position && child) {
-                    this.insertBefore(value, child);
-                } else {
-                    this.appendChild(value);
+            append: function(ac, ab) {
+                ab = ab || "bottom";
+                var aa = this.firstChild;
+                ("top" == ab && aa) ? this.insertBefore(ac, aa): this.appendChild(ac);
+                return this
+            },
+            jAppendTo: function(ac, ab) {
+                var aa = Q.$(ac).append(this, ab);
+                return this
+            },
+            enclose: function(aa) {
+                this.append(aa.parentNode.replaceChild(this, aa));
+                return this
+            },
+            hasChild: function(aa) {
+                if ("element" !== Q.jTypeOf("string" == Q.jTypeOf(aa) ? aa = document.getElementById(aa) : aa)) {
+                    return false
                 }
-                return this;
-            },
-            jAppendTo : function(template, index) {
-                var targetWidgetId = $.$(template).append(this, index);
-                return this;
-            },
-            enclose : function(title) {
-                this.append(title.parentNode.replaceChild(this, title));
-                return this;
-            },
-            hasChild : function(value) {
-                if ("element" !== $.jTypeOf("string" == $.jTypeOf(value) ? value = document.getElementById(value) : value)) {
-                    return false;
-                }
-                return this == value ? false : this.contains && !$.browser.webkit419 ? this.contains(value) : this.compareDocumentPosition ? !!(this.compareDocumentPosition(value) & 16) : $.$A(this.byTag(value.tagName)).contains(value);
+                return (this == aa) ? false : (this.contains && !(Q.browser.webkit419)) ? (this.contains(aa)) : (this.compareDocumentPosition) ? !!(this.compareDocumentPosition(aa) & 16) : Q.$A(this.byTag(aa.tagName)).contains(aa)
             }
         };
-        /** @type {function(string): ?} */
-        $.Element.jGetStyle = $.Element.jGetCss;
-        /** @type {function(string): ?} */
-        $.Element.jSetStyle = $.Element.jSetCss;
+        Q.Element.jGetStyle = Q.Element.jGetCss;
+        Q.Element.jSetStyle = Q.Element.jSetCss;
         if (!window.Element) {
-            /** @type {function(): undefined} */
-            window.Element = $.$F;
-            if ($.browser.engine.webkit) {
-                window.document.createElement("iframe");
+            window.Element = Q.$F;
+            if (Q.browser.engine.webkit) {
+                window.document.createElement("iframe")
             }
-            window.Element.prototype = $.browser.engine.webkit ? window["[[DOMElement.prototype]]"] : {};
+            window.Element.prototype = (Q.browser.engine.webkit) ? window["[[DOMElement.prototype]]"] : {}
         }
-        $.implement(window.Element, {
-            $J_TYPE : "element"
+        Q.implement(window.Element, {
+            $J_TYPE: "element"
         });
-        $.Doc = {
-            jGetSize : function() {
-                if ($.browser.touchScreen || $.browser.presto925 || $.browser.webkit419) {
+        Q.Doc = {
+            jGetSize: function() {
+                if (Q.browser.touchScreen || Q.browser.presto925 || Q.browser.webkit419) {
                     return {
-                        width : window.innerWidth,
-                        height : window.innerHeight
-                    };
+                        width: window.innerWidth,
+                        height: window.innerHeight
+                    }
                 }
                 return {
-                    width : $.browser.getDoc().clientWidth,
-                    height : $.browser.getDoc().clientHeight
-                };
+                    width: Q.browser.getDoc().clientWidth,
+                    height: Q.browser.getDoc().clientHeight
+                }
             },
-            jGetScroll : function() {
+            jGetScroll: function() {
                 return {
-                    x : window.pageXOffset || $.browser.getDoc().scrollLeft,
-                    y : window.pageYOffset || $.browser.getDoc().scrollTop
-                };
+                    x: window.pageXOffset || Q.browser.getDoc().scrollLeft,
+                    y: window.pageYOffset || Q.browser.getDoc().scrollTop
+                }
             },
-            jGetFullSize : function() {
-                var bottomCorner = this.jGetSize();
+            jGetFullSize: function() {
+                var aa = this.jGetSize();
                 return {
-                    width : Math.max($.browser.getDoc().scrollWidth, bottomCorner.width),
-                    height : Math.max($.browser.getDoc().scrollHeight, bottomCorner.height)
-                };
+                    width: Math.max(Q.browser.getDoc().scrollWidth, aa.width),
+                    height: Math.max(Q.browser.getDoc().scrollHeight, aa.height)
+                }
             }
         };
-        $.extend(document, {
-            $J_TYPE : "document"
+        Q.extend(document, {
+            $J_TYPE: "document"
         });
-        $.extend(window, {
-            $J_TYPE : "window"
+        Q.extend(window, {
+            $J_TYPE: "window"
         });
-        $.extend([$.Element, $.Doc], {
-            jFetch : function(src, val) {
-                var map = $.getStorage(this.$J_UUID);
-                var a = map[src];
-                if (undefined !== val && undefined === a) {
-                    a = map[src] = val;
+        Q.extend([Q.Element, Q.Doc], {
+            jFetch: function(ad, ab) {
+                var aa = Q.getStorage(this.$J_UUID),
+                    ac = aa[ad];
+                if (undefined !== ab && undefined === ac) {
+                    ac = aa[ad] = ab
                 }
-                return $.defined(a) ? a : null;
+                return (Q.defined(ac) ? ac : null)
             },
-            jStore : function(str, obj) {
-                var by = $.getStorage(this.$J_UUID);
-                /** @type {string} */
-                by[str] = obj;
-                return this;
+            jStore: function(ac, ab) {
+                var aa = Q.getStorage(this.$J_UUID);
+                aa[ac] = ab;
+                return this
             },
-            jDel : function(key) {
-                var closedFrames = $.getStorage(this.$J_UUID);
-                delete closedFrames[key];
-                return this;
+            jDel: function(ab) {
+                var aa = Q.getStorage(this.$J_UUID);
+                delete aa[ab];
+                return this
             }
         });
         if (!(window.HTMLElement && window.HTMLElement.prototype && window.HTMLElement.prototype.getElementsByClassName)) {
-            $.extend([$.Element, $.Doc], {
-                getElementsByClassName : function(className) {
-                    return $.$A(this.getElementsByTagName("*")).filter(function(srcNodeRef) {
+            Q.extend([Q.Element, Q.Doc], {
+                getElementsByClassName: function(aa) {
+                    return Q.$A(this.getElementsByTagName("*")).filter(function(ac) {
                         try {
-                            return 1 == srcNodeRef.nodeType && srcNodeRef.className.has(className, " ");
-                        } catch (ab) {
-                        }
-                    });
+                            return (1 == ac.nodeType && ac.className.has(aa, " "))
+                        } catch (ab) {}
+                    })
                 }
-            });
+            })
         }
-        $.extend([$.Element, $.Doc], {
-            byClass : function() {
-                return this.getElementsByClassName(arguments[0]);
+        Q.extend([Q.Element, Q.Doc], {
+            byClass: function() {
+                return this.getElementsByClassName(arguments[0])
             },
-            byTag : function() {
-                return this.getElementsByTagName(arguments[0]);
+            byTag: function() {
+                return this.getElementsByTagName(arguments[0])
             }
         });
-        if ($.browser.fullScreen.capable && !document.requestFullScreen) {
-            /**
-             * @return {undefined}
-             */
-            $.Element.requestFullScreen = function() {
-                $.browser.fullScreen.request(this);
-            };
+        if (Q.browser.fullScreen.capable && !document.requestFullScreen) {
+            Q.Element.requestFullScreen = function() {
+                Q.browser.fullScreen.request(this)
+            }
         }
-        $.Event = {
-            $J_TYPE : "event",
-            isQueueStopped : $.$false,
-            stop : function() {
-                return this.stopDistribution().stopDefaults();
+        Q.Event = {
+            $J_TYPE: "event",
+            isQueueStopped: Q.$false,
+            stop: function() {
+                return this.stopDistribution().stopDefaults()
             },
-            stopDistribution : function() {
+            stopDistribution: function() {
                 if (this.stopPropagation) {
-                    this.stopPropagation();
+                    this.stopPropagation()
                 } else {
-                    /** @type {boolean} */
-                    this.cancelBubble = true;
+                    this.cancelBubble = true
                 }
-                return this;
+                return this
             },
-            stopDefaults : function() {
+            stopDefaults: function() {
                 if (this.preventDefault) {
-                    this.preventDefault();
+                    this.preventDefault()
                 } else {
-                    /** @type {boolean} */
-                    this.returnValue = false;
+                    this.returnValue = false
                 }
-                return this;
+                return this
             },
-            stopQueue : function() {
-                /** @type {function(): ?} */
-                this.isQueueStopped = $.$true;
-                return this;
+            stopQueue: function() {
+                this.isQueueStopped = Q.$true;
+                return this
             },
-            getClientXY : function() {
-                var e = /touch/i.test(this.type) ? this.changedTouches[0] : this;
-                return !$.defined(e) ? {
-                    x : 0,
-                    y : 0
+            getClientXY: function() {
+                var aa = (/touch/i).test(this.type) ? this.changedTouches[0] : this;
+                return !Q.defined(aa) ? {
+                    x: 0,
+                    y: 0
                 } : {
-                    x : e.clientX,
-                    y : e.clientY
-                };
-            },
-            jGetPageXY : function() {
-                var e = /touch/i.test(this.type) ? this.changedTouches[0] : this;
-                return !$.defined(e) ? {
-                    x : 0,
-                    y : 0
-                } : {
-                    x : e.pageX || e.clientX + $.browser.getDoc().scrollLeft,
-                    y : e.pageY || e.clientY + $.browser.getDoc().scrollTop
-                };
-            },
-            getTarget : function() {
-                var target = this.target || this.srcElement;
-                for (; target && target.nodeType === 3;) {
-                    target = target.parentNode;
+                    x: aa.clientX,
+                    y: aa.clientY
                 }
-                return target;
             },
-            getRelated : function() {
-                /** @type {null} */
-                var related = null;
-                switch(this.type) {
+            jGetPageXY: function() {
+                var aa = (/touch/i).test(this.type) ? this.changedTouches[0] : this;
+                return !Q.defined(aa) ? {
+                    x: 0,
+                    y: 0
+                } : {
+                    x: aa.pageX || aa.clientX + Q.browser.getDoc().scrollLeft,
+                    y: aa.pageY || aa.clientY + Q.browser.getDoc().scrollTop
+                }
+            },
+            getTarget: function() {
+                var aa = this.target || this.srcElement;
+                while (aa && aa.nodeType === 3) {
+                    aa = aa.parentNode
+                }
+                return aa
+            },
+            getRelated: function() {
+                var ab = null;
+                switch (this.type) {
                     case "mouseover":
                     case "pointerover":
                     case "MSPointerOver":
-                        related = this.relatedTarget || this.fromElement;
+                        ab = this.relatedTarget || this.fromElement;
                         break;
                     case "mouseout":
                     case "pointerout":
                     case "MSPointerOut":
-                        related = this.relatedTarget || this.toElement;
+                        ab = this.relatedTarget || this.toElement;
                         break;
                     default:
-                        return related;
+                        return ab
                 }
                 try {
-                    for (; related && related.nodeType === 3;) {
-                        related = related.parentNode;
+                    while (ab && ab.nodeType === 3) {
+                        ab = ab.parentNode
                     }
                 } catch (aa) {
-                    /** @type {null} */
-                    related = null;
+                    ab = null
                 }
-                return related;
+                return ab
             },
-            getButton : function() {
+            getButton: function() {
                 if (!this.which && this.button !== undefined) {
-                    return this.button & 1 ? 1 : this.button & 2 ? 3 : this.button & 4 ? 2 : 0;
+                    return (this.button & 1 ? 1 : (this.button & 2 ? 3 : (this.button & 4 ? 2 : 0)))
                 }
-                return this.which;
+                return this.which
             },
-            isTouchEvent : function() {
-                return this.pointerType && (this.pointerType === "touch" || this.pointerType === this.MSPOINTER_TYPE_TOUCH) || /touch/i.test(this.type);
+            isTouchEvent: function() {
+                return (this.pointerType && (this.pointerType === "touch" || this.pointerType === this.MSPOINTER_TYPE_TOUCH)) || (/touch/i).test(this.type)
             },
-            isPrimaryTouch : function() {
+            isPrimaryTouch: function() {
                 if (this.pointerType) {
-                    return (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) && this.isPrimary;
+                    return (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) && this.isPrimary
                 } else {
                     if (this instanceof window.TouchEvent) {
-                        return this.changedTouches.length === 1 && (this.targetTouches.length ? this.targetTouches.length === 1 && this.targetTouches[0].identifier === this.changedTouches[0].identifier : true);
+                        return this.changedTouches.length === 1 && (this.targetTouches.length ? this.targetTouches.length === 1 && this.targetTouches[0].identifier === this.changedTouches[0].identifier : true)
                     }
                 }
-                return false;
+                return false
             },
-            getPrimaryTouch : function() {
+            getPrimaryTouch: function() {
                 if (this.pointerType) {
-                    return this.isPrimary && (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) ? this : null;
+                    return this.isPrimary && (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) ? this : null
                 } else {
                     if (this instanceof window.TouchEvent) {
-                        return this.changedTouches[0];
+                        return this.changedTouches[0]
                     }
                 }
-                return null;
+                return null
             },
-            getPrimaryTouchId : function() {
+            getPrimaryTouchId: function() {
                 if (this.pointerType) {
-                    return this.isPrimary && (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) ? this.pointerId : null;
+                    return this.isPrimary && (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) ? this.pointerId : null
                 } else {
                     if (this instanceof window.TouchEvent) {
-                        return this.changedTouches[0].identifier;
+                        return this.changedTouches[0].identifier
                     }
                 }
-                return null;
+                return null
             }
         };
-        /** @type {string} */
-        $._event_add_ = "addEventListener";
-        /** @type {string} */
-        $._event_del_ = "removeEventListener";
-        /** @type {string} */
-        $._event_prefix_ = "";
+        Q._event_add_ = "addEventListener";
+        Q._event_del_ = "removeEventListener";
+        Q._event_prefix_ = "";
         if (!document.addEventListener) {
-            /** @type {string} */
-            $._event_add_ = "attachEvent";
-            /** @type {string} */
-            $._event_del_ = "detachEvent";
-            /** @type {string} */
-            $._event_prefix_ = "on";
+            Q._event_add_ = "attachEvent";
+            Q._event_del_ = "detachEvent";
+            Q._event_prefix_ = "on"
         }
-        $.Event.Custom = {
-            type : "",
-            x : null,
-            y : null,
-            timeStamp : null,
-            button : null,
-            target : null,
-            relatedTarget : null,
-            $J_TYPE : "event.custom",
-            isQueueStopped : $.$false,
-            events : $.$([]),
-            pushToEvents : function(str) {
-                /** @type {!Object} */
-                var msg = str;
-                this.events.push(msg);
+        Q.Event.Custom = {
+            type: "",
+            x: null,
+            y: null,
+            timeStamp: null,
+            button: null,
+            target: null,
+            relatedTarget: null,
+            $J_TYPE: "event.custom",
+            isQueueStopped: Q.$false,
+            events: Q.$([]),
+            pushToEvents: function(aa) {
+                var ab = aa;
+                this.events.push(ab)
             },
-            stop : function() {
-                return this.stopDistribution().stopDefaults();
+            stop: function() {
+                return this.stopDistribution().stopDefaults()
             },
-            stopDistribution : function() {
-                this.events.jEach(function(canCreateDiscussions) {
+            stopDistribution: function() {
+                this.events.jEach(function(ab) {
                     try {
-                        canCreateDiscussions.stopDistribution();
-                    } catch (aa) {
-                    }
+                        ab.stopDistribution()
+                    } catch (aa) {}
                 });
-                return this;
+                return this
             },
-            stopDefaults : function() {
-                this.events.jEach(function(canCreateDiscussions) {
+            stopDefaults: function() {
+                this.events.jEach(function(ab) {
                     try {
-                        canCreateDiscussions.stopDefaults();
-                    } catch (aa) {
-                    }
+                        ab.stopDefaults()
+                    } catch (aa) {}
                 });
-                return this;
+                return this
             },
-            stopQueue : function() {
-                /** @type {function(): ?} */
-                this.isQueueStopped = $.$true;
-                return this;
+            stopQueue: function() {
+                this.isQueueStopped = Q.$true;
+                return this
             },
-            getClientXY : function() {
+            getClientXY: function() {
                 return {
-                    x : this.clientX,
-                    y : this.clientY
-                };
+                    x: this.clientX,
+                    y: this.clientY
+                }
             },
-            jGetPageXY : function() {
+            jGetPageXY: function() {
                 return {
-                    x : this.x,
-                    y : this.y
-                };
+                    x: this.x,
+                    y: this.y
+                }
             },
-            getTarget : function() {
-                return this.target;
+            getTarget: function() {
+                return this.target
             },
-            getRelated : function() {
-                return this.relatedTarget;
+            getRelated: function() {
+                return this.relatedTarget
             },
-            getButton : function() {
-                return this.button;
+            getButton: function() {
+                return this.button
             },
-            getOriginalTarget : function() {
-                return this.events.length > 0 ? this.events[0].getTarget() : undefined;
+            getOriginalTarget: function() {
+                return this.events.length > 0 ? this.events[0].getTarget() : undefined
             },
-            isTouchEvent : function() {
-                return this.pointerType && (this.pointerType === "touch" || this.pointerType === this.MSPOINTER_TYPE_TOUCH) || /touch/i.test(this.type);
+            isTouchEvent: function() {
+                return (this.pointerType && (this.pointerType === "touch" || this.pointerType === this.MSPOINTER_TYPE_TOUCH)) || (/touch/i).test(this.type)
             },
-            isPrimaryTouch : function() {
+            isPrimaryTouch: function() {
                 if (this.pointerType) {
-                    return (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) && this.isPrimary;
+                    return (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) && this.isPrimary
                 } else {
                     if (this instanceof window.TouchEvent) {
-                        return this.changedTouches.length === 1 && (this.targetTouches.length ? this.targetTouches[0].identifier === this.changedTouches[0].identifier : true);
+                        return this.changedTouches.length === 1 && (this.targetTouches.length ? this.targetTouches[0].identifier === this.changedTouches[0].identifier : true)
                     }
                 }
-                return false;
+                return false
             },
-            getPrimaryTouch : function() {
+            getPrimaryTouch: function() {
                 if (this.pointerType) {
-                    return this.isPrimary && (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) ? this : null;
+                    return this.isPrimary && (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) ? this : null
                 } else {
                     if (this instanceof window.TouchEvent) {
-                        return this.changedTouches[0];
+                        return this.changedTouches[0]
                     }
                 }
-                return null;
+                return null
             },
-            getPrimaryTouchId : function() {
+            getPrimaryTouchId: function() {
                 if (this.pointerType) {
-                    return this.isPrimary && (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) ? this.pointerId : null;
+                    return this.isPrimary && (this.pointerType === "touch" || this.MSPOINTER_TYPE_TOUCH === this.pointerType) ? this.pointerId : null
                 } else {
                     if (this instanceof window.TouchEvent) {
-                        return this.changedTouches[0].identifier;
+                        return this.changedTouches[0].identifier
                     }
                 }
-                return null;
+                return null
             }
         };
-        $.extend([$.Element, $.Doc], {
-            jAddEvent : function(type, obj, count, centerLatLng) {
-                var lists;
-                var list;
-                var placeMidpointLine;
-                var item;
-                var yamlType;
-                if ($.jTypeOf(type) === "string") {
-                    yamlType = type.split(" ");
-                    if (yamlType.length > 1) {
-                        type = yamlType;
+        Q.extend([Q.Element, Q.Doc], {
+            jAddEvent: function(ac, ae, af, ai) {
+                var ah, aa, ad, ag, ab;
+                if (Q.jTypeOf(ac) === "string") {
+                    ab = ac.split(" ");
+                    if (ab.length > 1) {
+                        ac = ab
                     }
                 }
-                if ($.jTypeOf(type) === "array") {
-                    $.$(type).jEach(this.jAddEvent.jBindAsEvent(this, obj, count, centerLatLng));
-                    return this;
+                if (Q.jTypeOf(ac) === "array") {
+                    Q.$(ac).jEach(this.jAddEvent.jBindAsEvent(this, ae, af, ai));
+                    return this
                 }
-                type = map[type] || type;
-                if (!type || !obj || $.jTypeOf(type) !== "string" || $.jTypeOf(obj) !== "function") {
-                    return this;
+                ac = X[ac] || ac;
+                if (!ac || !ae || Q.jTypeOf(ac) !== "string" || Q.jTypeOf(ae) !== "function") {
+                    return this
                 }
-                if (type === "domready" && $.browser.ready) {
-                    obj.call(this);
-                    return this;
+                if (ac === "domready" && Q.browser.ready) {
+                    ae.call(this);
+                    return this
                 }
-                /** @type {number} */
-                count = parseInt(count || 50, 10);
-                if (!obj.$J_EUID) {
-                    /** @type {number} */
-                    obj.$J_EUID = Math.floor(Math.random() * $.now());
+                af = parseInt(af || 50, 10);
+                if (!ae.$J_EUID) {
+                    ae.$J_EUID = Math.floor(Math.random() * Q.now())
                 }
-                lists = $.Doc.jFetch.call(this, "_EVENTS_", {});
-                list = lists[type];
-                if (!list) {
-                    lists[type] = list = $.$([]);
-                    placeMidpointLine = this;
-                    if ($.Event.Custom[type]) {
-                        $.Event.Custom[type].handler.add.call(this, centerLatLng);
+                ah = Q.Doc.jFetch.call(this, "_EVENTS_", {});
+                aa = ah[ac];
+                if (!aa) {
+                    ah[ac] = aa = Q.$([]);
+                    ad = this;
+                    if (Q.Event.Custom[ac]) {
+                        Q.Event.Custom[ac].handler.add.call(this, ai)
                     } else {
-                        /**
-                         * @param {!Array} e
-                         * @return {undefined}
-                         */
-                        list.handle = function(e) {
-                            e = $.extend(e || window.e, {
-                                $J_TYPE : "event"
+                        aa.handle = function(aj) {
+                            aj = Q.extend(aj || window.e, {
+                                $J_TYPE: "event"
                             });
-                            $.Doc.jCallEvent.call(placeMidpointLine, type, $.$(e));
+                            Q.Doc.jCallEvent.call(ad, ac, Q.$(aj))
                         };
-                        this[$._event_add_]($._event_prefix_ + type, list.handle, false);
+                        this[Q._event_add_](Q._event_prefix_ + ac, aa.handle, false)
                     }
                 }
-                item = {
-                    type : type,
-                    fn : obj,
-                    priority : count,
-                    euid : obj.$J_EUID
+                ag = {
+                    type: ac,
+                    fn: ae,
+                    priority: af,
+                    euid: ae.$J_EUID
                 };
-                list.push(item);
-                list.sort(function(secondListenerDetails, firstListenerDetails) {
-                    return secondListenerDetails.priority - firstListenerDetails.priority;
+                aa.push(ag);
+                aa.sort(function(ak, aj) {
+                    return ak.priority - aj.priority
                 });
-                return this;
+                return this
             },
-            jRemoveEvent : function(type) {
-                var typeToConstructorMapping = $.Doc.jFetch.call(this, "_EVENTS_", {});
-                var body;
-                var dog;
-                var i;
+            jRemoveEvent: function(ag) {
+                var ae = Q.Doc.jFetch.call(this, "_EVENTS_", {});
+                var ac;
+                var aa;
+                var ab;
                 var ah;
-                var lastviewmatrix;
-                var yamlType;
-                lastviewmatrix = arguments.length > 1 ? arguments[1] : -100;
-                if ($.jTypeOf(type) === "string") {
-                    yamlType = type.split(" ");
-                    if (yamlType.length > 1) {
-                        type = yamlType;
+                var af;
+                var ad;
+                af = arguments.length > 1 ? arguments[1] : -100;
+                if (Q.jTypeOf(ag) === "string") {
+                    ad = ag.split(" ");
+                    if (ad.length > 1) {
+                        ag = ad
                     }
                 }
-                if ($.jTypeOf(type) === "array") {
-                    $.$(type).jEach(this.jRemoveEvent.jBindAsEvent(this, lastviewmatrix));
-                    return this;
+                if (Q.jTypeOf(ag) === "array") {
+                    Q.$(ag).jEach(this.jRemoveEvent.jBindAsEvent(this, af));
+                    return this
                 }
-                type = map[type] || type;
-                if (!type || $.jTypeOf(type) !== "string" || !typeToConstructorMapping || !typeToConstructorMapping[type]) {
-                    return this;
+                ag = X[ag] || ag;
+                if (!ag || Q.jTypeOf(ag) !== "string" || !ae || !ae[ag]) {
+                    return this
                 }
-                body = typeToConstructorMapping[type] || [];
-                /** @type {number} */
-                i = 0;
-                for (; i < body.length; i++) {
-                    dog = body[i];
-                    if (lastviewmatrix === -100 || !!lastviewmatrix && lastviewmatrix.$J_EUID === dog.euid) {
-                        ah = body.splice(i--, 1);
+                ac = ae[ag] || [];
+                for (ab = 0; ab < ac.length; ab++) {
+                    aa = ac[ab];
+                    if (af === -100 || !!af && af.$J_EUID === aa.euid) {
+                        ah = ac.splice(ab--, 1)
                     }
                 }
-                if (body.length === 0) {
-                    if ($.Event.Custom[type]) {
-                        $.Event.Custom[type].handler.jRemove.call(this);
+                if (ac.length === 0) {
+                    if (Q.Event.Custom[ag]) {
+                        Q.Event.Custom[ag].handler.jRemove.call(this)
                     } else {
-                        this[$._event_del_]($._event_prefix_ + type, body.handle, false);
+                        this[Q._event_del_](Q._event_prefix_ + ag, ac.handle, false)
                     }
-                    delete typeToConstructorMapping[type];
+                    delete ae[ag]
                 }
-                return this;
+                return this
             },
-            jCallEvent : function(type, obj) {
-                var typeToConstructorMapping = $.Doc.jFetch.call(this, "_EVENTS_", {});
-                var readyList;
-                var i;
-                type = map[type] || type;
-                if (!type || $.jTypeOf(type) !== "string" || !typeToConstructorMapping || !typeToConstructorMapping[type]) {
-                    return this;
+            jCallEvent: function(ad, af) {
+                var ac = Q.Doc.jFetch.call(this, "_EVENTS_", {});
+                var ab;
+                var aa;
+                ad = X[ad] || ad;
+                if (!ad || Q.jTypeOf(ad) !== "string" || !ac || !ac[ad]) {
+                    return this
                 }
                 try {
-                    obj = $.extend(obj || {}, {
-                        type : type
-                    });
-                } catch (ae) {
+                    af = Q.extend(af || {}, {
+                        type: ad
+                    })
+                } catch (ae) {}
+                if (af.timeStamp === undefined) {
+                    af.timeStamp = Q.now()
                 }
-                if (obj.timeStamp === undefined) {
-                    obj.timeStamp = $.now();
-                }
-                readyList = typeToConstructorMapping[type] || [];
-                /** @type {number} */
-                i = 0;
-                for (; i < readyList.length && !(obj.isQueueStopped && obj.isQueueStopped()); i++) {
-                    readyList[i].fn.call(this, obj);
+                ab = ac[ad] || [];
+                for (aa = 0; aa < ab.length && !(af.isQueueStopped && af.isQueueStopped()); aa++) {
+                    ab[aa].fn.call(this, af)
                 }
             },
-            jRaiseEvent : function(name, type) {
-                /** @type {boolean} */
-                var customName = name !== "domready";
-                var element = this;
-                var event;
-                name = map[name] || name;
-                if (!customName) {
-                    $.Doc.jCallEvent.call(this, name);
-                    return this;
+            jRaiseEvent: function(ab, aa) {
+                var ae = (ab !== "domready");
+                var ad = this;
+                var ac;
+                ab = X[ab] || ab;
+                if (!ae) {
+                    Q.Doc.jCallEvent.call(this, ab);
+                    return this
                 }
-                if (element === document && document.createEvent && !element.dispatchEvent) {
-                    element = document.documentElement;
-                }
-                if (document.createEvent) {
-                    event = document.createEvent(name);
-                    event.initEvent(type, true, true);
-                } else {
-                    event = document.createEventObject();
-                    /** @type {string} */
-                    event.eventType = name;
+                if (ad === document && document.createEvent && !ad.dispatchEvent) {
+                    ad = document.documentElement
                 }
                 if (document.createEvent) {
-                    element.dispatchEvent(event);
+                    ac = document.createEvent(ab);
+                    ac.initEvent(aa, true, true)
                 } else {
-                    element.fireEvent("on" + type, event);
+                    ac = document.createEventObject();
+                    ac.eventType = ab
                 }
-                return event;
+                if (document.createEvent) {
+                    ad.dispatchEvent(ac)
+                } else {
+                    ad.fireEvent("on" + aa, ac)
+                }
+                return ac
             },
-            jClearEvents : function() {
-                var egressPerm = $.Doc.jFetch.call(this, "_EVENTS_");
-                if (!egressPerm) {
-                    return this;
+            jClearEvents: function() {
+                var ab = Q.Doc.jFetch.call(this, "_EVENTS_");
+                if (!ab) {
+                    return this
                 }
-                var i;
-                for (i in egressPerm) {
-                    $.Doc.jRemoveEvent.call(this, i);
+                for (var aa in ab) {
+                    Q.Doc.jRemoveEvent.call(this, aa)
                 }
-                $.Doc.jDel.call(this, "_EVENTS_");
-                return this;
+                Q.Doc.jDel.call(this, "_EVENTS_");
+                return this
             }
         });
-        (function(self) {
+        (function(aa) {
             if (document.readyState === "complete") {
-                return self.browser.onready.jDelay(1);
+                return aa.browser.onready.jDelay(1)
             }
-            if (self.browser.webkit && self.browser.version < 420) {
+            if (aa.browser.webkit && aa.browser.version < 420) {
                 (function() {
-                    if (self.$(["loaded", "complete"]).contains(document.readyState)) {
-                        self.browser.onready();
+                    if (aa.$(["loaded", "complete"]).contains(document.readyState)) {
+                        aa.browser.onready()
                     } else {
-                        arguments.callee.jDelay(50);
+                        arguments.callee.jDelay(50)
                     }
-                })();
+                }())
             } else {
-                if (self.browser.trident && self.browser.ieMode < 9 && window === top) {
+                if (aa.browser.trident && aa.browser.ieMode < 9 && window === top) {
                     (function() {
-                        if (self.$try(function() {
-                            self.browser.getDoc().doScroll("left");
-                            return true;
+                        if (aa.$try(function() {
+                            aa.browser.getDoc().doScroll("left");
+                            return true
                         })) {
-                            self.browser.onready();
+                            aa.browser.onready()
                         } else {
-                            arguments.callee.jDelay(50);
+                            arguments.callee.jDelay(50)
                         }
-                    })();
+                    }())
                 } else {
-                    self.Doc.jAddEvent.call(self.$(document), "DOMContentLoaded", self.browser.onready);
-                    self.Doc.jAddEvent.call(self.$(window), "load", self.browser.onready);
+                    aa.Doc.jAddEvent.call(aa.$(document), "DOMContentLoaded", aa.browser.onready);
+                    aa.Doc.jAddEvent.call(aa.$(window), "load", aa.browser.onready)
                 }
             }
-        })(self);
-        /**
-         * @return {?}
-         */
-        $.Class = function() {
-            /** @type {null} */
-            var target = null;
-            var m = $.$A(arguments);
-            if ("class" == $.jTypeOf(m[0])) {
-                target = m.shift();
+        }(W));
+        Q.Class = function() {
+            var ae = null,
+                ab = Q.$A(arguments);
+            if ("class" == Q.jTypeOf(ab[0])) {
+                ae = ab.shift()
             }
-            /**
-             * @return {?}
-             */
-            var constructor = function() {
-                var i;
-                for (i in this) {
-                    this[i] = $.detach(this[i]);
+            var aa = function() {
+                for (var ah in this) {
+                    this[ah] = Q.detach(this[ah])
                 }
                 if (this.constructor.$parent) {
                     this.$parent = {};
-                    var namespace = this.constructor.$parent;
-                    var name;
-                    for (name in namespace) {
-                        var value = namespace[name];
-                        switch($.jTypeOf(value)) {
+                    var aj = this.constructor.$parent;
+                    for (var ai in aj) {
+                        var ag = aj[ai];
+                        switch (Q.jTypeOf(ag)) {
                             case "function":
-                                this.$parent[name] = $.Class.wrap(this, value);
+                                this.$parent[ai] = Q.Class.wrap(this, ag);
                                 break;
                             case "object":
-                                this.$parent[name] = $.detach(value);
+                                this.$parent[ai] = Q.detach(ag);
                                 break;
                             case "array":
-                                this.$parent[name] = $.detach(value);
-                                break;
+                                this.$parent[ai] = Q.detach(ag);
+                                break
                         }
                     }
                 }
-                var tunnelsMesh = this.init ? this.init.apply(this, arguments) : this;
+                var af = (this.init) ? this.init.apply(this, arguments) : this;
                 delete this.caller;
-                return tunnelsMesh;
+                return af
             };
-            if (!constructor.prototype.init) {
-                /** @type {function(): undefined} */
-                constructor.prototype.init = $.$F;
+            if (!aa.prototype.init) {
+                aa.prototype.init = Q.$F
             }
-            if (target) {
-                /**
-                 * @return {undefined}
-                 */
-                var F = function() {
-                };
-                F.prototype = target.prototype;
-                constructor.prototype = new F;
-                constructor.$parent = {};
-                var i;
-                for (i in target.prototype) {
-                    constructor.$parent[i] = target.prototype[i];
+            if (ae) {
+                var ad = function() {};
+                ad.prototype = ae.prototype;
+                aa.prototype = new ad;
+                aa.$parent = {};
+                for (var ac in ae.prototype) {
+                    aa.$parent[ac] = ae.prototype[ac]
                 }
             } else {
-                /** @type {null} */
-                constructor.$parent = null;
+                aa.$parent = null
             }
-            /** @type {function(): ?} */
-            constructor.constructor = $.Class;
-            /** @type {function(): ?} */
-            constructor.prototype.constructor = constructor;
-            $.extend(constructor.prototype, m[0]);
-            $.extend(constructor, {
-                $J_TYPE : "class"
+            aa.constructor = Q.Class;
+            aa.prototype.constructor = aa;
+            Q.extend(aa.prototype, ab[0]);
+            Q.extend(aa, {
+                $J_TYPE: "class"
             });
-            return constructor;
+            return aa
         };
-        /**
-         * @param {?} elem
-         * @param {!Function} callback
-         * @return {?}
-         */
-        self.Class.wrap = function(elem, callback) {
+        W.Class.wrap = function(aa, ab) {
             return function() {
-                var caller = this.caller;
-                var result = callback.apply(elem, arguments);
-                return result;
-            };
+                var ad = this.caller;
+                var ac = ab.apply(aa, arguments);
+                return ac
+            }
         };
-        (function(self) {
-            /** @type {function(!Object): ?} */
-            var $this = self.$;
-            /** @type {number} */
-            var aa = 5;
-            /** @type {number} */
-            var threshold = 300;
-            self.Event.Custom.btnclick = new self.Class(self.extend(self.Event.Custom, {
-                type : "btnclick",
-                init : function(view, event) {
-                    var matTemp = event.jGetPageXY();
-                    this.x = matTemp.x;
-                    this.y = matTemp.y;
-                    this.clientX = event.clientX;
-                    this.clientY = event.clientY;
-                    this.timeStamp = event.timeStamp;
-                    this.button = event.getButton();
-                    /** @type {!Object} */
-                    this.target = view;
-                    this.pushToEvents(event);
+        (function(ad) {
+            var ac = ad.$;
+            var aa = 5,
+                ab = 300;
+            ad.Event.Custom.btnclick = new ad.Class(ad.extend(ad.Event.Custom, {
+                type: "btnclick",
+                init: function(ag, af) {
+                    var ae = af.jGetPageXY();
+                    this.x = ae.x;
+                    this.y = ae.y;
+                    this.clientX = af.clientX;
+                    this.clientY = af.clientY;
+                    this.timeStamp = af.timeStamp;
+                    this.button = af.getButton();
+                    this.target = ag;
+                    this.pushToEvents(af)
                 }
             }));
-            self.Event.Custom.btnclick.handler = {
-                options : {
-                    threshold : threshold,
-                    button : 1
+            ad.Event.Custom.btnclick.handler = {
+                options: {
+                    threshold: ab,
+                    button: 1
                 },
-                add : function(value) {
-                    this.jStore("event:btnclick:options", self.extend(self.detach(self.Event.Custom.btnclick.handler.options), value || {}));
-                    this.jAddEvent("mousedown", self.Event.Custom.btnclick.handler.handle, 1);
-                    this.jAddEvent("mouseup", self.Event.Custom.btnclick.handler.handle, 1);
-                    this.jAddEvent("click", self.Event.Custom.btnclick.handler.onclick, 1);
-                    if (self.browser.trident && self.browser.ieMode < 9) {
-                        this.jAddEvent("dblclick", self.Event.Custom.btnclick.handler.handle, 1);
+                add: function(ae) {
+                    this.jStore("event:btnclick:options", ad.extend(ad.detach(ad.Event.Custom.btnclick.handler.options), ae || {}));
+                    this.jAddEvent("mousedown", ad.Event.Custom.btnclick.handler.handle, 1);
+                    this.jAddEvent("mouseup", ad.Event.Custom.btnclick.handler.handle, 1);
+                    this.jAddEvent("click", ad.Event.Custom.btnclick.handler.onclick, 1);
+                    if (ad.browser.trident && ad.browser.ieMode < 9) {
+                        this.jAddEvent("dblclick", ad.Event.Custom.btnclick.handler.handle, 1)
                     }
                 },
-                jRemove : function() {
-                    this.jRemoveEvent("mousedown", self.Event.Custom.btnclick.handler.handle);
-                    this.jRemoveEvent("mouseup", self.Event.Custom.btnclick.handler.handle);
-                    this.jRemoveEvent("click", self.Event.Custom.btnclick.handler.onclick);
-                    if (self.browser.trident && self.browser.ieMode < 9) {
-                        this.jRemoveEvent("dblclick", self.Event.Custom.btnclick.handler.handle);
+                jRemove: function() {
+                    this.jRemoveEvent("mousedown", ad.Event.Custom.btnclick.handler.handle);
+                    this.jRemoveEvent("mouseup", ad.Event.Custom.btnclick.handler.handle);
+                    this.jRemoveEvent("click", ad.Event.Custom.btnclick.handler.onclick);
+                    if (ad.browser.trident && ad.browser.ieMode < 9) {
+                        this.jRemoveEvent("dblclick", ad.Event.Custom.btnclick.handler.handle)
                     }
                 },
-                onclick : function(branch) {
-                    branch.stopDefaults();
+                onclick: function(ae) {
+                    ae.stopDefaults()
                 },
-                handle : function(e) {
-                    var event;
-                    var is;
-                    var startEvent;
-                    is = this.jFetch("event:btnclick:options");
-                    if (e.type != "dblclick" && e.getButton() != is.button) {
-                        return;
+                handle: function(ah) {
+                    var ag, ae, af;
+                    ae = this.jFetch("event:btnclick:options");
+                    if (ah.type != "dblclick" && ah.getButton() != ae.button) {
+                        return
                     }
                     if (this.jFetch("event:btnclick:ignore")) {
                         this.jDel("event:btnclick:ignore");
-                        return;
+                        return
                     }
-                    if ("mousedown" == e.type) {
-                        event = new self.Event.Custom.btnclick(this, e);
-                        this.jStore("event:btnclick:btnclickEvent", event);
+                    if ("mousedown" == ah.type) {
+                        ag = new ad.Event.Custom.btnclick(this, ah);
+                        this.jStore("event:btnclick:btnclickEvent", ag)
                     } else {
-                        if ("mouseup" == e.type) {
-                            event = this.jFetch("event:btnclick:btnclickEvent");
-                            if (!event) {
-                                return;
+                        if ("mouseup" == ah.type) {
+                            ag = this.jFetch("event:btnclick:btnclickEvent");
+                            if (!ag) {
+                                return
                             }
-                            startEvent = e.jGetPageXY();
+                            af = ah.jGetPageXY();
                             this.jDel("event:btnclick:btnclickEvent");
-                            event.pushToEvents(e);
-                            if (e.timeStamp - event.timeStamp <= is.threshold && Math.sqrt(Math.pow(startEvent.x - event.x, 2) + Math.pow(startEvent.y - event.y, 2)) <= aa) {
-                                this.jCallEvent("btnclick", event);
+                            ag.pushToEvents(ah);
+                            if (ah.timeStamp - ag.timeStamp <= ae.threshold && Math.sqrt(Math.pow(af.x - ag.x, 2) + Math.pow(af.y - ag.y, 2)) <= aa) {
+                                this.jCallEvent("btnclick", ag)
                             }
-                            document.jCallEvent("mouseup", e);
+                            document.jCallEvent("mouseup", ah)
                         } else {
-                            if (e.type == "dblclick") {
-                                event = new self.Event.Custom.btnclick(this, e);
-                                this.jCallEvent("btnclick", event);
+                            if (ah.type == "dblclick") {
+                                ag = new ad.Event.Custom.btnclick(this, ah);
+                                this.jCallEvent("btnclick", ag)
                             }
                         }
                     }
                 }
-            };
-        })(self);
-        (function($) {
-            /** @type {function(!Object): ?} */
-            var $$ = $.$;
-            $.Event.Custom.mousedrag = new $.Class($.extend($.Event.Custom, {
-                type : "mousedrag",
-                state : "dragstart",
-                dragged : false,
-                init : function(view, event, data) {
-                    var matTemp = event.jGetPageXY();
-                    this.x = matTemp.x;
-                    this.y = matTemp.y;
-                    this.clientX = event.clientX;
-                    this.clientY = event.clientY;
-                    this.timeStamp = event.timeStamp;
-                    this.button = event.getButton();
-                    /** @type {!Object} */
-                    this.target = view;
-                    this.pushToEvents(event);
-                    /** @type {string} */
-                    this.state = data;
+            }
+        })(W);
+        (function(ab) {
+            var aa = ab.$;
+            ab.Event.Custom.mousedrag = new ab.Class(ab.extend(ab.Event.Custom, {
+                type: "mousedrag",
+                state: "dragstart",
+                dragged: false,
+                init: function(af, ae, ad) {
+                    var ac = ae.jGetPageXY();
+                    this.x = ac.x;
+                    this.y = ac.y;
+                    this.clientX = ae.clientX;
+                    this.clientY = ae.clientY;
+                    this.timeStamp = ae.timeStamp;
+                    this.button = ae.getButton();
+                    this.target = af;
+                    this.pushToEvents(ae);
+                    this.state = ad
                 }
             }));
-            $.Event.Custom.mousedrag.handler = {
-                add : function() {
-                    var pornResult = $.Event.Custom.mousedrag.handler.handleMouseMove.jBindAsEvent(this);
-                    var illegalResult = $.Event.Custom.mousedrag.handler.handleMouseUp.jBindAsEvent(this);
-                    this.jAddEvent("mousedown", $.Event.Custom.mousedrag.handler.handleMouseDown, 1);
-                    this.jAddEvent("mouseup", $.Event.Custom.mousedrag.handler.handleMouseUp, 1);
-                    document.jAddEvent("mousemove", pornResult, 1);
-                    document.jAddEvent("mouseup", illegalResult, 1);
-                    this.jStore("event:mousedrag:listeners:document:move", pornResult);
-                    this.jStore("event:mousedrag:listeners:document:end", illegalResult);
+            ab.Event.Custom.mousedrag.handler = {
+                add: function() {
+                    var ad = ab.Event.Custom.mousedrag.handler.handleMouseMove.jBindAsEvent(this);
+                    var ac = ab.Event.Custom.mousedrag.handler.handleMouseUp.jBindAsEvent(this);
+                    this.jAddEvent("mousedown", ab.Event.Custom.mousedrag.handler.handleMouseDown, 1);
+                    this.jAddEvent("mouseup", ab.Event.Custom.mousedrag.handler.handleMouseUp, 1);
+                    document.jAddEvent("mousemove", ad, 1);
+                    document.jAddEvent("mouseup", ac, 1);
+                    this.jStore("event:mousedrag:listeners:document:move", ad);
+                    this.jStore("event:mousedrag:listeners:document:end", ac)
                 },
-                jRemove : function() {
-                    this.jRemoveEvent("mousedown", $.Event.Custom.mousedrag.handler.handleMouseDown);
-                    this.jRemoveEvent("mouseup", $.Event.Custom.mousedrag.handler.handleMouseUp);
-                    $$(document).jRemoveEvent("mousemove", this.jFetch("event:mousedrag:listeners:document:move") || $.$F);
-                    $$(document).jRemoveEvent("mouseup", this.jFetch("event:mousedrag:listeners:document:end") || $.$F);
+                jRemove: function() {
+                    this.jRemoveEvent("mousedown", ab.Event.Custom.mousedrag.handler.handleMouseDown);
+                    this.jRemoveEvent("mouseup", ab.Event.Custom.mousedrag.handler.handleMouseUp);
+                    aa(document).jRemoveEvent("mousemove", this.jFetch("event:mousedrag:listeners:document:move") || ab.$F);
+                    aa(document).jRemoveEvent("mouseup", this.jFetch("event:mousedrag:listeners:document:end") || ab.$F);
                     this.jDel("event:mousedrag:listeners:document:move");
-                    this.jDel("event:mousedrag:listeners:document:end");
+                    this.jDel("event:mousedrag:listeners:document:end")
                 },
-                handleMouseDown : function(event) {
-                    var mouseEvent;
-                    if (event.getButton() !== 1) {
-                        return;
+                handleMouseDown: function(ad) {
+                    var ac;
+                    if (ad.getButton() !== 1) {
+                        return
                     }
-                    mouseEvent = new $.Event.Custom.mousedrag(this, event, "dragstart");
-                    this.jStore("event:mousedrag:dragstart", mouseEvent);
+                    ac = new ab.Event.Custom.mousedrag(this, ad, "dragstart");
+                    this.jStore("event:mousedrag:dragstart", ac)
                 },
-                handleMouseUp : function(datapos) {
-                    var _this;
-                    _this = this.jFetch("event:mousedrag:dragstart");
-                    if (!_this) {
-                        return;
+                handleMouseUp: function(ad) {
+                    var ac;
+                    ac = this.jFetch("event:mousedrag:dragstart");
+                    if (!ac) {
+                        return
                     }
-                    if (_this.dragged) {
-                        datapos.stopDefaults();
+                    if (ac.dragged) {
+                        ad.stopDefaults()
                     }
-                    _this = new $.Event.Custom.mousedrag(this, datapos, "dragend");
+                    ac = new ab.Event.Custom.mousedrag(this, ad, "dragend");
                     this.jDel("event:mousedrag:dragstart");
-                    this.jCallEvent("mousedrag", _this);
+                    this.jCallEvent("mousedrag", ac)
                 },
-                handleMouseMove : function(originalPosition) {
-                    var _this;
-                    _this = this.jFetch("event:mousedrag:dragstart");
-                    if (!_this) {
-                        return;
+                handleMouseMove: function(ad) {
+                    var ac;
+                    ac = this.jFetch("event:mousedrag:dragstart");
+                    if (!ac) {
+                        return
                     }
-                    originalPosition.stopDefaults();
-                    if (!_this.dragged) {
-                        /** @type {boolean} */
-                        _this.dragged = true;
-                        this.jCallEvent("mousedrag", _this);
+                    ad.stopDefaults();
+                    if (!ac.dragged) {
+                        ac.dragged = true;
+                        this.jCallEvent("mousedrag", ac)
                     }
-                    _this = new $.Event.Custom.mousedrag(this, originalPosition, "dragmove");
-                    this.jCallEvent("mousedrag", _this);
+                    ac = new ab.Event.Custom.mousedrag(this, ad, "dragmove");
+                    this.jCallEvent("mousedrag", ac)
                 }
-            };
-        })(self);
-        (function(options) {
-            /** @type {function(!Object): ?} */
-            var $form = options.$;
-            options.Event.Custom.dblbtnclick = new options.Class(options.extend(options.Event.Custom, {
-                type : "dblbtnclick",
-                timedout : false,
-                tm : null,
-                init : function(view, event) {
-                    var matTemp = event.jGetPageXY();
-                    this.x = matTemp.x;
-                    this.y = matTemp.y;
-                    this.clientX = event.clientX;
-                    this.clientY = event.clientY;
-                    this.timeStamp = event.timeStamp;
-                    this.button = event.getButton();
-                    /** @type {!Object} */
-                    this.target = view;
-                    this.pushToEvents(event);
+            }
+        })(W);
+        (function(ab) {
+            var aa = ab.$;
+            ab.Event.Custom.dblbtnclick = new ab.Class(ab.extend(ab.Event.Custom, {
+                type: "dblbtnclick",
+                timedout: false,
+                tm: null,
+                init: function(ae, ad) {
+                    var ac = ad.jGetPageXY();
+                    this.x = ac.x;
+                    this.y = ac.y;
+                    this.clientX = ad.clientX;
+                    this.clientY = ad.clientY;
+                    this.timeStamp = ad.timeStamp;
+                    this.button = ad.getButton();
+                    this.target = ae;
+                    this.pushToEvents(ad)
                 }
             }));
-            options.Event.Custom.dblbtnclick.handler = {
-                options : {
-                    threshold : 200
+            ab.Event.Custom.dblbtnclick.handler = {
+                options: {
+                    threshold: 200
                 },
-                add : function(extra) {
-                    this.jStore("event:dblbtnclick:options", options.extend(options.detach(options.Event.Custom.dblbtnclick.handler.options), extra || {}));
-                    this.jAddEvent("btnclick", options.Event.Custom.dblbtnclick.handler.handle, 1);
+                add: function(ac) {
+                    this.jStore("event:dblbtnclick:options", ab.extend(ab.detach(ab.Event.Custom.dblbtnclick.handler.options), ac || {}));
+                    this.jAddEvent("btnclick", ab.Event.Custom.dblbtnclick.handler.handle, 1)
                 },
-                jRemove : function() {
-                    this.jRemoveEvent("btnclick", options.Event.Custom.dblbtnclick.handler.handle);
+                jRemove: function() {
+                    this.jRemoveEvent("btnclick", ab.Event.Custom.dblbtnclick.handler.handle)
                 },
-                handle : function(opts) {
-                    var data;
-                    var tpx;
-                    data = this.jFetch("event:dblbtnclick:event");
-                    tpx = this.jFetch("event:dblbtnclick:options");
-                    if (!data) {
-                        data = new options.Event.Custom.dblbtnclick(this, opts);
-                        /** @type {number} */
-                        data.tm = setTimeout(function() {
-                            /** @type {boolean} */
-                            data.timedout = true;
-                            /** @type {function(): ?} */
-                            opts.isQueueStopped = options.$false;
-                            this.jCallEvent("btnclick", opts);
-                            this.jDel("event:dblbtnclick:event");
-                        }.jBind(this), tpx.threshold + 10);
-                        this.jStore("event:dblbtnclick:event", data);
-                        opts.stopQueue();
+                handle: function(ae) {
+                    var ad, ac;
+                    ad = this.jFetch("event:dblbtnclick:event");
+                    ac = this.jFetch("event:dblbtnclick:options");
+                    if (!ad) {
+                        ad = new ab.Event.Custom.dblbtnclick(this, ae);
+                        ad.tm = setTimeout(function() {
+                            ad.timedout = true;
+                            ae.isQueueStopped = ab.$false;
+                            this.jCallEvent("btnclick", ae);
+                            this.jDel("event:dblbtnclick:event")
+                        }.jBind(this), ac.threshold + 10);
+                        this.jStore("event:dblbtnclick:event", ad);
+                        ae.stopQueue()
                     } else {
-                        clearTimeout(data.tm);
+                        clearTimeout(ad.tm);
                         this.jDel("event:dblbtnclick:event");
-                        if (!data.timedout) {
-                            data.pushToEvents(opts);
-                            opts.stopQueue().stop();
-                            this.jCallEvent("dblbtnclick", data);
-                        } else {
-                        }
+                        if (!ad.timedout) {
+                            ad.pushToEvents(ae);
+                            ae.stopQueue().stop();
+                            this.jCallEvent("dblbtnclick", ad)
+                        } else {}
                     }
                 }
-            };
-        })(self);
-        (function($) {
-            /** @type {function(!Object): ?} */
-            var doc = $.$;
-            /** @type {number} */
+            }
+        })(W);
+        (function(ad) {
+            var ac = ad.$;
             var aa = 10;
-            /** @type {number} */
             var ab = 200;
-            $.Event.Custom.tap = new $.Class($.extend($.Event.Custom, {
-                type : "tap",
-                id : null,
-                init : function(elem, src) {
-                    var event = src.getPrimaryTouch();
-                    this.id = event.pointerId || event.identifier;
-                    this.x = event.pageX;
-                    this.y = event.pageY;
-                    this.pageX = event.pageX;
-                    this.pageY = event.pageY;
-                    this.clientX = event.clientX;
-                    this.clientY = event.clientY;
-                    this.timeStamp = src.timeStamp;
-                    /** @type {number} */
+            ad.Event.Custom.tap = new ad.Class(ad.extend(ad.Event.Custom, {
+                type: "tap",
+                id: null,
+                init: function(af, ae) {
+                    var ag = ae.getPrimaryTouch();
+                    this.id = ag.pointerId || ag.identifier;
+                    this.x = ag.pageX;
+                    this.y = ag.pageY;
+                    this.pageX = ag.pageX;
+                    this.pageY = ag.pageY;
+                    this.clientX = ag.clientX;
+                    this.clientY = ag.clientY;
+                    this.timeStamp = ae.timeStamp;
                     this.button = 0;
-                    /** @type {string} */
-                    this.target = elem;
-                    this.pushToEvents(src);
+                    this.target = af;
+                    this.pushToEvents(ae)
                 }
             }));
-            $.Event.Custom.tap.handler = {
-                add : function(canvasview) {
-                    this.jAddEvent(["touchstart", "pointerdown"], $.Event.Custom.tap.handler.onTouchStart, 1);
-                    this.jAddEvent(["touchend", "pointerup"], $.Event.Custom.tap.handler.onTouchEnd, 1);
-                    this.jAddEvent("click", $.Event.Custom.tap.handler.onClick, 1);
+            ad.Event.Custom.tap.handler = {
+                add: function(ae) {
+                    this.jAddEvent(["touchstart", "pointerdown"], ad.Event.Custom.tap.handler.onTouchStart, 1);
+                    this.jAddEvent(["touchend", "pointerup"], ad.Event.Custom.tap.handler.onTouchEnd, 1);
+                    this.jAddEvent("click", ad.Event.Custom.tap.handler.onClick, 1)
                 },
-                jRemove : function() {
-                    this.jRemoveEvent(["touchstart", "pointerdown"], $.Event.Custom.tap.handler.onTouchStart);
-                    this.jRemoveEvent(["touchend", "pointerup"], $.Event.Custom.tap.handler.onTouchEnd);
-                    this.jRemoveEvent("click", $.Event.Custom.tap.handler.onClick);
+                jRemove: function() {
+                    this.jRemoveEvent(["touchstart", "pointerdown"], ad.Event.Custom.tap.handler.onTouchStart);
+                    this.jRemoveEvent(["touchend", "pointerup"], ad.Event.Custom.tap.handler.onTouchEnd);
+                    this.jRemoveEvent("click", ad.Event.Custom.tap.handler.onClick)
                 },
-                onClick : function($notyfy) {
-                    $notyfy.stopDefaults();
+                onClick: function(ae) {
+                    ae.stopDefaults()
                 },
-                onTouchStart : function(event) {
-                    if (!event.isPrimaryTouch()) {
+                onTouchStart: function(ae) {
+                    if (!ae.isPrimaryTouch()) {
                         this.jDel("event:tap:event");
-                        return;
+                        return
                     }
-                    this.jStore("event:tap:event", new $.Event.Custom.tap(this, event));
-                    this.jStore("event:btnclick:ignore", true);
+                    this.jStore("event:tap:event", new ad.Event.Custom.tap(this, ae));
+                    this.jStore("event:btnclick:ignore", true)
                 },
-                onTouchEnd : function(event) {
-                    var af = $.now();
-                    var data = this.jFetch("event:tap:event");
+                onTouchEnd: function(ah) {
+                    var af = ad.now();
+                    var ag = this.jFetch("event:tap:event");
                     var ae = this.jFetch("event:tap:options");
-                    if (!data || !event.isPrimaryTouch()) {
-                        return;
+                    if (!ag || !ah.isPrimaryTouch()) {
+                        return
                     }
                     this.jDel("event:tap:event");
-                    if (data.id === event.getPrimaryTouchId() && event.timeStamp - data.timeStamp <= ab && Math.sqrt(Math.pow(event.getPrimaryTouch().pageX - data.x, 2) + Math.pow(event.getPrimaryTouch().pageY - data.y, 2)) <= aa) {
+                    if (ag.id === ah.getPrimaryTouchId() && ah.timeStamp - ag.timeStamp <= ab && Math.sqrt(Math.pow(ah.getPrimaryTouch().pageX - ag.x, 2) + Math.pow(ah.getPrimaryTouch().pageY - ag.y, 2)) <= aa) {
                         this.jDel("event:btnclick:btnclickEvent");
-                        event.stop();
-                        data.pushToEvents(event);
-                        this.jCallEvent("tap", data);
+                        ah.stop();
+                        ag.pushToEvents(ah);
+                        this.jCallEvent("tap", ag)
                     }
                 }
-            };
-        })(self);
-        $.Event.Custom.dbltap = new $.Class($.extend($.Event.Custom, {
-            type : "dbltap",
-            timedout : false,
-            tm : null,
-            init : function(view, event) {
-                this.x = event.x;
-                this.y = event.y;
-                this.clientX = event.clientX;
-                this.clientY = event.clientY;
-                this.timeStamp = event.timeStamp;
-                /** @type {number} */
+            }
+        }(W));
+        Q.Event.Custom.dbltap = new Q.Class(Q.extend(Q.Event.Custom, {
+            type: "dbltap",
+            timedout: false,
+            tm: null,
+            init: function(ab, aa) {
+                this.x = aa.x;
+                this.y = aa.y;
+                this.clientX = aa.clientX;
+                this.clientY = aa.clientY;
+                this.timeStamp = aa.timeStamp;
                 this.button = 0;
-                /** @type {!Object} */
-                this.target = view;
-                this.pushToEvents(event);
+                this.target = ab;
+                this.pushToEvents(aa)
             }
         }));
-        $.Event.Custom.dbltap.handler = {
-            options : {
-                threshold : 300
+        Q.Event.Custom.dbltap.handler = {
+            options: {
+                threshold: 300
             },
-            add : function(extra) {
-                this.jStore("event:dbltap:options", $.extend($.detach($.Event.Custom.dbltap.handler.options), extra || {}));
-                this.jAddEvent("tap", $.Event.Custom.dbltap.handler.handle, 1);
+            add: function(aa) {
+                this.jStore("event:dbltap:options", Q.extend(Q.detach(Q.Event.Custom.dbltap.handler.options), aa || {}));
+                this.jAddEvent("tap", Q.Event.Custom.dbltap.handler.handle, 1)
             },
-            jRemove : function() {
-                this.jRemoveEvent("tap", $.Event.Custom.dbltap.handler.handle);
+            jRemove: function() {
+                this.jRemoveEvent("tap", Q.Event.Custom.dbltap.handler.handle)
             },
-            handle : function(config) {
-                var data;
-                var tpx;
-                data = this.jFetch("event:dbltap:event");
-                tpx = this.jFetch("event:dbltap:options");
-                if (!data) {
-                    data = new $.Event.Custom.dbltap(this, config);
-                    /** @type {number} */
-                    data.tm = setTimeout(function() {
-                        /** @type {boolean} */
-                        data.timedout = true;
-                        /** @type {function(): ?} */
-                        config.isQueueStopped = $.$false;
-                        this.jCallEvent("tap", config);
-                    }.jBind(this), tpx.threshold + 10);
-                    this.jStore("event:dbltap:event", data);
-                    config.stopQueue();
+            handle: function(ac) {
+                var ab, aa;
+                ab = this.jFetch("event:dbltap:event");
+                aa = this.jFetch("event:dbltap:options");
+                if (!ab) {
+                    ab = new Q.Event.Custom.dbltap(this, ac);
+                    ab.tm = setTimeout(function() {
+                        ab.timedout = true;
+                        ac.isQueueStopped = Q.$false;
+                        this.jCallEvent("tap", ac)
+                    }.jBind(this), aa.threshold + 10);
+                    this.jStore("event:dbltap:event", ab);
+                    ac.stopQueue()
                 } else {
-                    clearTimeout(data.tm);
+                    clearTimeout(ab.tm);
                     this.jDel("event:dbltap:event");
-                    if (!data.timedout) {
-                        data.pushToEvents(config);
-                        config.stopQueue().stop();
-                        this.jCallEvent("dbltap", data);
-                    } else {
-                    }
+                    if (!ab.timedout) {
+                        ab.pushToEvents(ac);
+                        ac.stopQueue().stop();
+                        this.jCallEvent("dbltap", ab)
+                    } else {}
                 }
             }
         };
-        (function($) {
-            /** @type {function(!Object): ?} */
-            var $$ = $.$;
-            /** @type {number} */
+        (function(ac) {
+            var ab = ac.$;
             var aa = 10;
-            $.Event.Custom.touchdrag = new $.Class($.extend($.Event.Custom, {
-                type : "touchdrag",
-                state : "dragstart",
-                id : null,
-                dragged : false,
-                init : function(elem, src, x) {
-                    var event = src.getPrimaryTouch();
-                    this.id = event.pointerId || event.identifier;
-                    this.clientX = event.clientX;
-                    this.clientY = event.clientY;
-                    this.pageX = event.pageX;
-                    this.pageY = event.pageY;
-                    this.x = event.pageX;
-                    this.y = event.pageY;
-                    this.timeStamp = src.timeStamp;
-                    /** @type {number} */
+            ac.Event.Custom.touchdrag = new ac.Class(ac.extend(ac.Event.Custom, {
+                type: "touchdrag",
+                state: "dragstart",
+                id: null,
+                dragged: false,
+                init: function(af, ae, ad) {
+                    var ag = ae.getPrimaryTouch();
+                    this.id = ag.pointerId || ag.identifier;
+                    this.clientX = ag.clientX;
+                    this.clientY = ag.clientY;
+                    this.pageX = ag.pageX;
+                    this.pageY = ag.pageY;
+                    this.x = ag.pageX;
+                    this.y = ag.pageY;
+                    this.timeStamp = ae.timeStamp;
                     this.button = 0;
-                    /** @type {!Object} */
-                    this.target = elem;
-                    this.pushToEvents(src);
-                    /** @type {string} */
-                    this.state = x;
+                    this.target = af;
+                    this.pushToEvents(ae);
+                    this.state = ad
                 }
             }));
-            $.Event.Custom.touchdrag.handler = {
-                add : function() {
-                    var pornResult = $.Event.Custom.touchdrag.handler.onTouchMove.jBind(this);
-                    var illegalResult = $.Event.Custom.touchdrag.handler.onTouchEnd.jBind(this);
-                    this.jAddEvent(["touchstart", "pointerdown"], $.Event.Custom.touchdrag.handler.onTouchStart, 1);
-                    this.jAddEvent(["touchend", "pointerup"], $.Event.Custom.touchdrag.handler.onTouchEnd, 1);
-                    this.jAddEvent(["touchmove", "pointermove"], $.Event.Custom.touchdrag.handler.onTouchMove, 1);
-                    this.jStore("event:touchdrag:listeners:document:move", pornResult);
-                    this.jStore("event:touchdrag:listeners:document:end", illegalResult);
-                    $$(document).jAddEvent("pointermove", pornResult, 1);
-                    $$(document).jAddEvent("pointerup", illegalResult, 1);
+            ac.Event.Custom.touchdrag.handler = {
+                add: function() {
+                    var ae = ac.Event.Custom.touchdrag.handler.onTouchMove.jBind(this);
+                    var ad = ac.Event.Custom.touchdrag.handler.onTouchEnd.jBind(this);
+                    this.jAddEvent(["touchstart", "pointerdown"], ac.Event.Custom.touchdrag.handler.onTouchStart, 1);
+                    this.jAddEvent(["touchend", "pointerup"], ac.Event.Custom.touchdrag.handler.onTouchEnd, 1);
+                    this.jAddEvent(["touchmove", "pointermove"], ac.Event.Custom.touchdrag.handler.onTouchMove, 1);
+                    this.jStore("event:touchdrag:listeners:document:move", ae);
+                    this.jStore("event:touchdrag:listeners:document:end", ad);
+                    ab(document).jAddEvent("pointermove", ae, 1);
+                    ab(document).jAddEvent("pointerup", ad, 1)
                 },
-                jRemove : function() {
-                    this.jRemoveEvent(["touchstart", "pointerdown"], $.Event.Custom.touchdrag.handler.onTouchStart);
-                    this.jRemoveEvent(["touchend", "pointerup"], $.Event.Custom.touchdrag.handler.onTouchEnd);
-                    this.jRemoveEvent(["touchmove", "pointermove"], $.Event.Custom.touchdrag.handler.onTouchMove);
-                    $$(document).jRemoveEvent("pointermove", this.jFetch("event:touchdrag:listeners:document:move") || $.$F, 1);
-                    $$(document).jRemoveEvent("pointerup", this.jFetch("event:touchdrag:listeners:document:end") || $.$F, 1);
+                jRemove: function() {
+                    this.jRemoveEvent(["touchstart", "pointerdown"], ac.Event.Custom.touchdrag.handler.onTouchStart);
+                    this.jRemoveEvent(["touchend", "pointerup"], ac.Event.Custom.touchdrag.handler.onTouchEnd);
+                    this.jRemoveEvent(["touchmove", "pointermove"], ac.Event.Custom.touchdrag.handler.onTouchMove);
+                    ab(document).jRemoveEvent("pointermove", this.jFetch("event:touchdrag:listeners:document:move") || ac.$F, 1);
+                    ab(document).jRemoveEvent("pointerup", this.jFetch("event:touchdrag:listeners:document:end") || ac.$F, 1);
                     this.jDel("event:touchdrag:listeners:document:move");
-                    this.jDel("event:touchdrag:listeners:document:end");
+                    this.jDel("event:touchdrag:listeners:document:end")
                 },
-                onTouchStart : function(event) {
-                    var mouseEvent;
-                    if (!event.isPrimaryTouch()) {
-                        return;
+                onTouchStart: function(ae) {
+                    var ad;
+                    if (!ae.isPrimaryTouch()) {
+                        return
                     }
-                    mouseEvent = new $.Event.Custom.touchdrag(this, event, "dragstart");
-                    this.jStore("event:touchdrag:dragstart", mouseEvent);
+                    ad = new ac.Event.Custom.touchdrag(this, ae, "dragstart");
+                    this.jStore("event:touchdrag:dragstart", ad)
                 },
-                onTouchEnd : function(event) {
-                    var evt;
-                    evt = this.jFetch("event:touchdrag:dragstart");
-                    if (!evt || !evt.dragged || evt.id !== event.getPrimaryTouchId()) {
-                        return;
+                onTouchEnd: function(ae) {
+                    var ad;
+                    ad = this.jFetch("event:touchdrag:dragstart");
+                    if (!ad || !ad.dragged || ad.id !== ae.getPrimaryTouchId()) {
+                        return
                     }
-                    evt = new $.Event.Custom.touchdrag(this, event, "dragend");
+                    ad = new ac.Event.Custom.touchdrag(this, ae, "dragend");
                     this.jDel("event:touchdrag:dragstart");
-                    this.jCallEvent("touchdrag", evt);
+                    this.jCallEvent("touchdrag", ad)
                 },
-                onTouchMove : function(eventName) {
-                    var data;
-                    data = this.jFetch("event:touchdrag:dragstart");
-                    if (!data || !eventName.isPrimaryTouch()) {
-                        return;
+                onTouchMove: function(ae) {
+                    var ad;
+                    ad = this.jFetch("event:touchdrag:dragstart");
+                    if (!ad || !ae.isPrimaryTouch()) {
+                        return
                     }
-                    if (data.id !== eventName.getPrimaryTouchId()) {
+                    if (ad.id !== ae.getPrimaryTouchId()) {
                         this.jDel("event:touchdrag:dragstart");
-                        return;
+                        return
                     }
-                    if (!data.dragged && Math.sqrt(Math.pow(eventName.getPrimaryTouch().pageX - data.x, 2) + Math.pow(eventName.getPrimaryTouch().pageY - data.y, 2)) > aa) {
-                        /** @type {boolean} */
-                        data.dragged = true;
-                        this.jCallEvent("touchdrag", data);
+                    if (!ad.dragged && Math.sqrt(Math.pow(ae.getPrimaryTouch().pageX - ad.x, 2) + Math.pow(ae.getPrimaryTouch().pageY - ad.y, 2)) > aa) {
+                        ad.dragged = true;
+                        this.jCallEvent("touchdrag", ad)
                     }
-                    if (!data.dragged) {
-                        return;
+                    if (!ad.dragged) {
+                        return
                     }
-                    data = new $.Event.Custom.touchdrag(this, eventName, "dragmove");
-                    this.jCallEvent("touchdrag", data);
+                    ad = new ac.Event.Custom.touchdrag(this, ae, "dragmove");
+                    this.jCallEvent("touchdrag", ad)
                 }
-            };
-        })(self);
-        (function(self) {
-            /**
-             * @param {!Object} event
-             * @param {!Object} data
-             * @return {?}
-             */
-            function run(event, data) {
-                /** @type {number} */
-                var lightI = data.x - event.x;
-                /** @type {number} */
-                var lightJ = data.y - event.y;
-                return Math.sqrt(lightI * lightI + lightJ * lightJ);
             }
-            /**
-             * @param {(Array|NodeList)} component
-             * @param {!Object} options
-             * @return {?}
-             */
-            function require(component, options) {
-                /** @type {!Array<?>} */
-                var t = Array.prototype.slice.call(component);
-                /** @type {number} */
-                var at = Math.abs(t[1].pageX - t[0].pageX);
-                /** @type {number} */
-                var aq = Math.abs(t[1].pageY - t[0].pageY);
-                /** @type {number} */
-                var audioOffsetX = Math.min(t[1].pageX, t[0].pageX) + at / 2;
-                /** @type {number} */
-                var languageOffsetY = Math.min(t[1].pageY, t[0].pageY) + aq / 2;
-                /** @type {number} */
-                var rndPlaceholder = 0;
-                /** @type {!Array} */
-                options.points = [t[0], t[1]];
-                /** @type {number} */
-                rndPlaceholder = Math.pow(run({
-                    x : t[0].pageX,
-                    y : t[0].pageY
+        }(W));
+        (function(ad) {
+            var ah = ad.$;
+            var ae = null;
+
+            function aa(aq, ap) {
+                var ao = ap.x - aq.x;
+                var ar = ap.y - aq.y;
+                return Math.sqrt(ao * ao + ar * ar)
+            }
+
+            function aj(av, aw) {
+                var au = Array.prototype.slice.call(av);
+                var at = Math.abs(au[1].pageX - au[0].pageX);
+                var aq = Math.abs(au[1].pageY - au[0].pageY);
+                var ar = Math.min(au[1].pageX, au[0].pageX) + at / 2;
+                var ap = Math.min(au[1].pageY, au[0].pageY) + aq / 2;
+                var ao = 0;
+                aw.points = [au[0], au[1]];
+                ao = Math.pow(aa({
+                    x: au[0].pageX,
+                    y: au[0].pageY
                 }, {
-                    x : t[1].pageX,
-                    y : t[1].pageY
+                    x: au[1].pageX,
+                    y: au[1].pageY
                 }), 2);
-                options.centerPoint = {
-                    x : audioOffsetX,
-                    y : languageOffsetY
+                aw.centerPoint = {
+                    x: ar,
+                    y: ap
                 };
-                /** @type {number} */
-                options.x = options.centerPoint.x;
-                /** @type {number} */
-                options.y = options.centerPoint.y;
-                return rndPlaceholder;
+                aw.x = aw.centerPoint.x;
+                aw.y = aw.centerPoint.y;
+                return ao
             }
-            /**
-             * @param {?} a
-             * @return {?}
-             */
-            function isArray(a) {
-                return a / line;
+
+            function am(ao) {
+                return ao / ae
             }
-            /**
-             * @param {!Object} event
-             * @param {!Array} subArray
-             * @return {?}
-             */
-            function get(event, subArray) {
-                var touches;
-                if (event.targetTouches && event.changedTouches) {
-                    if (event.targetTouches) {
-                        touches = event.targetTouches;
+
+            function ab(aq, ap) {
+                var ao;
+                if (aq.targetTouches && aq.changedTouches) {
+                    if (aq.targetTouches) {
+                        ao = aq.targetTouches
                     } else {
-                        touches = event.changedTouches;
+                        ao = aq.changedTouches
                     }
-                    /** @type {!Array<?>} */
-                    touches = Array.prototype.slice.call(touches);
+                    ao = Array.prototype.slice.call(ao)
                 } else {
-                    /** @type {!Array} */
-                    touches = [];
-                    if (subArray) {
-                        subArray.forEach(function(e) {
-                            touches.push(e);
-                        });
+                    ao = [];
+                    if (ap) {
+                        ap.forEach(function(ar) {
+                            ao.push(ar)
+                        })
                     }
                 }
-                return touches;
+                return ao
             }
-            /**
-             * @param {!Object} event
-             * @param {!Object} node
-             * @param {boolean} ap
-             * @return {?}
-             */
-            function filter(event, node, ap) {
-                /** @type {boolean} */
-                var chart = false;
-                if (event.pointerId && event.pointerType === "touch" && (!ap || node.has(event.pointerId))) {
-                    node.set(event.pointerId, event);
-                    /** @type {boolean} */
-                    chart = true;
+
+            function ac(ar, aq, ap) {
+                var ao = false;
+                if (ar.pointerId && ar.pointerType === "touch" && (!ap || aq.has(ar.pointerId))) {
+                    aq.set(ar.pointerId, ar);
+                    ao = true
                 }
-                return chart;
+                return ao
             }
-            /**
-             * @param {!Object} e
-             * @param {string} d
-             * @return {undefined}
-             */
-            function p(e, d) {
-                if (e.pointerId && e.pointerType === "touch" && d && d.has(e.pointerId)) {
-                    d["delete"](e.pointerId);
+
+            function ai(ap, ao) {
+                if (ap.pointerId && ap.pointerType === "touch" && ao && ao.has(ap.pointerId)) {
+                    ao["delete"](ap.pointerId)
                 }
             }
-            /**
-             * @param {!Object} options
-             * @return {?}
-             */
-            function cb(options) {
-                var identifier;
-                if (options.pointerId && options.pointerType === "touch") {
-                    identifier = options.pointerId;
+
+            function al(ap) {
+                var ao;
+                if (ap.pointerId && ap.pointerType === "touch") {
+                    ao = ap.pointerId
                 } else {
-                    identifier = options.identifier;
+                    ao = ap.identifier
                 }
-                return identifier;
+                return ao
             }
-            /**
-             * @param {!Object} data
-             * @param {!Array} path
-             * @return {?}
-             */
-            function callback(data, path) {
-                var i;
-                var a;
-                /** @type {boolean} */
-                var HOOK = false;
-                /** @type {number} */
-                i = 0;
-                for (; i < data.length; i++) {
-                    if (path.length === 2) {
-                        break;
+
+            function ag(ar, ap) {
+                var aq;
+                var at;
+                var ao = false;
+                for (aq = 0; aq < ar.length; aq++) {
+                    if (ap.length === 2) {
+                        break
                     } else {
-                        a = cb(data[i]);
-                        if (!path.contains(a)) {
-                            path.push(a);
-                            /** @type {boolean} */
-                            HOOK = true;
+                        at = al(ar[aq]);
+                        if (!ap.contains(at)) {
+                            ap.push(at);
+                            ao = true
                         }
                     }
                 }
-                return HOOK;
+                return ao
             }
-            /**
-             * @param {!Array} value
-             * @return {?}
-             */
-            function check(value) {
-                var result = $([]);
-                value.forEach(function(n) {
-                    result.push(cb(n));
+
+            function ak(ap) {
+                var ao = ah([]);
+                ap.forEach(function(aq) {
+                    ao.push(al(aq))
                 });
-                return result;
+                return ao
             }
-            /**
-             * @param {!Array} name
-             * @param {!Array} points
-             * @return {?}
-             */
-            function encode(name, points) {
-                var i;
-                var c;
-                /** @type {boolean} */
-                var parsed_float = false;
-                if (points) {
-                    c = check(name);
-                    /** @type {number} */
-                    i = 0;
-                    for (; i < points.length; i++) {
-                        if (!c.contains(points[i])) {
-                            points.splice(i, 1);
-                            /** @type {boolean} */
-                            parsed_float = true;
-                            break;
+
+            function an(at, ap) {
+                var aq;
+                var ar;
+                var ao = false;
+                if (ap) {
+                    ar = ak(at);
+                    for (aq = 0; aq < ap.length; aq++) {
+                        if (!ar.contains(ap[aq])) {
+                            ap.splice(aq, 1);
+                            ao = true;
+                            break
                         }
                     }
                 }
-                return parsed_float;
+                return ao
             }
-            /**
-             * @param {!Object} result
-             * @param {!Node} name
-             * @return {?}
-             */
-            function add(result, name) {
-                var i;
-                var results = $([]);
-                /** @type {number} */
-                i = 0;
-                for (; i < result.length; i++) {
-                    if (name.contains(cb(result[i]))) {
-                        results.push(result[i]);
-                        if (results.length === 2) {
-                            break;
+
+            function af(ar, ap) {
+                var aq;
+                var ao = ah([]);
+                for (aq = 0; aq < ar.length; aq++) {
+                    if (ap.contains(al(ar[aq]))) {
+                        ao.push(ar[aq]);
+                        if (ao.length === 2) {
+                            break
                         }
                     }
                 }
-                return results;
+                return ao
             }
-            /** @type {function(!Object): ?} */
-            var $ = self.$;
-            /** @type {null} */
-            var line = null;
-            self.Event.Custom.pinch = new self.Class(self.extend(self.Event.Custom, {
-                type : "pinch",
-                state : "pinchstart",
-                init : function(elem, src, charset, options) {
-                    /** @type {!Object} */
-                    this.target = elem;
-                    /** @type {string} */
-                    this.state = charset;
-                    this.x = options.x;
-                    this.y = options.y;
-                    this.timeStamp = src.timeStamp;
-                    this.scale = options.scale;
-                    this.space = options.space;
-                    this.zoom = options.zoom;
-                    /** @type {string} */
-                    this.state = charset;
-                    this.centerPoint = options.centerPoint;
-                    this.points = options.points;
-                    this.pushToEvents(src);
+            ad.Event.Custom.pinch = new ad.Class(ad.extend(ad.Event.Custom, {
+                type: "pinch",
+                state: "pinchstart",
+                init: function(aq, ap, ao, ar) {
+                    this.target = aq;
+                    this.state = ao;
+                    this.x = ar.x;
+                    this.y = ar.y;
+                    this.timeStamp = ap.timeStamp;
+                    this.scale = ar.scale;
+                    this.space = ar.space;
+                    this.zoom = ar.zoom;
+                    this.state = ao;
+                    this.centerPoint = ar.centerPoint;
+                    this.points = ar.points;
+                    this.pushToEvents(ap)
                 }
             }));
-            self.Event.Custom.pinch.handler = {
-                variables : {
-                    x : 0,
-                    y : 0,
-                    space : 0,
-                    scale : 1,
-                    zoom : 0,
-                    startSpace : 0,
-                    startScale : 1,
-                    started : false,
-                    dragged : false,
-                    points : [],
-                    centerPoint : {
-                        x : 0,
-                        y : 0
+            ad.Event.Custom.pinch.handler = {
+                variables: {
+                    x: 0,
+                    y: 0,
+                    space: 0,
+                    scale: 1,
+                    zoom: 0,
+                    startSpace: 0,
+                    startScale: 1,
+                    started: false,
+                    dragged: false,
+                    points: [],
+                    centerPoint: {
+                        x: 0,
+                        y: 0
                     }
                 },
-                add : function(canvasview) {
-                    if (!line) {
-                        line = function() {
-                            var layout = $(window).jGetSize();
-                            /** @type {number} */
-                            layout.width = Math.min(layout.width, layout.height);
-                            /** @type {number} */
-                            layout.height = layout.width;
-                            return Math.pow(run({
-                                x : 0,
-                                y : 0
+                add: function(aq) {
+                    if (!ae) {
+                        ae = (function() {
+                            var ar = ah(window).jGetSize();
+                            ar.width = Math.min(ar.width, ar.height);
+                            ar.height = ar.width;
+                            return Math.pow(aa({
+                                x: 0,
+                                y: 0
                             }, {
-                                x : layout.width,
-                                y : layout.height
-                            }), 2);
-                        }();
+                                x: ar.width,
+                                y: ar.height
+                            }), 2)
+                        })()
                     }
-                    var pornResult = self.Event.Custom.pinch.handler.onTouchMove.jBind(this);
-                    var illegalResult = self.Event.Custom.pinch.handler.onTouchEnd.jBind(this);
-                    this.jAddEvent(["click", "tap"], self.Event.Custom.pinch.handler.onClick, 1);
-                    this.jAddEvent(["touchstart", "pointerdown"], self.Event.Custom.pinch.handler.onTouchStart, 1);
-                    this.jAddEvent(["touchend", "pointerup"], self.Event.Custom.pinch.handler.onTouchEnd, 1);
-                    this.jAddEvent(["touchmove", "pointermove"], self.Event.Custom.pinch.handler.onTouchMove, 1);
-                    this.jStore("event:pinch:listeners:touchmove", pornResult);
-                    this.jStore("event:pinch:listeners:touchend", illegalResult);
-                    self.doc.jAddEvent("pointermove", pornResult, 1);
-                    self.doc.jAddEvent("pointerup", illegalResult, 1);
+                    var ap = ad.Event.Custom.pinch.handler.onTouchMove.jBind(this);
+                    var ao = ad.Event.Custom.pinch.handler.onTouchEnd.jBind(this);
+                    this.jAddEvent(["click", "tap"], ad.Event.Custom.pinch.handler.onClick, 1);
+                    this.jAddEvent(["touchstart", "pointerdown"], ad.Event.Custom.pinch.handler.onTouchStart, 1);
+                    this.jAddEvent(["touchend", "pointerup"], ad.Event.Custom.pinch.handler.onTouchEnd, 1);
+                    this.jAddEvent(["touchmove", "pointermove"], ad.Event.Custom.pinch.handler.onTouchMove, 1);
+                    this.jStore("event:pinch:listeners:touchmove", ap);
+                    this.jStore("event:pinch:listeners:touchend", ao);
+                    ad.doc.jAddEvent("pointermove", ap, 1);
+                    ad.doc.jAddEvent("pointerup", ao, 1)
                 },
-                jRemove : function() {
-                    this.jRemoveEvent(["click", "tap"], self.Event.Custom.pinch.handler.onClick);
-                    this.jRemoveEvent(["touchstart", "pointerdown"], self.Event.Custom.pinch.handler.onTouchStart);
-                    this.jRemoveEvent(["touchend", "pointerup"], self.Event.Custom.pinch.handler.onTouchEnd);
-                    this.jRemoveEvent(["touchmove", "pointermove"], self.Event.Custom.pinch.handler.onTouchMove);
-                    self.doc.jRemoveEvent("pointermove", this.jFetch("event:pinch:listeners:touchmove"));
-                    self.doc.jRemoveEvent("pointerup", this.jFetch("event:pinch:listeners:touchend"));
+                jRemove: function() {
+                    this.jRemoveEvent(["click", "tap"], ad.Event.Custom.pinch.handler.onClick);
+                    this.jRemoveEvent(["touchstart", "pointerdown"], ad.Event.Custom.pinch.handler.onTouchStart);
+                    this.jRemoveEvent(["touchend", "pointerup"], ad.Event.Custom.pinch.handler.onTouchEnd);
+                    this.jRemoveEvent(["touchmove", "pointermove"], ad.Event.Custom.pinch.handler.onTouchMove);
+                    ad.doc.jRemoveEvent("pointermove", this.jFetch("event:pinch:listeners:touchmove"));
+                    ad.doc.jRemoveEvent("pointerup", this.jFetch("event:pinch:listeners:touchend"));
                     this.jDel("event:pinch:listeners:touchmove");
                     this.jDel("event:pinch:listeners:touchend");
                     this.jDel("event:pinch:pinchstart");
                     this.jDel("event:pinch:variables");
                     this.jDel("event:pinch:activepoints");
-                    var subREGL = this.jFetch("event:pinch:cache");
-                    if (subREGL) {
-                        subREGL.clear();
+                    var ao = this.jFetch("event:pinch:cache");
+                    if (ao) {
+                        ao.clear()
                     }
-                    this.jDel("event:pinch:cache");
+                    this.jDel("event:pinch:cache")
                 },
-                onClick : function(event) {
-                    event.stop();
+                onClick: function(ao) {
+                    ao.stop()
                 },
-                setVariables : function(s, obj) {
-                    var space = obj.space;
-                    if (s.length > 1) {
-                        obj.space = require(s, obj);
-                        if (!obj.startSpace) {
-                            obj.startSpace = obj.space;
+                setVariables: function(ap, aq) {
+                    var ao = aq.space;
+                    if (ap.length > 1) {
+                        aq.space = aj(ap, aq);
+                        if (!aq.startSpace) {
+                            aq.startSpace = aq.space
                         }
-                        if (space > obj.space) {
-                            /** @type {number} */
-                            obj.zoom = -1;
+                        if (ao > aq.space) {
+                            aq.zoom = -1
                         } else {
-                            if (space < obj.space) {
-                                /** @type {number} */
-                                obj.zoom = 1;
+                            if (ao < aq.space) {
+                                aq.zoom = 1
                             } else {
-                                /** @type {number} */
-                                obj.zoom = 0;
+                                aq.zoom = 0
                             }
                         }
-                        obj.scale = isArray(obj.space);
+                        aq.scale = am(aq.space)
                     } else {
-                        /** @type {!Array<?>} */
-                        obj.points = Array.prototype.slice.call(s, 0, 2);
+                        aq.points = Array.prototype.slice.call(ap, 0, 2)
                     }
                 },
-                onTouchMove : function(e) {
-                    var event;
-                    var a = this.jFetch("event:pinch:cache");
-                    var evt = this.jFetch("event:pinch:variables") || self.extend({}, self.Event.Custom.pinch.handler.variables);
-                    var extractData = this.jFetch("event:pinch:activepoints");
-                    if (evt.started) {
-                        if (e.pointerId && !filter(e, a, true)) {
-                            return;
+                onTouchMove: function(aq) {
+                    var ap;
+                    var ao = this.jFetch("event:pinch:cache");
+                    var at = this.jFetch("event:pinch:variables") || ad.extend({}, ad.Event.Custom.pinch.handler.variables);
+                    var ar = this.jFetch("event:pinch:activepoints");
+                    if (at.started) {
+                        if (aq.pointerId && !ac(aq, ao, true)) {
+                            return
                         }
-                        e.stop();
-                        self.Event.Custom.pinch.handler.setVariables(add(get(e, a), extractData), evt);
-                        event = new self.Event.Custom.pinch(this, e, "pinchmove", evt);
-                        this.jCallEvent("pinch", event);
+                        aq.stop();
+                        ad.Event.Custom.pinch.handler.setVariables(af(ab(aq, ao), ar), at);
+                        ap = new ad.Event.Custom.pinch(this, aq, "pinchmove", at);
+                        this.jCallEvent("pinch", ap)
                     }
                 },
-                onTouchStart : function(event) {
-                    var target;
-                    var node;
-                    var message;
-                    var a = this.jFetch("event:pinch:cache");
-                    var right = this.jFetch("event:pinch:activepoints");
-                    if (event.pointerType === "mouse") {
-                        return;
+                onTouchStart: function(ar) {
+                    var ap;
+                    var au;
+                    var aq;
+                    var ao = this.jFetch("event:pinch:cache");
+                    var at = this.jFetch("event:pinch:activepoints");
+                    if (ar.pointerType === "mouse") {
+                        return
                     }
-                    if (!right) {
-                        right = $([]);
-                        this.jStore("event:pinch:activepoints", right);
+                    if (!at) {
+                        at = ah([]);
+                        this.jStore("event:pinch:activepoints", at)
                     }
-                    if (!right.length) {
-                        $(event.target).jAddEvent(["touchend", "pointerup"], this.jFetch("event:pinch:listeners:touchend"), 1);
+                    if (!at.length) {
+                        ah(ar.target).jAddEvent(["touchend", "pointerup"], this.jFetch("event:pinch:listeners:touchend"), 1)
                     }
-                    if (!a) {
-                        /** @type {!Map} */
-                        a = new Map;
-                        this.jStore("event:pinch:cache", a);
+                    if (!ao) {
+                        ao = new Map();
+                        this.jStore("event:pinch:cache", ao)
                     }
-                    filter(event, a);
-                    message = get(event, a);
-                    callback(message, right);
-                    if (message.length === 2) {
-                        target = this.jFetch("event:pinch:pinchstart");
-                        node = this.jFetch("event:pinch:variables") || self.extend({}, self.Event.Custom.pinch.handler.variables);
-                        self.Event.Custom.pinch.handler.setVariables(add(message, right), node);
-                        if (!target) {
-                            target = new self.Event.Custom.pinch(this, event, "pinchstart", node);
-                            this.jStore("event:pinch:pinchstart", target);
-                            this.jStore("event:pinch:variables", node);
-                            line = node.space;
-                            this.jCallEvent("pinch", target);
-                            /** @type {boolean} */
-                            node.started = true;
+                    ac(ar, ao);
+                    aq = ab(ar, ao);
+                    ag(aq, at);
+                    if (aq.length === 2) {
+                        ap = this.jFetch("event:pinch:pinchstart");
+                        au = this.jFetch("event:pinch:variables") || ad.extend({}, ad.Event.Custom.pinch.handler.variables);
+                        ad.Event.Custom.pinch.handler.setVariables(af(aq, at), au);
+                        if (!ap) {
+                            ap = new ad.Event.Custom.pinch(this, ar, "pinchstart", au);
+                            this.jStore("event:pinch:pinchstart", ap);
+                            this.jStore("event:pinch:variables", au);
+                            ae = au.space;
+                            this.jCallEvent("pinch", ap);
+                            au.started = true
                         }
                     }
                 },
-                onTouchEnd : function(e) {
-                    var i;
-                    var event;
-                    var listener;
-                    var oldVersion;
-                    var b = this.jFetch("event:pinch:cache");
-                    var value;
-                    var segment;
-                    if (e.pointerType === "mouse" || e.pointerId && (!b || !b.has(e.pointerId))) {
-                        return;
+                onTouchEnd: function(au) {
+                    var at;
+                    var ar;
+                    var aw;
+                    var ap;
+                    var aq = this.jFetch("event:pinch:cache");
+                    var av;
+                    var ao;
+                    if (au.pointerType === "mouse" || au.pointerId && (!aq || !aq.has(au.pointerId))) {
+                        return
                     }
-                    event = this.jFetch("event:pinch:pinchstart");
-                    listener = this.jFetch("event:pinch:variables");
-                    value = this.jFetch("event:pinch:activepoints");
-                    i = get(e, b);
-                    p(e, b);
-                    segment = encode(i, value);
-                    if (!event || !listener || !listener.started || !segment || !value) {
-                        return;
+                    ar = this.jFetch("event:pinch:pinchstart");
+                    aw = this.jFetch("event:pinch:variables");
+                    av = this.jFetch("event:pinch:activepoints");
+                    at = ab(au, aq);
+                    ai(au, aq);
+                    ao = an(at, av);
+                    if (!ar || !aw || !aw.started || !ao || !av) {
+                        return
                     }
-                    if (segment) {
-                        callback(i, value);
+                    if (ao) {
+                        ag(at, av)
                     }
-                    /** @type {string} */
-                    oldVersion = "pinchend";
-                    if (i.length > 1) {
-                        /** @type {string} */
-                        oldVersion = "pinchresize";
+                    ap = "pinchend";
+                    if (at.length > 1) {
+                        ap = "pinchresize"
                     } else {
-                        e.target.jRemoveEvent(["touchend", "pointerup"], this.jFetch("event:pinch:listeners:touchend"));
-                        if (b) {
-                            b.clear();
+                        au.target.jRemoveEvent(["touchend", "pointerup"], this.jFetch("event:pinch:listeners:touchend"));
+                        if (aq) {
+                            aq.clear()
                         }
                         this.jDel("event:pinch:pinchstart");
                         this.jDel("event:pinch:variables");
                         this.jDel("event:pinch:cache");
-                        this.jDel("event:pinch:activepoints");
+                        this.jDel("event:pinch:activepoints")
                     }
-                    self.Event.Custom.pinch.handler.setVariables(add(i, value), listener);
-                    event = new self.Event.Custom.pinch(this, e, oldVersion, listener);
-                    this.jCallEvent("pinch", event);
+                    ad.Event.Custom.pinch.handler.setVariables(af(at, av), aw);
+                    ar = new ad.Event.Custom.pinch(this, au, ap, aw);
+                    this.jCallEvent("pinch", ar)
                 }
-            };
-        })(self);
-        (function(self) {
-            /**
-             * @return {undefined}
-             */
-            function scrollHeightObserver() {
-                /** @type {null} */
-                lowestDelta = null;
             }
-            /**
-             * @param {number} loadedimg
-             * @param {number} loadedev
-             * @return {?}
-             */
-            function perform_graphics_ops(loadedimg, loadedev) {
-                return loadedimg > 50 || 1 === loadedev && !("win" == self.browser.platform && loadedimg < 1) || 0 === loadedimg % 12 || 0 == loadedimg % 4.000244140625;
-            }
-            /** @type {function(!Object): ?} */
-            var $this = self.$;
-            self.Event.Custom.mousescroll = new self.Class(self.extend(self.Event.Custom, {
-                type : "mousescroll",
-                init : function(view, event, delta, items, expanded, onInit, opt_logFunction) {
-                    var matTemp = event.jGetPageXY();
-                    this.x = matTemp.x;
-                    this.y = matTemp.y;
-                    this.timeStamp = event.timeStamp;
-                    /** @type {!Object} */
-                    this.target = view;
-                    this.delta = delta || 0;
-                    this.deltaX = items || 0;
-                    this.deltaY = expanded || 0;
-                    this.deltaZ = onInit || 0;
-                    this.deltaFactor = opt_logFunction || 0;
-                    this.deltaMode = event.deltaMode || 0;
-                    /** @type {boolean} */
+        }(W));
+        (function(af) {
+            var ad = af.$;
+            af.Event.Custom.mousescroll = new af.Class(af.extend(af.Event.Custom, {
+                type: "mousescroll",
+                init: function(al, ak, an, ah, ag, am, ai) {
+                    var aj = ak.jGetPageXY();
+                    this.x = aj.x;
+                    this.y = aj.y;
+                    this.timeStamp = ak.timeStamp;
+                    this.target = al;
+                    this.delta = an || 0;
+                    this.deltaX = ah || 0;
+                    this.deltaY = ag || 0;
+                    this.deltaZ = am || 0;
+                    this.deltaFactor = ai || 0;
+                    this.deltaMode = ak.deltaMode || 0;
                     this.isMouse = false;
-                    this.pushToEvents(event);
+                    this.pushToEvents(ak)
                 }
             }));
-            var lowestDelta;
-            var _takingTooLongTimeout;
-            self.Event.Custom.mousescroll.handler = {
-                eventType : "onwheel" in document || self.browser.ieMode > 8 ? "wheel" : "mousewheel",
-                add : function() {
-                    this.jAddEvent(self.Event.Custom.mousescroll.handler.eventType, self.Event.Custom.mousescroll.handler.handle, 1);
+            var ae, ab;
+
+            function aa() {
+                ae = null
+            }
+
+            function ac(ag, ah) {
+                return (ag > 50) || (1 === ah && !("win" == af.browser.platform && ag < 1)) || (0 === ag % 12) || (0 == ag % 4.000244140625)
+            }
+            af.Event.Custom.mousescroll.handler = {
+                eventType: "onwheel" in document || af.browser.ieMode > 8 ? "wheel" : "mousewheel",
+                add: function() {
+                    this.jAddEvent(af.Event.Custom.mousescroll.handler.eventType, af.Event.Custom.mousescroll.handler.handle, 1)
                 },
-                jRemove : function() {
-                    this.jRemoveEvent(self.Event.Custom.mousescroll.handler.eventType, self.Event.Custom.mousescroll.handler.handle, 1);
+                jRemove: function() {
+                    this.jRemoveEvent(af.Event.Custom.mousescroll.handler.eventType, af.Event.Custom.mousescroll.handler.handle, 1)
                 },
-                handle : function(e) {
-                    /** @type {number} */
-                    var delta = 0;
-                    /** @type {number} */
-                    var deltaX = 0;
-                    /** @type {number} */
-                    var deltaY = 0;
-                    /** @type {number} */
-                    var absDelta = 0;
-                    var fn;
-                    var event;
-                    if (e.detail) {
-                        /** @type {number} */
-                        deltaY = e.detail * -1;
+                handle: function(al) {
+                    var am = 0,
+                        aj = 0,
+                        ah = 0,
+                        ag = 0,
+                        ak, ai;
+                    if (al.detail) {
+                        ah = al.detail * -1
                     }
-                    if (e.wheelDelta !== undefined) {
-                        deltaY = e.wheelDelta;
+                    if (al.wheelDelta !== undefined) {
+                        ah = al.wheelDelta
                     }
-                    if (e.wheelDeltaY !== undefined) {
-                        deltaY = e.wheelDeltaY;
+                    if (al.wheelDeltaY !== undefined) {
+                        ah = al.wheelDeltaY
                     }
-                    if (e.wheelDeltaX !== undefined) {
-                        /** @type {number} */
-                        deltaX = e.wheelDeltaX * -1;
+                    if (al.wheelDeltaX !== undefined) {
+                        aj = al.wheelDeltaX * -1
                     }
-                    if (e.deltaY) {
-                        /** @type {number} */
-                        deltaY = -1 * e.deltaY;
+                    if (al.deltaY) {
+                        ah = -1 * al.deltaY
                     }
-                    if (e.deltaX) {
-                        deltaX = e.deltaX;
+                    if (al.deltaX) {
+                        aj = al.deltaX
                     }
-                    if (0 === deltaY && 0 === deltaX) {
-                        return;
+                    if (0 === ah && 0 === aj) {
+                        return
                     }
-                    delta = 0 === deltaY ? deltaX : deltaY;
-                    /** @type {number} */
-                    absDelta = Math.max(Math.abs(deltaY), Math.abs(deltaX));
-                    if (!lowestDelta || absDelta < lowestDelta) {
-                        /** @type {number} */
-                        lowestDelta = absDelta;
+                    am = 0 === ah ? aj : ah;
+                    ag = Math.max(Math.abs(ah), Math.abs(aj));
+                    if (!ae || ag < ae) {
+                        ae = ag
                     }
-                    /** @type {string} */
-                    fn = delta > 0 ? "floor" : "ceil";
-                    delta = Math[fn](delta / lowestDelta);
-                    deltaX = Math[fn](deltaX / lowestDelta);
-                    deltaY = Math[fn](deltaY / lowestDelta);
-                    if (_takingTooLongTimeout) {
-                        clearTimeout(_takingTooLongTimeout);
+                    ak = am > 0 ? "floor" : "ceil";
+                    am = Math[ak](am / ae);
+                    aj = Math[ak](aj / ae);
+                    ah = Math[ak](ah / ae);
+                    if (ab) {
+                        clearTimeout(ab)
                     }
-                    /** @type {number} */
-                    _takingTooLongTimeout = setTimeout(scrollHeightObserver, 200);
-                    event = new self.Event.Custom.mousescroll(this, e, delta, deltaX, deltaY, 0, lowestDelta);
-                    event.isMouse = perform_graphics_ops(lowestDelta, e.deltaMode || 0);
-                    this.jCallEvent("mousescroll", event);
+                    ab = setTimeout(aa, 200);
+                    ai = new af.Event.Custom.mousescroll(this, al, am, aj, ah, 0, ae);
+                    ai.isMouse = ac(ae, al.deltaMode || 0);
+                    this.jCallEvent("mousescroll", ai)
                 }
-            };
-        })(self);
-        $.win = $.$(window);
-        $.doc = $.$(document);
-        return self;
-    }();
-    (function($) {
-        if (!$) {
-            throw "MagicJS not found";
+            }
+        })(W);
+        Q.win = Q.$(window);
+        Q.doc = Q.$(document);
+        return W
+    })();
+    (function(M) {
+        if (!M) {
+            throw "MagicJS not found"
         }
-        var push = $.$;
-        var URL = window.URL || window.webkitURL || null;
-        jQuery.ImageLoader = new $.Class({
-            img : null,
-            ready : false,
-            options : {
-                onprogress : $.$F,
-                onload : $.$F,
-                onabort : $.$F,
-                onerror : $.$F,
-                oncomplete : $.$F,
-                onxhrerror : $.$F,
-                xhr : false,
-                progressiveLoad : true
+        var L = M.$;
+        var K = window.URL || window.webkitURL || null;
+        B.ImageLoader = new M.Class({
+            img: null,
+            ready: false,
+            options: {
+                onprogress: M.$F,
+                onload: M.$F,
+                onabort: M.$F,
+                onerror: M.$F,
+                oncomplete: M.$F,
+                onxhrerror: M.$F,
+                xhr: false,
+                progressiveLoad: true
             },
-            size : null,
-            _timer : null,
-            loadedBytes : 0,
-            _handlers : {
-                onprogress : function(event) {
-                    if (event.target && (200 === event.target.status || 304 === event.target.status) && event.lengthComputable) {
-                        this.options.onprogress.jBind(null, (event.loaded - (this.options.progressiveLoad ? this.loadedBytes : 0)) / event.total).jDelay(1);
-                        this.loadedBytes = event.loaded;
+            size: null,
+            _timer: null,
+            loadedBytes: 0,
+            _handlers: {
+                onprogress: function(N) {
+                    if (N.target && (200 === N.target.status || 304 === N.target.status) && N.lengthComputable) {
+                        this.options.onprogress.jBind(null, (N.loaded - (this.options.progressiveLoad ? this.loadedBytes : 0)) / N.total).jDelay(1);
+                        this.loadedBytes = N.loaded
                     }
                 },
-                onload : function(val) {
-                    if (val) {
-                        push(val).stop();
+                onload: function(N) {
+                    if (N) {
+                        L(N).stop()
                     }
                     this._unbind();
                     if (this.ready) {
-                        return;
+                        return
                     }
-                    /** @type {boolean} */
                     this.ready = true;
                     this._cleanup();
-                    if (!this.options.xhr) {
-                        this.options.onprogress.jBind(null, 1).jDelay(1);
-                    }
+                    !this.options.xhr && this.options.onprogress.jBind(null, 1).jDelay(1);
                     this.options.onload.jBind(null, this).jDelay(1);
-                    this.options.oncomplete.jBind(null, this).jDelay(1);
+                    this.options.oncomplete.jBind(null, this).jDelay(1)
                 },
-                onabort : function(e) {
-                    if (e) {
-                        push(e).stop();
+                onabort: function(N) {
+                    if (N) {
+                        L(N).stop()
                     }
                     this._unbind();
-                    /** @type {boolean} */
                     this.ready = false;
                     this._cleanup();
                     this.options.onabort.jBind(null, this).jDelay(1);
-                    this.options.oncomplete.jBind(null, this).jDelay(1);
+                    this.options.oncomplete.jBind(null, this).jDelay(1)
                 },
-                onerror : function(e) {
-                    if (e) {
-                        push(e).stop();
+                onerror: function(N) {
+                    if (N) {
+                        L(N).stop()
                     }
                     this._unbind();
-                    /** @type {boolean} */
                     this.ready = false;
                     this._cleanup();
                     this.options.onerror.jBind(null, this).jDelay(1);
-                    this.options.oncomplete.jBind(null, this).jDelay(1);
+                    this.options.oncomplete.jBind(null, this).jDelay(1)
                 }
             },
-            _bind : function() {
-                push(["load", "abort", "error"]).jEach(function(evt) {
-                    this.img.jAddEvent(evt, this._handlers["on" + evt].jBindAsEvent(this).jDefer(1));
-                }, this);
+            _bind: function() {
+                L(["load", "abort", "error"]).jEach(function(N) {
+                    this.img.jAddEvent(N, this._handlers["on" + N].jBindAsEvent(this).jDefer(1))
+                }, this)
             },
-            _unbind : function() {
+            _unbind: function() {
                 if (this._timer) {
                     try {
-                        clearTimeout(this._timer);
-                    } catch (N) {
-                    }
-                    /** @type {null} */
-                    this._timer = null;
+                        clearTimeout(this._timer)
+                    } catch (N) {}
+                    this._timer = null
                 }
-                push(["load", "abort", "error"]).jEach(function(size) {
-                    this.img.jRemoveEvent(size);
-                }, this);
+                L(["load", "abort", "error"]).jEach(function(O) {
+                    this.img.jRemoveEvent(O)
+                }, this)
             },
-            _cleanup : function() {
+            _cleanup: function() {
                 this.jGetSize();
                 if (this.img.jFetch("new")) {
-                    var s = this.img.parentNode;
+                    var N = this.img.parentNode;
                     this.img.jRemove().jDel("new").jSetCss({
-                        position : "static",
-                        top : "auto"
+                        position: "static",
+                        top: "auto"
                     });
-                    s.kill();
+                    N.kill()
                 }
             },
-            loadBlob : function(url) {
-                /** @type {!XMLHttpRequest} */
-                var req = new XMLHttpRequest;
-                var blob;
-                push(["abort", "progress"]).jEach(function(i) {
-                    req["on" + i] = push(function(p1__3354_SHARP_) {
-                        this._handlers["on" + i].call(this, p1__3354_SHARP_);
-                    }).jBind(this);
+            loadBlob: function(O) {
+                var P = new XMLHttpRequest(),
+                    N;
+                L(["abort", "progress"]).jEach(function(Q) {
+                    P["on" + Q] = L(function(R) {
+                        this._handlers["on" + Q].call(this, R)
+                    }).jBind(this)
                 }, this);
-                req.onerror = push(function() {
+                P.onerror = L(function() {
                     this.options.onxhrerror.jBind(null, this).jDelay(1);
-                    /** @type {boolean} */
                     this.options.xhr = false;
                     this._bind();
-                    /** @type {!Object} */
-                    this.img.src = url;
+                    this.img.src = O
                 }).jBind(this);
-                req.onload = push(function() {
-                    if (200 !== req.status && 304 !== req.status) {
+                P.onload = L(function() {
+                    if (200 !== P.status && 304 !== P.status) {
                         this._handlers.onerror.call(this);
-                        return;
+                        return
                     }
-                    /** @type {(Object|null|string)} */
-                    blob = req.response;
+                    N = P.response;
                     this._bind();
-                    if (URL && !$.browser.trident && !("ios" === $.browser.platform && $.browser.version < 537)) {
-                        this.img.setAttribute("src", URL.createObjectURL(blob));
+                    if (K && !M.browser.trident && !("ios" === M.browser.platform && M.browser.version < 537)) {
+                        this.img.setAttribute("src", K.createObjectURL(N))
                     } else {
-                        /** @type {!Object} */
-                        this.img.src = url;
+                        this.img.src = O
                     }
                 }).jBind(this);
-                req.open("GET", url);
-                /** @type {string} */
-                req.responseType = "blob";
-                req.send();
+                P.open("GET", O);
+                P.responseType = "blob";
+                P.send()
             },
-            init : function(image, options) {
-                this.options = $.extend(this.options, options);
-                this.img = push(image) || $.$new("img", {}, {
-                    "max-width" : "none",
-                    "max-height" : "none"
-                }).jAppendTo($.$new("div").jAddClass("magic-temporary-img").jSetCss({
-                    position : "absolute",
-                    top : -1E4,
-                    width : 10,
-                    height : 10,
-                    overflow : "hidden"
+            init: function(O, N) {
+                this.options = M.extend(this.options, N);
+                this.img = L(O) || M.$new("img", {}, {
+                    "max-width": "none",
+                    "max-height": "none"
+                }).jAppendTo(M.$new("div").jAddClass("magic-temporary-img").jSetCss({
+                    position: "absolute",
+                    top: -10000,
+                    width: 10,
+                    height: 10,
+                    overflow: "hidden"
                 }).jAppendTo(document.body)).jStore("new", true);
-                if ($.browser.features.xhr2 && this.options.xhr && "string" == $.jTypeOf(image)) {
-                    this.loadBlob(image);
-                    return;
+                if (M.browser.features.xhr2 && this.options.xhr && "string" == M.jTypeOf(O)) {
+                    this.loadBlob(O);
+                    return
                 }
-                var slideBackward = function() {
+                var P = function() {
                     if (this.isReady()) {
-                        this._handlers.onload.call(this);
+                        this._handlers.onload.call(this)
                     } else {
-                        this._handlers.onerror.call(this);
+                        this._handlers.onerror.call(this)
                     }
-                    /** @type {null} */
-                    slideBackward = null;
+                    P = null
                 }.jBind(this);
                 this._bind();
-                if ("string" == $.jTypeOf(image)) {
-                    /** @type {!Object} */
-                    this.img.src = image;
+                if ("string" == M.jTypeOf(O)) {
+                    this.img.src = O
                 } else {
-                    if ($.browser.trident && 5 == $.browser.version && $.browser.ieMode < 9) {
+                    if (M.browser.trident && 5 == M.browser.version && M.browser.ieMode < 9) {
                         this.img.onreadystatechange = function() {
                             if (/loaded|complete/.test(this.img.readyState)) {
-                                /** @type {null} */
                                 this.img.onreadystatechange = null;
-                                if (slideBackward) {
-                                    slideBackward();
-                                }
+                                P && P()
                             }
-                        }.jBind(this);
+                        }.jBind(this)
                     }
-                    this.img.src = image.getAttribute("src");
+                    this.img.src = O.getAttribute("src")
                 }
-                if (this.img && this.img.complete && slideBackward) {
-                    this._timer = slideBackward.jDelay(100);
-                }
+                this.img && this.img.complete && P && (this._timer = P.jDelay(100))
             },
-            destroy : function() {
+            destroy: function() {
                 this._unbind();
                 this._cleanup();
-                /** @type {boolean} */
                 this.ready = false;
-                return this;
+                return this
             },
-            isReady : function() {
-                var img = this.img;
-                return img.naturalWidth ? img.naturalWidth > 0 : img.readyState ? "complete" == img.readyState : img.width > 0;
+            isReady: function() {
+                var N = this.img;
+                return (N.naturalWidth) ? (N.naturalWidth > 0) : (N.readyState) ? ("complete" == N.readyState) : N.width > 0
             },
-            jGetSize : function() {
+            jGetSize: function() {
                 return this.size || (this.size = {
-                    width : this.img.naturalWidth || this.img.width,
-                    height : this.img.naturalHeight || this.img.height
-                });
+                    width: this.img.naturalWidth || this.img.width,
+                    height: this.img.naturalHeight || this.img.height
+                })
             }
-        });
-    })(jQuery);
-    (function($) {
-        if (!$) {
-            throw "MagicJS not found";
+        })
+    })(B);
+    (function(L) {
+        if (!L) {
+            throw "MagicJS not found"
         }
-        if ($.FX) {
-            return;
+        if (L.FX) {
+            return
         }
-        var includeScroll = $.$;
-        $.FX = new $.Class({
-            init : function(type, customOptions) {
-                var f;
-                this.el = $.$(type);
-                this.options = $.extend(this.options, customOptions);
-                /** @type {boolean} */
+        var K = L.$;
+        L.FX = new L.Class({
+            init: function(N, M) {
+                var O;
+                this.el = L.$(N);
+                this.options = L.extend(this.options, M);
                 this.timer = false;
                 this.easeFn = this.cubicBezierAtTime;
-                f = $.FX.Transition[this.options.transition] || this.options.transition;
-                if ("function" === $.jTypeOf(f)) {
-                    this.easeFn = f;
+                O = L.FX.Transition[this.options.transition] || this.options.transition;
+                if ("function" === L.jTypeOf(O)) {
+                    this.easeFn = O
                 } else {
-                    this.cubicBezier = this.parseCubicBezier(f) || this.parseCubicBezier("ease");
+                    this.cubicBezier = this.parseCubicBezier(O) || this.parseCubicBezier("ease")
                 }
-                if ("string" == $.jTypeOf(this.options.cycles)) {
-                    /** @type {number} */
-                    this.options.cycles = "infinite" === this.options.cycles ? Infinity : parseInt(this.options.cycles) || 1;
+                if ("string" == L.jTypeOf(this.options.cycles)) {
+                    this.options.cycles = "infinite" === this.options.cycles ? Infinity : parseInt(this.options.cycles) || 1
                 }
             },
-            options : {
-                fps : 60,
-                duration : 600,
-                transition : "ease",
-                cycles : 1,
-                direction : "normal",
-                onStart : $.$F,
-                onComplete : $.$F,
-                onBeforeRender : $.$F,
-                onAfterRender : $.$F,
-                forceAnimation : false,
-                roundCss : false
+            options: {
+                fps: 60,
+                duration: 600,
+                transition: "ease",
+                cycles: 1,
+                direction: "normal",
+                onStart: L.$F,
+                onComplete: L.$F,
+                onBeforeRender: L.$F,
+                onAfterRender: L.$F,
+                forceAnimation: false,
+                roundCss: false
             },
-            styles : null,
-            cubicBezier : null,
-            easeFn : null,
-            setTransition : function(value) {
-                /** @type {string} */
-                this.options.transition = value;
-                value = $.FX.Transition[this.options.transition] || this.options.transition;
-                if ("function" === $.jTypeOf(value)) {
-                    /** @type {string} */
-                    this.easeFn = value;
+            styles: null,
+            cubicBezier: null,
+            easeFn: null,
+            setTransition: function(M) {
+                this.options.transition = M;
+                M = L.FX.Transition[this.options.transition] || this.options.transition;
+                if ("function" === L.jTypeOf(M)) {
+                    this.easeFn = M
                 } else {
                     this.easeFn = this.cubicBezierAtTime;
-                    this.cubicBezier = this.parseCubicBezier(value) || this.parseCubicBezier("ease");
+                    this.cubicBezier = this.parseCubicBezier(M) || this.parseCubicBezier("ease")
                 }
             },
-            start : function(name) {
-                /** @type {!RegExp} */
-                var currencyRegExp = /%$/;
-                var i;
-                this.styles = name || {};
-                /** @type {number} */
+            start: function(O) {
+                var M = /\%$/,
+                    N;
+                this.styles = O || {};
                 this.cycle = 0;
-                /** @type {number} */
                 this.state = 0;
-                /** @type {number} */
                 this.curFrame = 0;
                 this.pStyles = {};
-                /** @type {boolean} */
                 this.alternate = "alternate" === this.options.direction || "alternate-reverse" === this.options.direction;
-                /** @type {boolean} */
                 this.continuous = "continuous" === this.options.direction || "continuous-reverse" === this.options.direction;
-                for (i in this.styles) {
-                    if (currencyRegExp.test(this.styles[i][0])) {
-                        /** @type {boolean} */
-                        this.pStyles[i] = true;
-                    }
+                for (N in this.styles) {
+                    M.test(this.styles[N][0]) && (this.pStyles[N] = true);
                     if ("reverse" === this.options.direction || "alternate-reverse" === this.options.direction || "continuous-reverse" === this.options.direction) {
-                        this.styles[i].reverse();
+                        this.styles[N].reverse()
                     }
                 }
-                this.startTime = $.now();
+                this.startTime = L.now();
                 this.finishTime = this.startTime + this.options.duration;
                 this.options.onStart.call();
                 if (0 === this.options.duration) {
                     this.render(1);
-                    this.options.onComplete.call();
+                    this.options.onComplete.call()
                 } else {
                     this.loopBind = this.loop.jBind(this);
-                    if (!this.options.forceAnimation && $.browser.features.requestAnimationFrame) {
-                        this.timer = $.browser.requestAnimationFrame.call(window, this.loopBind);
+                    if (!this.options.forceAnimation && L.browser.features.requestAnimationFrame) {
+                        this.timer = L.browser.requestAnimationFrame.call(window, this.loopBind)
                     } else {
-                        this.timer = this.loopBind.interval(Math.round(1E3 / this.options.fps));
+                        this.timer = this.loopBind.interval(Math.round(1000 / this.options.fps))
                     }
                 }
-                return this;
+                return this
             },
-            stopAnimation : function() {
+            stopAnimation: function() {
                 if (this.timer) {
-                    if (!this.options.forceAnimation && $.browser.features.requestAnimationFrame && $.browser.cancelAnimationFrame) {
-                        $.browser.cancelAnimationFrame.call(window, this.timer);
+                    if (!this.options.forceAnimation && L.browser.features.requestAnimationFrame && L.browser.cancelAnimationFrame) {
+                        L.browser.cancelAnimationFrame.call(window, this.timer)
                     } else {
-                        clearInterval(this.timer);
+                        clearInterval(this.timer)
                     }
-                    /** @type {boolean} */
-                    this.timer = false;
+                    this.timer = false
                 }
             },
-            stop : function(prop) {
-                prop = $.defined(prop) ? prop : false;
+            stop: function(M) {
+                M = L.defined(M) ? M : false;
                 this.stopAnimation();
-                if (prop) {
+                if (M) {
                     this.render(1);
-                    this.options.onComplete.jDelay(10);
+                    this.options.onComplete.jDelay(10)
                 }
-                return this;
+                return this
             },
-            calc : function(f, n, s) {
-                /** @type {number} */
-                f = parseFloat(f);
-                /** @type {number} */
-                n = parseFloat(n);
-                return (n - f) * s + f;
+            calc: function(O, N, M) {
+                O = parseFloat(O);
+                N = parseFloat(N);
+                return (N - O) * M + O
             },
-            loop : function() {
-                var time = $.now();
-                /** @type {number} */
-                var upDelta = (time - this.startTime) / this.options.duration;
-                /** @type {number} */
-                var TOTAL_DMA_CYCLES = Math.floor(upDelta);
-                if (time >= this.finishTime && TOTAL_DMA_CYCLES >= this.options.cycles) {
+            loop: function() {
+                var N = L.now(),
+                    M = (N - this.startTime) / this.options.duration,
+                    O = Math.floor(M);
+                if (N >= this.finishTime && O >= this.options.cycles) {
                     this.stopAnimation();
                     this.render(1);
                     this.options.onComplete.jDelay(10);
-                    return this;
+                    return this
                 }
-                if (this.alternate && this.cycle < TOTAL_DMA_CYCLES) {
-                    var i;
-                    for (i in this.styles) {
-                        this.styles[i].reverse();
+                if (this.alternate && this.cycle < O) {
+                    for (var P in this.styles) {
+                        this.styles[P].reverse()
                     }
                 }
-                /** @type {number} */
-                this.cycle = TOTAL_DMA_CYCLES;
-                if (!this.options.forceAnimation && $.browser.features.requestAnimationFrame) {
-                    this.timer = $.browser.requestAnimationFrame.call(window, this.loopBind);
+                this.cycle = O;
+                if (!this.options.forceAnimation && L.browser.features.requestAnimationFrame) {
+                    this.timer = L.browser.requestAnimationFrame.call(window, this.loopBind)
                 }
-                this.render((this.continuous ? TOTAL_DMA_CYCLES : 0) + this.easeFn(upDelta % 1));
+                this.render((this.continuous ? O : 0) + this.easeFn(M % 1))
             },
-            render : function(value) {
-                var data = {};
-                /** @type {number} */
-                var expectedRenderable = value;
-                var s;
-                for (s in this.styles) {
-                    if ("opacity" === s) {
-                        /** @type {number} */
-                        data[s] = Math.round(this.calc(this.styles[s][0], this.styles[s][1], value) * 100) / 100;
+            render: function(M) {
+                var N = {},
+                    P = M;
+                for (var O in this.styles) {
+                    if ("opacity" === O) {
+                        N[O] = Math.round(this.calc(this.styles[O][0], this.styles[O][1], M) * 100) / 100
                     } else {
-                        data[s] = this.calc(this.styles[s][0], this.styles[s][1], value);
-                        if (this.pStyles[s]) {
-                            data[s] += "%";
-                        }
+                        N[O] = this.calc(this.styles[O][0], this.styles[O][1], M);
+                        this.pStyles[O] && (N[O] += "%")
                     }
                 }
-                this.options.onBeforeRender(data, this.el);
-                this.set(data);
-                this.options.onAfterRender(data, this.el);
+                this.options.onBeforeRender(N, this.el);
+                this.set(N);
+                this.options.onAfterRender(N, this.el)
             },
-            set : function(val) {
-                return this.el.jSetCss(val);
+            set: function(M) {
+                return this.el.jSetCss(M)
             },
-            parseCubicBezier : function(input) {
-                var i;
-                /** @type {null} */
-                var offsets = null;
-                if ("string" !== $.jTypeOf(input)) {
-                    return null;
+            parseCubicBezier: function(M) {
+                var N, O = null;
+                if ("string" !== L.jTypeOf(M)) {
+                    return null
                 }
-                switch(input) {
+                switch (M) {
                     case "linear":
-                        offsets = includeScroll([0, 0, 1, 1]);
+                        O = K([0, 0, 1, 1]);
                         break;
                     case "ease":
-                        offsets = includeScroll([.25, .1, .25, 1]);
+                        O = K([0.25, 0.1, 0.25, 1]);
                         break;
                     case "ease-in":
-                        offsets = includeScroll([.42, 0, 1, 1]);
+                        O = K([0.42, 0, 1, 1]);
                         break;
                     case "ease-out":
-                        offsets = includeScroll([0, 0, .58, 1]);
+                        O = K([0, 0, 0.58, 1]);
                         break;
                     case "ease-in-out":
-                        offsets = includeScroll([.42, 0, .58, 1]);
+                        O = K([0.42, 0, 0.58, 1]);
                         break;
                     case "easeInSine":
-                        offsets = includeScroll([.47, 0, .745, .715]);
+                        O = K([0.47, 0, 0.745, 0.715]);
                         break;
                     case "easeOutSine":
-                        offsets = includeScroll([.39, .575, .565, 1]);
+                        O = K([0.39, 0.575, 0.565, 1]);
                         break;
                     case "easeInOutSine":
-                        offsets = includeScroll([.445, .05, .55, .95]);
+                        O = K([0.445, 0.05, 0.55, 0.95]);
                         break;
                     case "easeInQuad":
-                        offsets = includeScroll([.55, .085, .68, .53]);
+                        O = K([0.55, 0.085, 0.68, 0.53]);
                         break;
                     case "easeOutQuad":
-                        offsets = includeScroll([.25, .46, .45, .94]);
+                        O = K([0.25, 0.46, 0.45, 0.94]);
                         break;
                     case "easeInOutQuad":
-                        offsets = includeScroll([.455, .03, .515, .955]);
+                        O = K([0.455, 0.03, 0.515, 0.955]);
                         break;
                     case "easeInCubic":
-                        offsets = includeScroll([.55, .055, .675, .19]);
+                        O = K([0.55, 0.055, 0.675, 0.19]);
                         break;
                     case "easeOutCubic":
-                        offsets = includeScroll([.215, .61, .355, 1]);
+                        O = K([0.215, 0.61, 0.355, 1]);
                         break;
                     case "easeInOutCubic":
-                        offsets = includeScroll([.645, .045, .355, 1]);
+                        O = K([0.645, 0.045, 0.355, 1]);
                         break;
                     case "easeInQuart":
-                        offsets = includeScroll([.895, .03, .685, .22]);
+                        O = K([0.895, 0.03, 0.685, 0.22]);
                         break;
                     case "easeOutQuart":
-                        offsets = includeScroll([.165, .84, .44, 1]);
+                        O = K([0.165, 0.84, 0.44, 1]);
                         break;
                     case "easeInOutQuart":
-                        offsets = includeScroll([.77, 0, .175, 1]);
+                        O = K([0.77, 0, 0.175, 1]);
                         break;
                     case "easeInQuint":
-                        offsets = includeScroll([.755, .05, .855, .06]);
+                        O = K([0.755, 0.05, 0.855, 0.06]);
                         break;
                     case "easeOutQuint":
-                        offsets = includeScroll([.23, 1, .32, 1]);
+                        O = K([0.23, 1, 0.32, 1]);
                         break;
                     case "easeInOutQuint":
-                        offsets = includeScroll([.86, 0, .07, 1]);
+                        O = K([0.86, 0, 0.07, 1]);
                         break;
                     case "easeInExpo":
-                        offsets = includeScroll([.95, .05, .795, .035]);
+                        O = K([0.95, 0.05, 0.795, 0.035]);
                         break;
                     case "easeOutExpo":
-                        offsets = includeScroll([.19, 1, .22, 1]);
+                        O = K([0.19, 1, 0.22, 1]);
                         break;
                     case "easeInOutExpo":
-                        offsets = includeScroll([1, 0, 0, 1]);
+                        O = K([1, 0, 0, 1]);
                         break;
                     case "easeInCirc":
-                        offsets = includeScroll([.6, .04, .98, .335]);
+                        O = K([0.6, 0.04, 0.98, 0.335]);
                         break;
                     case "easeOutCirc":
-                        offsets = includeScroll([.075, .82, .165, 1]);
+                        O = K([0.075, 0.82, 0.165, 1]);
                         break;
                     case "easeInOutCirc":
-                        offsets = includeScroll([.785, .135, .15, .86]);
+                        O = K([0.785, 0.135, 0.15, 0.86]);
                         break;
                     case "easeInBack":
-                        offsets = includeScroll([.6, -.28, .735, .045]);
+                        O = K([0.6, -0.28, 0.735, 0.045]);
                         break;
                     case "easeOutBack":
-                        offsets = includeScroll([.175, .885, .32, 1.275]);
+                        O = K([0.175, 0.885, 0.32, 1.275]);
                         break;
                     case "easeInOutBack":
-                        offsets = includeScroll([.68, -.55, .265, 1.55]);
+                        O = K([0.68, -0.55, 0.265, 1.55]);
                         break;
                     default:
-                        input = input.replace(/\s/g, "");
-                        if (input.match(/^cubic-bezier\((?:-?[0-9\.]{0,}[0-9]{1,},){3}(?:-?[0-9\.]{0,}[0-9]{1,})\)$/)) {
-                            offsets = input.replace(/^cubic-bezier\s*\(|\)$/g, "").split(",");
-                            /** @type {number} */
-                            i = offsets.length - 1;
-                            for (; i >= 0; i--) {
-                                /** @type {number} */
-                                offsets[i] = parseFloat(offsets[i]);
+                        M = M.replace(/\s/g, "");
+                        if (M.match(/^cubic-bezier\((?:-?[0-9\.]{0,}[0-9]{1,},){3}(?:-?[0-9\.]{0,}[0-9]{1,})\)$/)) {
+                            O = M.replace(/^cubic-bezier\s*\(|\)$/g, "").split(",");
+                            for (N = O.length - 1; N >= 0; N--) {
+                                O[N] = parseFloat(O[N])
                             }
                         }
                 }
-                return includeScroll(offsets);
+                return K(O)
             },
-            cubicBezierAtTime : function(t) {
-                /**
-                 * @param {!Object} t
-                 * @return {?}
-                 */
-                function sampleCurveX(t) {
-                    return ((a * t + b) * t + c) * t;
+            cubicBezierAtTime: function(Y) {
+                var M = 0,
+                    X = 0,
+                    U = 0,
+                    Z = 0,
+                    W = 0,
+                    S = 0,
+                    T = this.options.duration;
+
+                function R(aa) {
+                    return ((M * aa + X) * aa + U) * aa
                 }
-                /**
-                 * @param {?} t
-                 * @return {?}
-                 */
-                function sampleCurveY(t) {
-                    return ((ay * t + by) * t + cy) * t;
+
+                function Q(aa) {
+                    return ((Z * aa + W) * aa + S) * aa
                 }
-                /**
-                 * @param {number} t
-                 * @return {?}
-                 */
-                function sampleCurveDerivativeX(t) {
-                    return (3 * a * t + 2 * b) * t + c;
+
+                function O(aa) {
+                    return (3 * M * aa + 2 * X) * aa + U
                 }
-                /**
-                 * @param {number} duration
-                 * @return {?}
-                 */
-                function solveEpsilon(duration) {
-                    return 1 / (200 * duration);
+
+                function V(aa) {
+                    return 1 / (200 * aa)
                 }
-                /**
-                 * @param {number} x
-                 * @param {?} epsilon
-                 * @return {?}
-                 */
-                function solve(x, epsilon) {
-                    return sampleCurveY(solveCurveX(x, epsilon));
+
+                function N(aa, ab) {
+                    return Q(P(aa, ab))
                 }
-                /**
-                 * @param {number} x
-                 * @param {?} epsilon
-                 * @return {?}
-                 */
-                function solveCurveX(x, epsilon) {
-                    /**
-                     * @param {number} n
-                     * @return {?}
-                     */
-                    function fabs(n) {
-                        if (n >= 0) {
-                            return n;
+
+                function P(ah, ai) {
+                    var ag, af, ae, ab, aa, ad;
+
+                    function ac(aj) {
+                        if (aj >= 0) {
+                            return aj
                         } else {
-                            return 0 - n;
+                            return 0 - aj
                         }
                     }
-                    var t0;
-                    var t1;
-                    var t2;
-                    var x2;
-                    var d2;
-                    var ad;
-                    /** @type {number} */
-                    t2 = x;
-                    /** @type {number} */
-                    ad = 0;
-                    for (; ad < 8; ad++) {
-                        /** @type {number} */
-                        x2 = sampleCurveX(t2) - x;
-                        if (fabs(x2) < epsilon) {
-                            return t2;
+                    for (ae = ah, ad = 0; ad < 8; ad++) {
+                        ab = R(ae) - ah;
+                        if (ac(ab) < ai) {
+                            return ae
                         }
-                        d2 = sampleCurveDerivativeX(t2);
-                        if (fabs(d2) < 1E-6) {
-                            break;
+                        aa = O(ae);
+                        if (ac(aa) < 0.000001) {
+                            break
                         }
-                        /** @type {number} */
-                        t2 = t2 - x2 / d2;
+                        ae = ae - ab / aa
                     }
-                    /** @type {number} */
-                    t0 = 0;
-                    /** @type {number} */
-                    t1 = 1;
-                    /** @type {number} */
-                    t2 = x;
-                    if (t2 < t0) {
-                        return t0;
+                    ag = 0;
+                    af = 1;
+                    ae = ah;
+                    if (ae < ag) {
+                        return ag
                     }
-                    if (t2 > t1) {
-                        return t1;
+                    if (ae > af) {
+                        return af
                     }
-                    for (; t0 < t1;) {
-                        x2 = sampleCurveX(t2);
-                        if (fabs(x2 - x) < epsilon) {
-                            return t2;
+                    while (ag < af) {
+                        ab = R(ae);
+                        if (ac(ab - ah) < ai) {
+                            return ae
                         }
-                        if (x > x2) {
-                            t0 = t2;
+                        if (ah > ab) {
+                            ag = ae
                         } else {
-                            t1 = t2;
+                            af = ae
                         }
-                        t2 = (t1 - t0) * .5 + t0;
+                        ae = (af - ag) * 0.5 + ag
                     }
-                    return t2;
+                    return ae
                 }
-                /** @type {number} */
-                var a = 0;
-                /** @type {number} */
-                var b = 0;
-                /** @type {number} */
-                var c = 0;
-                /** @type {number} */
-                var ay = 0;
-                /** @type {number} */
-                var by = 0;
-                /** @type {number} */
-                var cy = 0;
-                var duration = this.options.duration;
-                /** @type {number} */
-                c = 3 * this.cubicBezier[0];
-                /** @type {number} */
-                b = 3 * (this.cubicBezier[2] - this.cubicBezier[0]) - c;
-                /** @type {number} */
-                a = 1 - c - b;
-                /** @type {number} */
-                cy = 3 * this.cubicBezier[1];
-                /** @type {number} */
-                by = 3 * (this.cubicBezier[3] - this.cubicBezier[1]) - cy;
-                /** @type {number} */
-                ay = 1 - cy - by;
-                return solve(t, solveEpsilon(duration));
+                U = 3 * this.cubicBezier[0];
+                X = 3 * (this.cubicBezier[2] - this.cubicBezier[0]) - U;
+                M = 1 - U - X;
+                S = 3 * this.cubicBezier[1];
+                W = 3 * (this.cubicBezier[3] - this.cubicBezier[1]) - S;
+                Z = 1 - S - W;
+                return N(Y, V(T))
             }
         });
-        $.FX.Transition = {
-            linear : "linear",
-            sineIn : "easeInSine",
-            sineOut : "easeOutSine",
-            expoIn : "easeInExpo",
-            expoOut : "easeOutExpo",
-            quadIn : "easeInQuad",
-            quadOut : "easeOutQuad",
-            cubicIn : "easeInCubic",
-            cubicOut : "easeOutCubic",
-            backIn : "easeInBack",
-            backOut : "easeOutBack",
-            elasticIn : function(p, a) {
-                a = a || [];
-                return Math.pow(2, 10 * --p) * Math.cos(20 * p * Math.PI * (a[0] || 1) / 3);
+        L.FX.Transition = {
+            linear: "linear",
+            sineIn: "easeInSine",
+            sineOut: "easeOutSine",
+            expoIn: "easeInExpo",
+            expoOut: "easeOutExpo",
+            quadIn: "easeInQuad",
+            quadOut: "easeOutQuad",
+            cubicIn: "easeInCubic",
+            cubicOut: "easeOutCubic",
+            backIn: "easeInBack",
+            backOut: "easeOutBack",
+            elasticIn: function(N, M) {
+                M = M || [];
+                return Math.pow(2, 10 * --N) * Math.cos(20 * N * Math.PI * (M[0] || 1) / 3)
             },
-            elasticOut : function(a, b) {
-                return 1 - $.FX.Transition.elasticIn(1 - a, b);
+            elasticOut: function(N, M) {
+                return 1 - L.FX.Transition.elasticIn(1 - N, M)
             },
-            bounceIn : function(b) {
-                /** @type {number} */
-                var i = 0;
-                /** @type {number} */
-                var s = 1;
-                for (; 1; i = i + s, s = s / 2) {
-                    if (b >= (7 - 4 * i) / 11) {
-                        return s * s - Math.pow((11 - 6 * i - 11 * b) / 4, 2);
+            bounceIn: function(O) {
+                for (var N = 0, M = 1; 1; N += M, M /= 2) {
+                    if (O >= (7 - 4 * N) / 11) {
+                        return M * M - Math.pow((11 - 6 * N - 11 * O) / 4, 2)
                     }
                 }
             },
-            bounceOut : function(b) {
-                return 1 - $.FX.Transition.bounceIn(1 - b);
+            bounceOut: function(M) {
+                return 1 - L.FX.Transition.bounceIn(1 - M)
             },
-            none : function(deep) {
-                return 0;
+            none: function(M) {
+                return 0
             }
-        };
-    })(jQuery);
-    (function($) {
-        if (!$) {
-            throw "MagicJS not found";
         }
-        if ($.PFX) {
-            return;
+    })(B);
+    (function(L) {
+        if (!L) {
+            throw "MagicJS not found"
         }
-        var doc = $.$;
-        $.PFX = new $.Class($.FX, {
-            init : function(type, customOptions) {
-                /** @type {!Object} */
-                this.el_arr = type;
-                this.options = $.extend(this.options, customOptions);
-                /** @type {boolean} */
+        if (L.PFX) {
+            return
+        }
+        var K = L.$;
+        L.PFX = new L.Class(L.FX, {
+            init: function(M, N) {
+                this.el_arr = M;
+                this.options = L.extend(this.options, N);
                 this.timer = false;
-                this.$parent.init();
+                this.$parent.init()
             },
-            start : function(value) {
-                /** @type {!RegExp} */
-                var currencyRegExp = /%$/;
-                var i;
-                var j;
-                var valueLength = value.length;
-                /** @type {!Object} */
-                this.styles_arr = value;
-                /** @type {!Array} */
-                this.pStyles_arr = new Array(valueLength);
-                /** @type {number} */
-                j = 0;
-                for (; j < valueLength; j++) {
-                    this.pStyles_arr[j] = {};
-                    for (i in value[j]) {
-                        if (currencyRegExp.test(value[j][i][0])) {
-                            /** @type {boolean} */
-                            this.pStyles_arr[j][i] = true;
-                        }
+            start: function(Q) {
+                var M = /\%$/,
+                    P, O, N = Q.length;
+                this.styles_arr = Q;
+                this.pStyles_arr = new Array(N);
+                for (O = 0; O < N; O++) {
+                    this.pStyles_arr[O] = {};
+                    for (P in Q[O]) {
+                        M.test(Q[O][P][0]) && (this.pStyles_arr[O][P] = true);
                         if ("reverse" === this.options.direction || "alternate-reverse" === this.options.direction || "continuous-reverse" === this.options.direction) {
-                            this.styles_arr[j][i].reverse();
+                            this.styles_arr[O][P].reverse()
                         }
                     }
                 }
                 this.$parent.start({});
-                return this;
+                return this
             },
-            render : function(e) {
-                /** @type {number} */
-                var i = 0;
-                for (; i < this.el_arr.length; i++) {
-                    this.el = $.$(this.el_arr[i]);
-                    this.styles = this.styles_arr[i];
-                    this.pStyles = this.pStyles_arr[i];
-                    this.$parent.render(e);
+            render: function(M) {
+                for (var N = 0; N < this.el_arr.length; N++) {
+                    this.el = L.$(this.el_arr[N]);
+                    this.styles = this.styles_arr[N];
+                    this.pStyles = this.pStyles_arr[N];
+                    this.$parent.render(M)
                 }
             }
-        });
-    })(jQuery);
-    (function($) {
-        if (!$) {
+        })
+    })(B);
+    (function(L) {
+        if (!L) {
             throw "MagicJS not found";
-            return;
+            return
         }
-        if ($.Tooltip) {
-            return;
+        if (L.Tooltip) {
+            return
         }
-        var doc = $.$;
-        /**
-         * @param {!Object} option
-         * @param {?} trigger
-         * @return {undefined}
-         */
-        $.Tooltip = function(option, trigger) {
-            var tooltip = this.tooltip = $.$new("div", null, {
-                position : "absolute",
-                "z-index" : 999
+        var K = L.$;
+        L.Tooltip = function(N, O) {
+            var M = this.tooltip = L.$new("div", null, {
+                position: "absolute",
+                "z-index": 999
             }).jAddClass("MagicToolboxTooltip");
-            $.$(option).jAddEvent("mouseover", function() {
-                tooltip.jAppendTo(document.body);
+            L.$(N).jAddEvent("mouseover", function() {
+                M.jAppendTo(document.body)
             });
-            $.$(option).jAddEvent("mouseout", function() {
-                tooltip.jRemove();
+            L.$(N).jAddEvent("mouseout", function() {
+                M.jRemove()
             });
-            $.$(option).jAddEvent("mousemove", function(component) {
-                /**
-                 * @param {number} val
-                 * @param {number} c
-                 * @param {number} v
-                 * @return {?}
-                 */
-                function parsePercent(val, c, v) {
-                    return v < (val - c) / 2 ? v : v > (val + c) / 2 ? v - c : (val - c) / 2;
+            L.$(N).jAddEvent("mousemove", function(T) {
+                var V = 20,
+                    S = L.$(T).jGetPageXY(),
+                    R = M.jGetSize(),
+                    Q = L.$(window).jGetSize(),
+                    U = L.$(window).jGetScroll();
+
+                function P(Y, W, X) {
+                    return (X < (Y - W) / 2) ? X : ((X > (Y + W) / 2) ? (X - W) : (Y - W) / 2)
                 }
-                /** @type {number} */
-                var padding = 20;
-                var dialogGeometry = $.$(component).jGetPageXY();
-                var bcr = tooltip.jGetSize();
-                var positionInfo = $.$(window).jGetSize();
-                var containerGeometry = $.$(window).jGetScroll();
-                tooltip.jSetCss({
-                    left : containerGeometry.x + parsePercent(positionInfo.width, bcr.width + 2 * padding, dialogGeometry.x - containerGeometry.x) + padding,
-                    top : containerGeometry.y + parsePercent(positionInfo.height, bcr.height + 2 * padding, dialogGeometry.y - containerGeometry.y) + padding
-                });
+                M.jSetCss({
+                    left: U.x + P(Q.width, R.width + 2 * V, S.x - U.x) + V,
+                    top: U.y + P(Q.height, R.height + 2 * V, S.y - U.y) + V
+                })
             });
-            this.text(trigger);
+            this.text(O)
         };
-        /**
-         * @param {?} text
-         * @return {undefined}
-         */
-        $.Tooltip.prototype.text = function(text) {
-            if (this.tooltip.firstChild) {
-                this.tooltip.removeChild(this.tooltip.firstChild);
-            }
-            this.tooltip.append(document.createTextNode(text));
-        };
-    })(jQuery);
-    (function(self) {
-        if (!self) {
+        L.Tooltip.prototype.text = function(M) {
+            this.tooltip.firstChild && this.tooltip.removeChild(this.tooltip.firstChild);
+            this.tooltip.append(document.createTextNode(M))
+        }
+    })(B);
+    (function(L) {
+        if (!L) {
             throw "MagicJS not found";
-            return;
+            return
         }
-        if (self.MessageBox) {
-            return;
+        if (L.MessageBox) {
+            return
         }
-        var $this = self.$;
-        /**
-         * @param {?} text
-         * @param {string} file
-         * @param {!Object} context
-         * @param {string} token
-         * @return {undefined}
-         */
-        self.Message = function(text, file, context, token) {
-            /** @type {null} */
+        var K = L.$;
+        L.Message = function(P, O, N, M) {
             this.hideTimer = null;
-            this.messageBox = self.$new("span", null, {
-                position : "absolute",
-                "z-index" : 999,
-                visibility : "hidden",
-                opacity : .8
-            }).jAddClass(token || "").jAppendTo(context || document.body);
-            this.setMessage(text);
-            this.show(file);
+            this.messageBox = L.$new("span", null, {
+                position: "absolute",
+                "z-index": 999,
+                visibility: "hidden",
+                opacity: 0.8
+            }).jAddClass(M || "").jAppendTo(N || document.body);
+            this.setMessage(P);
+            this.show(O)
         };
-        /**
-         * @param {string} left
-         * @return {undefined}
-         */
-        self.Message.prototype.show = function(left) {
+        L.Message.prototype.show = function(M) {
             this.messageBox.show();
-            this.hideTimer = this.hide.jBind(this).jDelay(self.ifndef(left, 5E3));
+            this.hideTimer = this.hide.jBind(this).jDelay(L.ifndef(M, 5000))
         };
-        /**
-         * @param {string} item
-         * @return {undefined}
-         */
-        self.Message.prototype.hide = function(item) {
+        L.Message.prototype.hide = function(M) {
             clearTimeout(this.hideTimer);
-            /** @type {null} */
             this.hideTimer = null;
             if (this.messageBox && !this.hideFX) {
-                this.hideFX = (new jQuery.FX(this.messageBox, {
-                    duration : self.ifndef(item, 500),
-                    onComplete : function() {
+                this.hideFX = new B.FX(this.messageBox, {
+                    duration: L.ifndef(M, 500),
+                    onComplete: function() {
                         this.messageBox.kill();
                         delete this.messageBox;
-                        /** @type {null} */
-                        this.hideFX = null;
+                        this.hideFX = null
                     }.jBind(this)
-                })).start({
-                    opacity : [this.messageBox.jGetCss("opacity"), 0]
-                });
+                }).start({
+                    opacity: [this.messageBox.jGetCss("opacity"), 0]
+                })
             }
         };
-        /**
-         * @param {?} text
-         * @return {undefined}
-         */
-        self.Message.prototype.setMessage = function(text) {
-            if (this.messageBox.firstChild) {
-                this.tooltip.removeChild(this.messageBox.firstChild);
-            }
-            this.messageBox.append(document.createTextNode(text));
-        };
-    })(jQuery);
-    (function(_) {
-        if (!_) {
-            throw "MagicJS not found";
+        L.Message.prototype.setMessage = function(M) {
+            this.messageBox.firstChild && this.tooltip.removeChild(this.messageBox.firstChild);
+            this.messageBox.append(document.createTextNode(M))
         }
-        if (_.Options) {
-            return;
+    })(B);
+    (function(L) {
+        if (!L) {
+            throw "MagicJS not found"
         }
-        var $ = _.$;
-        /** @type {null} */
-        var text = null;
-        var obj = {
-            "boolean" : 1,
-            array : 2,
-            number : 3,
-            "function" : 4,
-            string : 100
-        };
-        var options = {
-            "boolean" : function(node, v, s) {
-                if ("boolean" != _.jTypeOf(v)) {
-                    if (s || "string" != _.jTypeOf(v)) {
-                        return false;
-                    } else {
-                        if (!/^(true|false)$/.test(v)) {
-                            return false;
+        if (L.Options) {
+            return
+        }
+        var O = L.$,
+            K = null,
+            S = {
+                "boolean": 1,
+                array: 2,
+                number: 3,
+                "function": 4,
+                string: 100
+            },
+            M = {
+                "boolean": function(V, U, T) {
+                    if ("boolean" != L.jTypeOf(U)) {
+                        if (T || "string" != L.jTypeOf(U)) {
+                            return false
                         } else {
-                            v = v.jToBool();
+                            if (!/^(true|false)$/.test(U)) {
+                                return false
+                            } else {
+                                U = U.jToBool()
+                            }
                         }
                     }
-                }
-                if (node.hasOwnProperty("enum") && !$(node["enum"]).contains(v)) {
-                    return false;
-                }
-                /** @type {string} */
-                text = v;
-                return true;
-            },
-            string : function(node, name, data) {
-                if ("string" !== _.jTypeOf(name)) {
-                    return false;
-                } else {
-                    if (node.hasOwnProperty("enum") && !$(node["enum"]).contains(name)) {
-                        return false;
+                    if (V.hasOwnProperty("enum") && !O(V["enum"]).contains(U)) {
+                        return false
+                    }
+                    K = U;
+                    return true
+                },
+                string: function(V, U, T) {
+                    if ("string" !== L.jTypeOf(U)) {
+                        return false
                     } else {
-                        /** @type {string} */
-                        text = "" + name;
-                        return true;
-                    }
-                }
-            },
-            number : function(node, value, raw) {
-                /** @type {boolean} */
-                var T = false;
-                /** @type {!RegExp} */
-                var trueRE = /%$/;
-                /** @type {boolean} */
-                var variances = _.jTypeOf(value) == "string" && trueRE.test(value);
-                if (raw && !"number" == typeof value) {
-                    return false;
-                }
-                /** @type {number} */
-                value = parseFloat(value);
-                if (isNaN(value)) {
-                    return false;
-                }
-                if (isNaN(node.minimum)) {
-                    /** @type {number} */
-                    node.minimum = Number.NEGATIVE_INFINITY;
-                }
-                if (isNaN(node.maximum)) {
-                    /** @type {number} */
-                    node.maximum = Number.POSITIVE_INFINITY;
-                }
-                if (node.hasOwnProperty("enum") && !$(node["enum"]).contains(value)) {
-                    return false;
-                }
-                if (node.minimum > value || value > node.maximum) {
-                    return false;
-                }
-                /** @type {(number|string)} */
-                text = variances ? value + "%" : value;
-                return true;
-            },
-            array : function(options, node, cond) {
-                if ("string" === _.jTypeOf(node)) {
-                    try {
-                        node = window.JSON.parse(node);
-                    } catch (V) {
-                        return false;
-                    }
-                }
-                if (_.jTypeOf(node) === "array") {
-                    /** @type {string} */
-                    text = node;
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-            "function" : function(name, val, paramName) {
-                if (_.jTypeOf(val) === "function") {
-                    /** @type {string} */
-                    text = val;
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
-        /**
-         * @param {!Object} context
-         * @param {string} data
-         * @param {boolean} method
-         * @return {?}
-         */
-        var resolve = function(context, data, method) {
-            var a;
-            a = context.hasOwnProperty("oneOf") ? context.oneOf : [context];
-            if ("array" != _.jTypeOf(a)) {
-                return false;
-            }
-            /** @type {number} */
-            var i = 0;
-            /** @type {number} */
-            var zIncLen = a.length - 1;
-            for (; i <= zIncLen; i++) {
-                if (options[a[i].type](a[i], data, method)) {
-                    return true;
-                }
-            }
-            return false;
-        };
-        /**
-         * @param {!Object} context
-         * @return {?}
-         */
-        var reduce = function(context) {
-            var i;
-            var idx;
-            var X;
-            var repeats;
-            var pos_info;
-            if (context.hasOwnProperty("oneOf")) {
-                repeats = context.oneOf.length;
-                /** @type {number} */
-                i = 0;
-                for (; i < repeats; i++) {
-                    /** @type {number} */
-                    idx = i + 1;
-                    for (; idx < repeats; idx++) {
-                        if (obj[context.oneOf[i]["type"]] > obj[context.oneOf[idx].type]) {
-                            pos_info = context.oneOf[i];
-                            context.oneOf[i] = context.oneOf[idx];
-                            context.oneOf[idx] = pos_info;
+                        if (V.hasOwnProperty("enum") && !O(V["enum"]).contains(U)) {
+                            return false
+                        } else {
+                            K = "" + U;
+                            return true
                         }
                     }
-                }
-            }
-            return context;
-        };
-        /**
-         * @param {!Object} context
-         * @return {?}
-         */
-        var validate = function(context) {
-            var schema;
-            schema = context.hasOwnProperty("oneOf") ? context.oneOf : [context];
-            if ("array" != _.jTypeOf(schema)) {
-                return false;
-            }
-            /** @type {number} */
-            var field = schema.length - 1;
-            for (; field >= 0; field--) {
-                if (!schema[field].type || !obj.hasOwnProperty(schema[field].type)) {
-                    return false;
-                }
-                if (_.defined(schema[field]["enum"])) {
-                    if ("array" !== _.jTypeOf(schema[field]["enum"])) {
-                        return false;
+                },
+                number: function(W, V, U) {
+                    var T = false,
+                        Y = /%$/,
+                        X = (L.jTypeOf(V) == "string" && Y.test(V));
+                    if (U && !"number" == typeof V) {
+                        return false
                     }
-                    /** @type {number} */
-                    var id = schema[field]["enum"].length - 1;
-                    for (; id >= 0; id--) {
-                        if (!options[schema[field].type]({
-                            type : schema[field].type
-                        }, schema[field]["enum"][id], true)) {
-                            return false;
+                    V = parseFloat(V);
+                    if (isNaN(V)) {
+                        return false
+                    }
+                    if (isNaN(W.minimum)) {
+                        W.minimum = Number.NEGATIVE_INFINITY
+                    }
+                    if (isNaN(W.maximum)) {
+                        W.maximum = Number.POSITIVE_INFINITY
+                    }
+                    if (W.hasOwnProperty("enum") && !O(W["enum"]).contains(V)) {
+                        return false
+                    }
+                    if (W.minimum > V || V > W.maximum) {
+                        return false
+                    }
+                    K = X ? (V + "%") : V;
+                    return true
+                },
+                array: function(W, U, T) {
+                    if ("string" === L.jTypeOf(U)) {
+                        try {
+                            U = window.JSON.parse(U)
+                        } catch (V) {
+                            return false
                         }
                     }
+                    if (L.jTypeOf(U) === "array") {
+                        K = U;
+                        return true
+                    } else {
+                        return false
+                    }
+                },
+                "function": function(V, U, T) {
+                    if (L.jTypeOf(U) === "function") {
+                        K = U;
+                        return true
+                    } else {
+                        return false
+                    }
                 }
-            }
-            if (context.hasOwnProperty("default") && !resolve(context, context["default"], true)) {
-                return false;
-            }
-            return true;
-        };
-        /**
-         * @param {!Object} definition
-         * @return {undefined}
-         */
-        var Schema = function(definition) {
-            this.schema = {};
-            this.options = {};
-            this.parseSchema(definition);
-        };
-        _.extend(Schema.prototype, {
-            parseSchema : function(schema) {
-                var c;
-                var key;
+            },
+            N = function(Y, X, U) {
                 var W;
-                for (c in schema) {
-                    if (!schema.hasOwnProperty(c)) {
-                        continue;
+                W = Y.hasOwnProperty("oneOf") ? Y.oneOf : [Y];
+                if ("array" != L.jTypeOf(W)) {
+                    return false
+                }
+                for (var V = 0, T = W.length - 1; V <= T; V++) {
+                    if (M[W[V].type](W[V], X, U)) {
+                        return true
                     }
-                    key = (c + "").jTrim().jCamelize();
-                    if (!this.schema.hasOwnProperty(key)) {
-                        this.schema[key] = reduce(schema[c]);
-                        if (!validate(this.schema[key])) {
-                            throw "Incorrect definition of the '" + c + "' parameter in " + schema;
+                }
+                return false
+            },
+            Q = function(Y) {
+                var W, V, X, T, U;
+                if (Y.hasOwnProperty("oneOf")) {
+                    T = Y.oneOf.length;
+                    for (W = 0; W < T; W++) {
+                        for (V = W + 1; V < T; V++) {
+                            if (S[Y.oneOf[W]["type"]] > S[Y.oneOf[V].type]) {
+                                U = Y.oneOf[W];
+                                Y.oneOf[W] = Y.oneOf[V];
+                                Y.oneOf[V] = U
+                            }
                         }
-                        this.options[key] = undefined;
+                    }
+                }
+                return Y
+            },
+            R = function(W) {
+                var V;
+                V = W.hasOwnProperty("oneOf") ? W.oneOf : [W];
+                if ("array" != L.jTypeOf(V)) {
+                    return false
+                }
+                for (var U = V.length - 1; U >= 0; U--) {
+                    if (!V[U].type || !S.hasOwnProperty(V[U].type)) {
+                        return false
+                    }
+                    if (L.defined(V[U]["enum"])) {
+                        if ("array" !== L.jTypeOf(V[U]["enum"])) {
+                            return false
+                        }
+                        for (var T = V[U]["enum"].length - 1; T >= 0; T--) {
+                            if (!M[V[U].type]({
+                                type: V[U].type
+                            }, V[U]["enum"][T], true)) {
+                                return false
+                            }
+                        }
+                    }
+                }
+                if (W.hasOwnProperty("default") && !N(W, W["default"], true)) {
+                    return false
+                }
+                return true
+            },
+            P = function(T) {
+                this.schema = {};
+                this.options = {};
+                this.parseSchema(T)
+            };
+        L.extend(P.prototype, {
+            parseSchema: function(V) {
+                var U, T, W;
+                for (U in V) {
+                    if (!V.hasOwnProperty(U)) {
+                        continue
+                    }
+                    T = (U + "").jTrim().jCamelize();
+                    if (!this.schema.hasOwnProperty(T)) {
+                        this.schema[T] = Q(V[U]);
+                        if (!R(this.schema[T])) {
+                            throw "Incorrect definition of the '" + U + "' parameter in " + V
+                        }
+                        this.options[T] = undefined
                     }
                 }
             },
-            set : function(key, value) {
-                key = (key + "").jTrim().jCamelize();
-                if (_.jTypeOf(value) == "string") {
-                    value = value.jTrim();
+            set: function(U, T) {
+                U = (U + "").jTrim().jCamelize();
+                if (L.jTypeOf(T) == "string") {
+                    T = T.jTrim()
                 }
-                if (this.schema.hasOwnProperty(key)) {
-                    /** @type {string} */
-                    text = value;
-                    if (resolve(this.schema[key], value)) {
-                        this.options[key] = text;
+                if (this.schema.hasOwnProperty(U)) {
+                    K = T;
+                    if (N(this.schema[U], T)) {
+                        this.options[U] = K
                     }
-                    /** @type {null} */
-                    text = null;
+                    K = null
                 }
             },
-            get : function(name) {
-                name = (name + "").jTrim().jCamelize();
-                if (this.schema.hasOwnProperty(name)) {
-                    return _.defined(this.options[name]) ? this.options[name] : this.schema[name]["default"];
+            get: function(T) {
+                T = (T + "").jTrim().jCamelize();
+                if (this.schema.hasOwnProperty(T)) {
+                    return L.defined(this.options[T]) ? this.options[T] : this.schema[T]["default"]
                 }
             },
-            fromJSON : function(data) {
-                var hashKey;
-                for (hashKey in data) {
-                    this.set(hashKey, data[hashKey]);
+            fromJSON: function(U) {
+                for (var T in U) {
+                    this.set(T, U[T])
                 }
             },
-            getJSON : function() {
-                var obj = _.extend({}, this.options);
-                var i;
-                for (i in obj) {
-                    if (undefined === obj[i] && undefined !== this.schema[i]["default"]) {
-                        obj[i] = this.schema[i]["default"];
+            getJSON: function() {
+                var U = L.extend({}, this.options);
+                for (var T in U) {
+                    if (undefined === U[T] && undefined !== this.schema[T]["default"]) {
+                        U[T] = this.schema[T]["default"]
                     }
                 }
-                return obj;
+                return U
             },
-            fromString : function(encodedAddress) {
-                $(encodedAddress.split(";")).jEach($(function(prefixSplit) {
-                    prefixSplit = prefixSplit.split(":");
-                    this.set(prefixSplit.shift().jTrim(), prefixSplit.join(":"));
-                }).jBind(this));
+            fromString: function(T) {
+                O(T.split(";")).jEach(O(function(U) {
+                    U = U.split(":");
+                    this.set(U.shift().jTrim(), U.join(":"))
+                }).jBind(this))
             },
-            exists : function(prop) {
-                prop = (prop + "").jTrim().jCamelize();
-                return this.schema.hasOwnProperty(prop);
+            exists: function(T) {
+                T = (T + "").jTrim().jCamelize();
+                return this.schema.hasOwnProperty(T)
             },
-            isset : function(name) {
-                name = (name + "").jTrim().jCamelize();
-                return this.exists(name) && _.defined(this.options[name]);
+            isset: function(T) {
+                T = (T + "").jTrim().jCamelize();
+                return this.exists(T) && L.defined(this.options[T])
             },
-            jRemove : function(index) {
-                index = (index + "").jTrim().jCamelize();
-                if (this.exists(index)) {
-                    delete this.options[index];
-                    delete this.schema[index];
+            jRemove: function(T) {
+                T = (T + "").jTrim().jCamelize();
+                if (this.exists(T)) {
+                    delete this.options[T];
+                    delete this.schema[T]
                 }
             }
         });
-        /** @type {function(!Object): undefined} */
-        _.Options = Schema;
-    })(jQuery);
-    (function(obj) {
-        if (!obj) {
+        L.Options = P
+    })(B);
+    (function(O) {
+        if (!O) {
             throw "MagicJS not found";
-            return;
+            return
         }
-        var $ = obj.$;
-        if (obj.SVGImage) {
-            return;
+        var N = O.$;
+        if (O.SVGImage) {
+            return
         }
-        /** @type {string} */
-        var i = "http://www.w3.org/2000/svg";
-        /** @type {string} */
-        var xlink = "http://www.w3.org/1999/xlink";
-        /**
-         * @param {!Object} wrapper
-         * @return {undefined}
-         */
-        var f = function(wrapper) {
+        var M = "http://www.w3.org/2000/svg",
+            L = "http://www.w3.org/1999/xlink";
+        var K = function(P) {
             this.filters = {};
-            this.originalImage = $(wrapper);
-            this.canvas = $(document.createElementNS(i, "svg"));
+            this.originalImage = N(P);
+            this.canvas = N(document.createElementNS(M, "svg"));
             this.canvas.setAttribute("width", this.originalImage.naturalWidth || this.originalImage.width);
             this.canvas.setAttribute("height", this.originalImage.naturalHeight || this.originalImage.height);
-            this.image = $(document.createElementNS(i, "image"));
-            this.image.setAttributeNS(xlink, "href", this.originalImage.getAttribute("src"));
+            this.image = N(document.createElementNS(M, "image"));
+            this.image.setAttributeNS(L, "href", this.originalImage.getAttribute("src"));
             this.image.setAttribute("width", "100%");
             this.image.setAttribute("height", "100%");
-            this.image.jAppendTo(this.canvas);
+            this.image.jAppendTo(this.canvas)
         };
-        /**
-         * @return {?}
-         */
-        f.prototype.getNode = function() {
-            return this.canvas;
+        K.prototype.getNode = function() {
+            return this.canvas
         };
-        /**
-         * @param {number} val
-         * @return {?}
-         */
-        f.prototype.blur = function(val) {
-            if (Math.round(val) < 1) {
-                return;
+        K.prototype.blur = function(P) {
+            if (Math.round(P) < 1) {
+                return
             }
             if (!this.filters.blur) {
-                this.filters.blur = $(document.createElementNS(i, "filter"));
+                this.filters.blur = N(document.createElementNS(M, "filter"));
                 this.filters.blur.setAttribute("id", "filterBlur");
-                this.filters.blur.appendChild($(document.createElementNS(i, "feGaussianBlur")).setProps({
-                    "in" : "SourceGraphic",
-                    stdDeviation : val
+                this.filters.blur.appendChild(N(document.createElementNS(M, "feGaussianBlur")).setProps({
+                    "in": "SourceGraphic",
+                    stdDeviation: P
                 }));
                 this.filters.blur.jAppendTo(this.canvas);
-                this.image.setAttribute("filter", "url(#filterBlur)");
+                this.image.setAttribute("filter", "url(#filterBlur)")
             } else {
-                this.filters.blur.firstChild.setAttribute("stdDeviation", val);
+                this.filters.blur.firstChild.setAttribute("stdDeviation", P)
             }
-            return this;
+            return this
         };
-        /** @type {function(!Object): undefined} */
-        obj.SVGImage = f;
-    })(jQuery);
-    var __m1 = function($) {
-        var attr = $.$;
-        /**
-         * @param {?} ctx
-         * @param {!Object} options
-         * @return {undefined}
-         */
-        var render = function(ctx, options) {
+        O.SVGImage = K
+    }(B));
+    var E = (function(M) {
+        var L = M.$;
+        var K = function(O, N) {
             this.settings = {
-                cssPrefix : "magic",
-                orientation : "horizontal",
-                position : "bottom",
-                size : {
-                    units : "px",
-                    width : "auto",
-                    height : "auto"
+                cssPrefix: "magic",
+                orientation: "horizontal",
+                position: "bottom",
+                size: {
+                    units: "px",
+                    width: "auto",
+                    height: "auto"
                 },
-                sides : ["height", "width"]
+                sides: ["height", "width"]
             };
-            this.parent = ctx;
-            /** @type {null} */
+            this.parent = O;
             this.root = null;
-            /** @type {null} */
             this.wrapper = null;
-            /** @type {null} */
             this.context = null;
             this.buttons = {};
-            /** @type {!Array} */
             this.items = [];
-            /** @type {null} */
             this.selectedItem = null;
-            /** @type {null} */
             this.scrollFX = null;
-            /** @type {null} */
             this.resizeCallback = null;
-            this.settings = $.extend(this.settings, options);
-            /** @type {string} */
+            this.settings = M.extend(this.settings, N);
             this.rootCSS = this.settings.cssPrefix + "-thumbs";
-            /** @type {string} */
             this.itemCSS = this.settings.cssPrefix + "-thumb";
-            this.setupContent();
+            this.setupContent()
         };
-        render.prototype = {
-            setupContent : function() {
-                this.root = $.$new("div").jAddClass(this.rootCSS).jAddClass(this.rootCSS + "-" + this.settings.orientation).jSetCss({
-                    visibility : "hidden"
+        K.prototype = {
+            setupContent: function() {
+                this.root = M.$new("div").jAddClass(this.rootCSS).jAddClass(this.rootCSS + "-" + this.settings.orientation).jSetCss({
+                    visibility: "hidden"
                 });
-                this.wrapper = $.$new("div").jAddClass(this.rootCSS + "-wrapper").jAppendTo(this.root);
+                this.wrapper = M.$new("div").jAddClass(this.rootCSS + "-wrapper").jAppendTo(this.root);
                 this.root.jAppendTo(this.parent);
-                attr(["prev", "next"]).jEach(function(i) {
-                    this.buttons[i] = $.$new("button").jAddClass(this.rootCSS + "-button").jAddClass(this.rootCSS + "-button-" + i).jAppendTo(this.root).jAddEvent("btnclick tap", function(string, selector) {
-                        attr(string).events[0].stop().stopQueue();
-                        attr(string).stopDistribution();
-                        this.scroll(selector);
-                    }.jBindAsEvent(this, i));
+                L(["prev", "next"]).jEach(function(N) {
+                    this.buttons[N] = M.$new("button").jAddClass(this.rootCSS + "-button").jAddClass(this.rootCSS + "-button-" + N).jAppendTo(this.root).jAddEvent("btnclick tap", (function(P, O) {
+                        L(P).events[0].stop().stopQueue();
+                        L(P).stopDistribution();
+                        this.scroll(O)
+                    }).jBindAsEvent(this, N))
                 }.jBind(this));
                 this.buttons.prev.jAddClass(this.rootCSS + "-button-disabled");
-                this.context = $.$new("ul").jAddEvent("btnclick tap", function(incoming_item) {
-                    incoming_item.stop();
-                });
+                this.context = M.$new("ul").jAddEvent("btnclick tap", function(N) {
+                    N.stop()
+                })
             },
-            addItem : function(name) {
-                var item = $.$new("li").jAddClass(this.itemCSS).append(name).jAppendTo(this.context);
-                new $.ImageLoader(name, {
-                    oncomplete : this.reflow.jBind(this)
+            addItem: function(O) {
+                var N = M.$new("li").jAddClass(this.itemCSS).append(O).jAppendTo(this.context);
+                new M.ImageLoader(O, {
+                    oncomplete: this.reflow.jBind(this)
                 });
-                this.items.push(item);
-                return item;
+                this.items.push(N);
+                return N
             },
-            selectItem : function(index) {
-                var raw = this.selectedItem || this.context.byClass(this.itemCSS + "-selected")[0];
-                if (raw) {
-                    attr(raw).jRemoveClass(this.itemCSS + "-selected");
+            selectItem: function(O) {
+                var N = this.selectedItem || this.context.byClass(this.itemCSS + "-selected")[0];
+                if (N) {
+                    L(N).jRemoveClass(this.itemCSS + "-selected")
                 }
-                this.selectedItem = attr(index);
+                this.selectedItem = L(O);
                 if (!this.selectedItem) {
-                    return;
+                    return
                 }
                 this.selectedItem.jAddClass(this.itemCSS + "-selected");
-                this.scroll(this.selectedItem);
+                this.scroll(this.selectedItem)
             },
-            run : function() {
+            run: function() {
                 if (this.wrapper !== this.context.parentNode) {
-                    attr(this.context).jAppendTo(this.wrapper);
+                    L(this.context).jAppendTo(this.wrapper);
                     this.initDrag();
-                    attr(window).jAddEvent("resize", this.resizeCallback = this.reflow.jBind(this));
+                    L(window).jAddEvent("resize", this.resizeCallback = this.reflow.jBind(this));
                     this.run.jBind(this).jDelay(1);
-                    return;
+                    return
                 }
-                var options = this.parent.jGetSize();
-                if (options.height > 0 && options.height > options.width) {
-                    this.setOrientation("vertical");
+                var N = this.parent.jGetSize();
+                if (N.height > 0 && N.height > N.width) {
+                    this.setOrientation("vertical")
                 } else {
-                    this.setOrientation("horizontal");
+                    this.setOrientation("horizontal")
                 }
                 this.reflow();
                 this.root.jSetCss({
-                    visibility : ""
-                });
+                    visibility: ""
+                })
             },
-            stop : function() {
+            stop: function() {
                 if (this.resizeCallback) {
-                    attr(window).jRemoveEvent("resize", this.resizeCallback);
+                    L(window).jRemoveEvent("resize", this.resizeCallback)
                 }
-                this.root.kill();
+                this.root.kill()
             },
-            scroll : function(obj, model) {
-                var position = {
-                    x : 0,
-                    y : 0
-                };
-                /** @type {string} */
-                var i = "vertical" == this.settings.orientation ? "top" : "left";
-                /** @type {string} */
-                var ref = "vertical" == this.settings.orientation ? "height" : "width";
-                /** @type {string} */
-                var x = "vertical" == this.settings.orientation ? "y" : "x";
-                var n = this.context.parentNode.jGetSize()[ref];
-                var subtractee = this.context.parentNode.jGetPosition();
-                var len = this.context.jGetSize()[ref];
-                var subtractor;
-                var reg2;
-                var conf_lang_text;
-                var T;
-                var O;
-                var X;
-                var cssPosition;
-                /** @type {!Array} */
-                var l = [];
+            scroll: function(aa, Q) {
+                var S = {
+                        x: 0,
+                        y: 0
+                    },
+                    ad = "vertical" == this.settings.orientation ? "top" : "left",
+                    V = "vertical" == this.settings.orientation ? "height" : "width",
+                    R = "vertical" == this.settings.orientation ? "y" : "x",
+                    Z = this.context.parentNode.jGetSize()[V],
+                    W = this.context.parentNode.jGetPosition(),
+                    P = this.context.jGetSize()[V],
+                    Y, N, ac, T, O, X, U, ab = [];
                 if (this.scrollFX) {
-                    this.scrollFX.stop();
+                    this.scrollFX.stop()
                 } else {
-                    this.context.jSetCss("transition", $.browser.cssTransformProp + String.fromCharCode(32) + "0s");
+                    this.context.jSetCss("transition", M.browser.cssTransformProp + String.fromCharCode(32) + "0s")
                 }
-                if (undefined === model) {
-                    /** @type {number} */
-                    model = 600;
+                if (undefined === Q) {
+                    Q = 600
                 }
-                subtractor = this.context.jGetPosition();
-                if ("string" == $.jTypeOf(obj)) {
-                    /** @type {number} */
-                    position[x] = "next" == obj ? Math.max(subtractor[i] - subtractee[i] - n, n - len) : Math.min(subtractor[i] - subtractee[i] + n, 0);
+                Y = this.context.jGetPosition();
+                if ("string" == M.jTypeOf(aa)) {
+                    S[R] = ("next" == aa) ? Math.max(Y[ad] - W[ad] - Z, Z - P) : Math.min(Y[ad] - W[ad] + Z, 0)
                 } else {
-                    if ("element" == $.jTypeOf(obj)) {
-                        reg2 = obj.jGetSize();
-                        conf_lang_text = obj.jGetPosition();
-                        /** @type {number} */
-                        position[x] = Math.min(0, Math.max(n - len, subtractor[i] + n / 2 - conf_lang_text[i] - reg2[ref] / 2));
+                    if ("element" == M.jTypeOf(aa)) {
+                        N = aa.jGetSize();
+                        ac = aa.jGetPosition();
+                        S[R] = Math.min(0, Math.max(Z - P, Y[ad] + Z / 2 - ac[ad] - N[V] / 2))
                     } else {
-                        return;
+                        return
                     }
                 }
-                if ($.browser.gecko && "android" == $.browser.platform || $.browser.ieMode && $.browser.ieMode < 10) {
-                    if ("string" == $.jTypeOf(obj) && position[x] == subtractor[i] - subtractee[i]) {
-                        subtractor[i] += 0 === subtractor[i] - subtractee[i] ? 30 : -30;
+                if (M.browser.gecko && "android" == M.browser.platform || M.browser.ieMode && M.browser.ieMode < 10) {
+                    if ("string" == M.jTypeOf(aa) && S[R] == Y[ad] - W[ad]) {
+                        Y[ad] += 0 === Y[ad] - W[ad] ? 30 : -30
                     }
-                    /** @type {!Array} */
-                    position["margin-" + i] = [len <= n ? 0 : subtractor[i] - subtractee[i], position[x]];
-                    delete position.x;
-                    delete position.y;
+                    S["margin-" + ad] = [((P <= Z) ? 0 : (Y[ad] - W[ad])), S[R]];
+                    delete S.x;
+                    delete S.y;
                     if (!this.selectorsMoveFX) {
-                        this.selectorsMoveFX = new $.PFX([this.context], {
-                            duration : 500
-                        });
+                        this.selectorsMoveFX = new M.PFX([this.context], {
+                            duration: 500
+                        })
                     }
-                    l.push(position);
-                    this.selectorsMoveFX.start(l);
-                    cssPosition = position["margin-" + i][1];
+                    ab.push(S);
+                    this.selectorsMoveFX.start(ab);
+                    U = S["margin-" + ad][1]
                 } else {
                     this.context.jSetCss({
-                        transition : $.browser.cssTransformProp + String.fromCharCode(32) + model + "ms ease",
-                        transform : "translate3d(" + position.x + "px, " + position.y + "px, 0)"
+                        transition: M.browser.cssTransformProp + String.fromCharCode(32) + Q + "ms ease",
+                        transform: "translate3d(" + S.x + "px, " + S.y + "px, 0)"
                     });
-                    cssPosition = position[x];
+                    U = S[R]
                 }
-                if (cssPosition >= 0) {
+                if (U >= 0) {
                     this.buttons.prev.jAddClass(this.rootCSS + "-button-disabled");
-                    /** @type {boolean} */
-                    this.buttons.prev.disabled = true;
+                    this.buttons.prev.disabled = true
                 } else {
                     this.buttons.prev.jRemoveClass(this.rootCSS + "-button-disabled");
-                    /** @type {boolean} */
-                    this.buttons.prev.disabled = false;
+                    this.buttons.prev.disabled = false
                 }
-                if (cssPosition <= n - len) {
+                if (U <= Z - P) {
                     this.buttons.next.jAddClass(this.rootCSS + "-button-disabled");
-                    /** @type {boolean} */
-                    this.buttons.next.disabled = true;
+                    this.buttons.next.disabled = true
                 } else {
                     this.buttons.next.jRemoveClass(this.rootCSS + "-button-disabled");
-                    /** @type {boolean} */
-                    this.buttons.next.disabled = false;
+                    this.buttons.next.disabled = false
                 }
-                /** @type {null} */
-                cssPosition = null;
+                U = null
             },
-            initDrag : function() {
-                var x;
-                var O;
-                var editorContentNewHeight;
-                var c;
-                var event;
-                var y;
-                var CheckChange;
-                var sX;
-                var Y0;
-                var Y;
-                var toolbarHeight;
-                var editorWithToolbarHeight;
-                var method;
-                var result = {
-                    x : 0,
-                    y : 0
-                };
-                var val;
-                var dimType;
-                /** @type {number} */
-                var S = 300;
-                /**
-                 * @param {number} n
-                 * @return {?}
-                 */
-                var f = function(n) {
-                    var direction;
-                    /** @type {number} */
-                    var i = 0;
-                    /** @type {number} */
-                    direction = 1.5;
-                    for (; direction <= 90; direction = direction + 1.5) {
-                        /** @type {number} */
-                        i = i + n * Math.cos(direction / Math.PI / 2);
-                    }
-                    if (c < 0) {
-                        /** @type {number} */
-                        i = i * -1;
-                    }
-                    return i;
-                };
-                event = attr(function(e) {
-                    result = {
-                        x : 0,
-                        y : 0
+            initDrag: function() {
+                var P, O, Q, X, W, Z, R, V, U, Y, ae, ab, ac, aa = {
+                        x: 0,
+                        y: 0
+                    },
+                    N, T, S = 300,
+                    ad = function(ah) {
+                        var ag, af = 0;
+                        for (ag = 1.5; ag <= 90; ag += 1.5) {
+                            af += (ah * Math.cos(ag / Math.PI / 2))
+                        }(X < 0) && (af *= (-1));
+                        return af
                     };
-                    /** @type {string} */
-                    val = "vertical" == this.settings.orientation ? "top" : "left";
-                    /** @type {string} */
-                    dimType = "vertical" == this.settings.orientation ? "height" : "width";
-                    /** @type {string} */
-                    x = "vertical" == this.settings.orientation ? "y" : "x";
-                    editorWithToolbarHeight = this.context.parentNode.jGetSize()[dimType];
-                    toolbarHeight = this.context.jGetSize()[dimType];
-                    /** @type {number} */
-                    editorContentNewHeight = editorWithToolbarHeight - toolbarHeight;
-                    if (editorContentNewHeight >= 0) {
-                        return;
+                W = L(function(af) {
+                    aa = {
+                        x: 0,
+                        y: 0
+                    };
+                    N = "vertical" == this.settings.orientation ? "top" : "left";
+                    T = "vertical" == this.settings.orientation ? "height" : "width";
+                    P = "vertical" == this.settings.orientation ? "y" : "x";
+                    ab = this.context.parentNode.jGetSize()[T];
+                    ae = this.context.jGetSize()[T];
+                    Q = ab - ae;
+                    if (Q >= 0) {
+                        return
                     }
-                    if (e.state == "dragstart") {
-                        if (undefined === method) {
-                            /** @type {number} */
-                            method = 0;
+                    if (af.state == "dragstart") {
+                        if (undefined === ac) {
+                            ac = 0
                         }
-                        this.context.jSetCssProp("transition", $.browser.cssTransformProp + String.fromCharCode(32) + "0ms");
-                        y = e[x];
-                        Y0 = e.y;
-                        sX = e.x;
-                        /** @type {boolean} */
-                        Y = false;
+                        this.context.jSetCssProp("transition", M.browser.cssTransformProp + String.fromCharCode(32) + "0ms");
+                        Z = af[P];
+                        U = af.y;
+                        V = af.x;
+                        Y = false
                     } else {
-                        if ("dragend" == e.state) {
+                        if ("dragend" == af.state) {
                             if (Y) {
-                                return;
+                                return
                             }
-                            CheckChange = f(Math.abs(c));
-                            method = method + CheckChange;
-                            if (method <= editorContentNewHeight) {
-                                /** @type {number} */
-                                method = editorContentNewHeight;
-                            }
-                            if (method >= 0) {
-                                /** @type {number} */
-                                method = 0;
-                            }
-                            result[x] = method;
-                            this.context.jSetCssProp("transition", $.browser.cssTransformProp + String.fromCharCode(32) + S + "ms  cubic-bezier(.0, .0, .0, 1)");
-                            this.context.jSetCssProp("transform", "translate3d(" + result.x + "px, " + result.y + "px, 0px)");
-                            /** @type {number} */
-                            c = 0;
+                            R = ad(Math.abs(X));
+                            ac += R;
+                            (ac <= Q) && (ac = Q);
+                            (ac >= 0) && (ac = 0);
+                            aa[P] = ac;
+                            this.context.jSetCssProp("transition", M.browser.cssTransformProp + String.fromCharCode(32) + S + "ms  cubic-bezier(.0, .0, .0, 1)");
+                            this.context.jSetCssProp("transform", "translate3d(" + aa.x + "px, " + aa.y + "px, 0px)");
+                            X = 0
                         } else {
                             if (Y) {
-                                return;
+                                return
                             }
-                            if ("horizontal" == this.settings.orientation && Math.abs(e.x - sX) > Math.abs(e.y - Y0) || "vertical" == this.settings.orientation && Math.abs(e.x - sX) < Math.abs(e.y - Y0)) {
-                                e.stop();
-                                /** @type {number} */
-                                c = e[x] - y;
-                                method = method + c;
-                                result[x] = method;
-                                this.context.jSetCssProp("transform", "translate3d(" + result.x + "px, " + result.y + "px, 0px)");
-                                if (method >= 0) {
-                                    this.buttons.prev.jAddClass(this.rootCSS + "-button-disabled");
+                            if ("horizontal" == this.settings.orientation && Math.abs(af.x - V) > Math.abs(af.y - U) || "vertical" == this.settings.orientation && Math.abs(af.x - V) < Math.abs(af.y - U)) {
+                                af.stop();
+                                X = af[P] - Z;
+                                ac += X;
+                                aa[P] = ac;
+                                this.context.jSetCssProp("transform", "translate3d(" + aa.x + "px, " + aa.y + "px, 0px)");
+                                if (ac >= 0) {
+                                    this.buttons.prev.jAddClass(this.rootCSS + "-button-disabled")
                                 } else {
-                                    this.buttons.prev.jRemoveClass(this.rootCSS + "-button-disabled");
+                                    this.buttons.prev.jRemoveClass(this.rootCSS + "-button-disabled")
                                 }
-                                if (method <= editorContentNewHeight) {
-                                    this.buttons.next.jAddClass(this.rootCSS + "-button-disabled");
+                                if (ac <= Q) {
+                                    this.buttons.next.jAddClass(this.rootCSS + "-button-disabled")
                                 } else {
-                                    this.buttons.next.jRemoveClass(this.rootCSS + "-button-disabled");
+                                    this.buttons.next.jRemoveClass(this.rootCSS + "-button-disabled")
                                 }
                             } else {
-                                /** @type {boolean} */
-                                Y = true;
+                                Y = true
                             }
                         }
-                        y = e[x];
+                        Z = af[P]
                     }
                 }).jBind(this);
-                this.context.jAddEvent("touchdrag", event);
+                this.context.jAddEvent("touchdrag", W)
             },
-            reflow : function() {
-                var dimType;
-                var firstColLeft;
-                var scrollLeft;
-                var options = this.parent.jGetSize();
-                if (options.height > 0 && options.height > options.width) {
-                    this.setOrientation("vertical");
+            reflow: function() {
+                var Q, P, N, O = this.parent.jGetSize();
+                if (O.height > 0 && O.height > O.width) {
+                    this.setOrientation("vertical")
                 } else {
-                    this.setOrientation("horizontal");
+                    this.setOrientation("horizontal")
                 }
-                /** @type {string} */
-                dimType = "vertical" == this.settings.orientation ? "height" : "width";
-                firstColLeft = this.context.jGetSize()[dimType];
-                scrollLeft = this.root.jGetSize()[dimType];
-                if (firstColLeft <= scrollLeft) {
+                Q = "vertical" == this.settings.orientation ? "height" : "width";
+                P = this.context.jGetSize()[Q];
+                N = this.root.jGetSize()[Q];
+                if (P <= N) {
                     this.root.jAddClass("no-buttons");
                     this.context.jSetCssProp("transition", "").jGetSize();
                     this.context.jSetCssProp("transform", "translate3d(0,0,0)");
                     this.buttons.prev.jAddClass(this.rootCSS + "-button-disabled");
-                    this.buttons.next.jRemoveClass(this.rootCSS + "-button-disabled");
+                    this.buttons.next.jRemoveClass(this.rootCSS + "-button-disabled")
                 } else {
-                    this.root.jRemoveClass("no-buttons");
+                    this.root.jRemoveClass("no-buttons")
                 }
                 if (this.selectedItem) {
-                    this.scroll(this.selectedItem, 0);
+                    this.scroll(this.selectedItem, 0)
                 }
             },
-            setOrientation : function(value) {
-                if ("vertical" !== value && "horizontal" !== value || value == this.settings.orientation) {
-                    return;
+            setOrientation: function(N) {
+                if ("vertical" !== N && "horizontal" !== N || N == this.settings.orientation) {
+                    return
                 }
                 this.root.jRemoveClass(this.rootCSS + "-" + this.settings.orientation);
-                /** @type {string} */
-                this.settings.orientation = value;
+                this.settings.orientation = N;
                 this.root.jAddClass(this.rootCSS + "-" + this.settings.orientation);
                 this.context.jSetCssProp("transition", "none").jGetSize();
-                this.context.jSetCssProp("transform", "").jSetCssProp("margin", "");
+                this.context.jSetCssProp("transform", "").jSetCssProp("margin", "")
             }
         };
-        return render;
-    }(jQuery);
-    var callback = $.$;
+        return K
+    })(B);
+    var v = q.$;
     if (typeof Object.assign !== "function") {
-        /**
-         * @param {!Object} target
-         * @param {...(Object|null)} p1
-         * @return {!Object}
-         */
-        Object.assign = function(target) {
-            if (target == null) {
-                throw new TypeError("Cannot convert undefined or null to object");
+        Object.assign = function(N) {
+            if (N == null) {
+                throw new TypeError("Cannot convert undefined or null to object")
             }
-            /** @type {!Object} */
-            target = Object(target);
-            /** @type {number} */
-            var i = 1;
-            for (; i < arguments.length; i++) {
-                var source = arguments[i];
-                if (source != null) {
-                    var prop;
-                    for (prop in source) {
-                        if (Object.prototype.hasOwnProperty.call(source, prop)) {
-                            target[prop] = source[prop];
+            N = Object(N);
+            for (var K = 1; K < arguments.length; K++) {
+                var M = arguments[K];
+                if (M != null) {
+                    for (var L in M) {
+                        if (Object.prototype.hasOwnProperty.call(M, L)) {
+                            N[L] = M[L]
                         }
                     }
                 }
             }
-            return target;
-        };
+            return N
+        }
     }
-    if (!$.browser.cssTransform) {
-        $.browser.cssTransform = $.normalizeCSS("transform").dashize();
+    if (!q.browser.cssTransform) {
+        q.browser.cssTransform = q.normalizeCSS("transform").dashize()
     }
-    var options = {
-        zoomOn : {
-            type : "string",
-            "enum" : ["click", "hover"],
-            "default" : "hover"
+    var b = {
+        zoomOn: {
+            type: "string",
+            "enum": ["click", "hover"],
+            "default": "hover"
         },
-        zoomMode : {
-            oneOf : [{
-                type : "string",
-                "enum" : ["zoom", "magnifier", "preview", "off"],
-                "default" : "zoom"
+        zoomMode: {
+            oneOf: [{
+                type: "string",
+                "enum": ["zoom", "magnifier", "preview", "off"],
+                "default": "zoom"
             }, {
-                type : "boolean",
-                "enum" : [false]
+                type: "boolean",
+                "enum": [false]
             }],
-            "default" : "zoom"
+            "default": "zoom"
         },
-        zoomWidth : {
-            oneOf : [{
-                type : "string",
-                "enum" : ["auto"]
+        zoomWidth: {
+            oneOf: [{
+                type: "string",
+                "enum": ["auto"]
             }, {
-                type : "number",
-                minimum : 1
+                type: "number",
+                minimum: 1
             }],
-            "default" : "auto"
+            "default": "auto"
         },
-        zoomHeight : {
-            oneOf : [{
-                type : "string",
-                "enum" : ["auto"]
+        zoomHeight: {
+            oneOf: [{
+                type: "string",
+                "enum": ["auto"]
             }, {
-                type : "number",
-                minimum : 1
+                type: "number",
+                minimum: 1
             }],
-            "default" : "auto"
+            "default": "auto"
         },
-        zoomPosition : {
-            type : "string",
-            "default" : "right"
+        zoomPosition: {
+            type: "string",
+            "default": "right"
         },
-        zoomDistance : {
-            type : "number",
-            minimum : 0,
-            "default" : 15
+        zoomDistance: {
+            type: "number",
+            minimum: 0,
+            "default": 15
         },
-        zoomCaption : {
-            oneOf : [{
-                type : "string",
-                "enum" : ["bottom", "top", "off"],
-                "default" : "off"
+        zoomCaption: {
+            oneOf: [{
+                type: "string",
+                "enum": ["bottom", "top", "off"],
+                "default": "off"
             }, {
-                type : "boolean",
-                "enum" : [false]
+                type: "boolean",
+                "enum": [false]
             }],
-            "default" : "off"
+            "default": "off"
         },
-        expand : {
-            oneOf : [{
-                type : "string",
-                "enum" : ["window", "fullscreen", "off"]
+        expand: {
+            oneOf: [{
+                type: "string",
+                "enum": ["window", "fullscreen", "off"]
             }, {
-                type : "boolean",
-                "enum" : [false]
+                type: "boolean",
+                "enum": [false]
             }],
-            "default" : "window"
+            "default": "window"
         },
-        expandZoomMode : {
-            oneOf : [{
-                type : "string",
-                "enum" : ["zoom", "magnifier", "off"],
-                "default" : "zoom"
+        expandZoomMode: {
+            oneOf: [{
+                type: "string",
+                "enum": ["zoom", "magnifier", "off"],
+                "default": "zoom"
             }, {
-                type : "boolean",
-                "enum" : [false]
+                type: "boolean",
+                "enum": [false]
             }],
-            "default" : "zoom"
+            "default": "zoom"
         },
-        expandZoomOn : {
-            type : "string",
-            "enum" : ["click", "always"],
-            "default" : "click"
+        expandZoomOn: {
+            type: "string",
+            "enum": ["click", "always"],
+            "default": "click"
         },
-        expandCaption : {
-            type : "boolean",
-            "default" : true
+        expandCaption: {
+            type: "boolean",
+            "default": true
         },
-        closeOnClickOutside : {
-            type : "boolean",
-            "default" : true
+        closeOnClickOutside: {
+            type: "boolean",
+            "default": true
         },
-        history : {
-            type : "boolean",
-            "default" : true
+        history: {
+            type: "boolean",
+            "default": true
         },
-        hint : {
-            oneOf : [{
-                type : "string",
-                "enum" : ["once", "always", "off"]
+        hint: {
+            oneOf: [{
+                type: "string",
+                "enum": ["once", "always", "off"]
             }, {
-                type : "boolean",
-                "enum" : [false]
+                type: "boolean",
+                "enum": [false]
             }],
-            "default" : "once"
+            "default": "once"
         },
-        smoothing : {
-            type : "boolean",
-            "default" : true
+        smoothing: {
+            type: "boolean",
+            "default": true
         },
-        upscale : {
-            type : "boolean",
-            "default" : true
+        upscale: {
+            type: "boolean",
+            "default": true
         },
-        variableZoom : {
-            type : "boolean",
-            "default" : false
+        variableZoom: {
+            type: "boolean",
+            "default": false
         },
-        lazyZoom : {
-            type : "boolean",
-            "default" : false
+        lazyZoom: {
+            type: "boolean",
+            "default": false
         },
-        autostart : {
-            type : "boolean",
-            "default" : true
+        autostart: {
+            type: "boolean",
+            "default": true
         },
-        rightClick : {
-            type : "boolean",
-            "default" : false
+        rightClick: {
+            type: "boolean",
+            "default": false
         },
-        transitionEffect : {
-            type : "boolean",
-            "default" : true
+        transitionEffect: {
+            type: "boolean",
+            "default": true
         },
-        selectorTrigger : {
-            type : "string",
-            "enum" : ["click", "hover"],
-            "default" : "click"
+        selectorTrigger: {
+            type: "string",
+            "enum": ["click", "hover"],
+            "default": "click"
         },
-        cssClass : {
-            type : "string"
+        cssClass: {
+            type: "string"
         },
-        forceTouch : {
-            type : "boolean",
-            "default" : false
+        forceTouch: {
+            type: "boolean",
+            "default": false
         },
-        textHoverZoomHint : {
-            type : "string",
-            "default" : "Hover to zoom"
+        textHoverZoomHint: {
+            type: "string",
+            "default": "Hover to zoom"
         },
-        textClickZoomHint : {
-            type : "string",
-            "default" : "Click to zoom"
+        textClickZoomHint: {
+            type: "string",
+            "default": "Click to zoom"
         },
-        textBtnNext : {
-            type : "string",
-            "default" : "Next"
+        textBtnNext: {
+            type: "string",
+            "default": "Next"
         },
-        textBtnPrev : {
-            type : "string",
-            "default" : "Previous"
+        textBtnPrev: {
+            type: "string",
+            "default": "Previous"
         },
-        textBtnClose : {
-            type : "string",
-            "default" : "Close"
+        textBtnClose: {
+            type: "string",
+            "default": "Close"
         },
-        textExpandHint : {
-            type : "string",
-            "default" : "Click to expand"
+        textExpandHint: {
+            type: "string",
+            "default": "Click to expand"
         }
     };
-    var element = {
-        zoomMode : {
-            oneOf : [{
-                type : "string",
-                "enum" : ["zoom", "magnifier", "off"],
-                "default" : "zoom"
+    var D = {
+        zoomMode: {
+            oneOf: [{
+                type: "string",
+                "enum": ["zoom", "magnifier", "off"],
+                "default": "zoom"
             }, {
-                type : "boolean",
-                "enum" : [false]
+                type: "boolean",
+                "enum": [false]
             }],
-            "default" : "zoom"
+            "default": "zoom"
         },
-        expandZoomOn : {
-            type : "string",
-            "enum" : ["click", "always"],
-            "default" : "click"
+        expandZoomOn: {
+            type: "string",
+            "enum": ["click", "always"],
+            "default": "click"
         },
-        textExpandHint : {
-            type : "string",
-            "default" : "Tap or pinch to expand"
+        textExpandHint: {
+            type: "string",
+            "default": "Tap or pinch to expand"
         },
-        textHoverZoomHint : {
-            type : "string",
-            "default" : "Touch to zoom"
+        textHoverZoomHint: {
+            type: "string",
+            "default": "Touch to zoom"
         },
-        textClickZoomHint : {
-            type : "string",
-            "default" : "Double tap or pinch to zoom"
+        textClickZoomHint: {
+            type: "string",
+            "default": "Double tap or pinch to zoom"
         }
     };
-    /** @type {string} */
     var a = "MagicZoom";
-    /** @type {string} */
-    var name = "mz";
-    /** @type {number} */
-    var id = 20;
-    /** @type {!Array} */
-    var names = ["onZoomReady", "onUpdate", "onZoomIn", "onZoomOut", "onExpandOpen", "onExpandClose"];
-    /** @type {number} */
+    var j = "mz";
+    var k = 20;
+    var u = ["onZoomReady", "onUpdate", "onZoomIn", "onZoomOut", "onExpandOpen", "onExpandClose"];
     var w = 600;
-    /** @type {number} */
-    var midpoint = 1.1;
-    /** @type {number} */
-    var outwardsMinScaleToTranslate = .5;
-    var self;
-    var containers = {};
-    var result = callback([]);
-    var parent;
-    /** @type {number} */
+    var x = 1.1;
+    var c = 0.5;
+    var e;
+    var F = {};
+    var t = v([]);
+    var r;
     var f = window.devicePixelRatio || 1;
-    var isShortcut;
-    /** @type {boolean} */
+    var p;
     var l = true;
-    /** @type {string} */
-    var img_dim = $.browser.features.perspective ? "translate3d(" : "translate(";
-    /** @type {string} */
-    var trnClose = $.browser.features.perspective ? ",0)" : ")";
-    /** @type {null} */
-    var logIntervalId = null;
-    var playerObserver;
-    var match = function() {
-        var L;
-        var root;
-        var N;
-        var M;
-        var out;
-        /** @type {!HTMLDocument} */
-        root = document;
-        /** @type {!Location} */
-        root = root.location;
-        /** @type {string} */
-        root = root.host;
-        if (root.indexOf(transform("coigmzaablav mac")) == -1 && root.indexOf(transform("coigmzk}zg`i mac")) == -1) {
-            /** @type {!Array} */
-            out = ["2o.f|kh3,fzz~4!!yyy coigmzaablav mac!coigmtaac~b{}!,.a`mbgme3,zfg} lb{|&'5,.zo|ikz3,Qlbo`e,.}zwbk3,maba|4.g`fk|gz5.zkvz#jkma|ozga`4.`a`k5,0Coigm.Taac.^b{}(z|ojk5.z|gob.xk|}ga`2!o0", "#ff0000", 11, "normal", "", "center", "100%"];
+    var d = q.browser.features.perspective ? "translate3d(" : "translate(";
+    var C = q.browser.features.perspective ? ",0)" : ")";
+    var h = null;
+    var G;
+    var H = (function() {
+        var L, O, N, M, K;
+        O = document;
+        O = O.location;
+        O = O.host;
+        if (O.indexOf(i("coigmzaablav mac")) == -1 && O.indexOf(i("coigmzk}zg`i mac")) == -1) {
+            K = ["2o.f|kh3,fzz~4!!yyy coigmzaablav mac!coigmtaac~b{}!,.a`mbgme3,zfg} lb{|&'5,.zo|ikz3,Qlbo`e,.}zwbk3,maba|4.g`fk|gz5.zkvz#jkma|ozga`4.`a`k5,0Coigm.Taac.^b{}(z|ojk5.z|gob.xk|}ga`2!o0", "#ff0000", 11, "normal", "", "center", "100%"]
         }
-        return out;
-    }();
-    /**
-     * @return {?}
-     */
-    var i = function() {
-        return "mgctlbxN$MZ" + "p".toUpperCase() + " mgctlbxV$" + "v5.3.2".replace("v", "") + " mgctlbxL$" + "m".toUpperCase() + (window.mgctlbx$Pltm && $.jTypeOf(window.mgctlbx$Pltm) === "string" ? " mgctlbxP$" + window.mgctlbx$Pltm.toLowerCase() : "");
+        return K
+    })();
+    var y = function() {
+        return "mgctlbxN$MZ" + "p".toUpperCase() + " mgctlbxV$" + "v5.3.2".replace("v", "") + " mgctlbxL$" + "m".toUpperCase() + ((window.mgctlbx$Pltm && q.jTypeOf(window.mgctlbx$Pltm) === "string") ? " mgctlbxP$" + window.mgctlbx$Pltm.toLowerCase() : "")
     };
-    /**
-     * @param {!Object} url
-     * @param {number} src
-     * @param {string} method
-     * @param {!Object} options
-     * @param {!Function} from
-     * @return {undefined}
-     */
-    var load = function(url, src, method, options, from) {
+
+    function i(M) {
+        var L, K;
+        L = "";
+        for (K = 0; K < M.length; K++) {
+            L += String.fromCharCode(14 ^ M.charCodeAt(K))
+        }
+        return L
+    }
+
+    function n(M) {
+        var L = [],
+            K = null;
+        (M && (K = v(M))) && (L = t.filter(function(N) {
+            return N.placeholder === K
+        }));
+        return L.length ? L[0] : null
+    }
+
+    function s(M) {
+        var L = v(window).jGetSize();
+        var K = v(window).jGetScroll();
+        M = M || 0;
+        return {
+            left: M,
+            right: L.width - M,
+            top: M,
+            bottom: L.height - M,
+            x: K.x,
+            y: K.y
+        }
+    }
+
+    function m(K) {
+        return Object.assign({}, K, {
+            type: K.type,
+            pageX: K.pageX,
+            pageY: K.pageY,
+            screenX: K.screenX,
+            screenY: K.screenY,
+            clientX: K.clientX,
+            clientY: K.clientY,
+            cloned: true
+        })
+    }
+
+    function I() {
+        var M = q.$A(arguments);
+        var L = M.shift();
+        var K = F[L];
+        if (K) {
+            for (var N = 0; N < K.length; N++) {
+                K[N].apply(null, M)
+            }
+        }
+    }
+
+    function g() {
+        var O = arguments[0],
+            K, N, L = [];
+        try {
+            do {
+                N = O.tagName;
+                if (/^[A-Za-z]*$/.test(N)) {
+                    if (K = O.getAttribute("id")) {
+                        if (/^[A-Za-z][-A-Za-z0-9_]*/.test(K)) {
+                            N += "#" + K
+                        }
+                    }
+                    L.push(N)
+                }
+                O = O.parentNode
+            } while (O && O !== document.documentElement);
+            L = L.reverse();
+            q.addCSS(L.join(" ") + "> .mz-figure > img", {
+                transition: "none",
+                transform: "none"
+            }, "mz-runtime-css", true);
+            q.addCSS(L.join(" ") + ":not(.mz-no-rt-width-css)> .mz-figure:not(.mz-no-rt-width-css) > img", {
+                width: "100% !important;"
+            }, "mz-runtime-css", true)
+        } catch (M) {}
+    }
+
+    function J() {
+        var L = null,
+            M = null,
+            K = function() {
+                window.scrollTo(document.body.scrollLeft, document.body.scrollTop);
+                window.dispatchEvent(new Event("resize"))
+            };
+        M = setInterval(function() {
+            var P = window.orientation === 90 || window.orientation === -90;
+            var O = window.innerHeight;
+            var N = (P ? screen.availWidth : screen.availHeight) * 0.85;
+            if ((L === null || L === false) && ((P && O < N) || (!P && O < N))) {
+                L = true;
+                K()
+            } else {
+                if ((L === null || L === true) && ((P && O > N) || (!P && O > N))) {
+                    L = false;
+                    K()
+                }
+            }
+        }, 250);
+        return M
+    }
+
+    function A() {
+        q.addCSS(".magic-hidden-wrapper, .magic-temporary-img", {
+            display: "block !important",
+            "min-height": "0 !important",
+            "min-width": "0 !important",
+            "max-height": "none !important",
+            "max-width": "none !important",
+            width: "10px !important",
+            height: "10px !important",
+            position: "absolute !important",
+            top: "-10000px !important",
+            left: "0 !important",
+            overflow: "hidden !important",
+            "-webkit-transform": "none !important",
+            transform: "none !important",
+            "-webkit-transition": "none !important",
+            transition: "none !important"
+        }, "magiczoom-reset-css");
+        q.addCSS(".magic-temporary-img img, .magic-temporary-img picture", {
+            display: "inline-block !important",
+            border: "0 !important",
+            padding: "0 !important",
+            "min-height": "0 !important",
+            "min-width": "0 !important",
+            "max-height": "none !important",
+            "max-width": "none !important",
+            "-webkit-transform": "none !important",
+            transform: "none !important",
+            "-webkit-transition": "none !important",
+            transition: "none !important"
+        }, "magiczoom-reset-css");
+        q.addCSS(".magic-temporary-img picture, .magic-temporary-img picture > img", {
+            width: "auto !important",
+            height: "auto !important"
+        }, "magiczoom-reset-css");
+        if (q.browser.androidBrowser) {
+            q.addCSS(".mobile-magic .mz-expand .mz-expand-bg", {
+                display: "none !important"
+            }, "magiczoom-reset-css")
+        }
+        if (q.browser.androidBrowser && (q.browser.uaName !== "chrome" || q.browser.uaVersion === 44)) {
+            q.addCSS(".mobile-magic .mz-zoom-window.mz-magnifier, .mobile-magic .mz-zoom-window.mz-magnifier:before", {
+                "border-radius": "0 !important"
+            }, "magiczoom-reset-css")
+        }
+    }
+    var o = function(N, O, L, M, K) {
         this.small = {
-            src : null,
-            url : null,
-            dppx : 1,
-            node : null,
-            state : 0,
-            size : {
-                width : 0,
-                height : 0
+            src: null,
+            url: null,
+            dppx: 1,
+            node: null,
+            state: 0,
+            size: {
+                width: 0,
+                height: 0
             },
-            loaded : false
+            loaded: false
         };
         this.zoom = {
-            src : null,
-            url : null,
-            dppx : 1,
-            node : null,
-            state : 0,
-            size : {
-                width : 0,
-                height : 0
+            src: null,
+            url: null,
+            dppx: 1,
+            node: null,
+            state: 0,
+            size: {
+                width: 0,
+                height: 0
             },
-            loaded : false
+            loaded: false
         };
-        if ($.jTypeOf(url) === "object") {
-            /** @type {!Object} */
-            this.small = url;
+        if (q.jTypeOf(N) === "object") {
+            this.small = N
         } else {
-            if ($.jTypeOf(url) === "string") {
-                this.small.url = $.getAbsoluteURL(url);
+            if (q.jTypeOf(N) === "string") {
+                this.small.url = q.getAbsoluteURL(N)
             }
         }
-        if ($.jTypeOf(src) === "object") {
-            /** @type {number} */
-            this.zoom = src;
+        if (q.jTypeOf(O) === "object") {
+            this.zoom = O
         } else {
-            if ($.jTypeOf(src) === "string") {
-                this.zoom.url = $.getAbsoluteURL(src);
+            if (q.jTypeOf(O) === "string") {
+                this.zoom.url = q.getAbsoluteURL(O)
             }
         }
-        /** @type {string} */
-        this.caption = method;
-        /** @type {!Object} */
-        this.options = options;
-        /** @type {!Function} */
-        this.origin = from;
-        /** @type {null} */
+        this.caption = L;
+        this.options = M;
+        this.origin = K;
         this.callback = null;
-        /** @type {null} */
         this.link = null;
-        /** @type {null} */
-        this.node = null;
+        this.node = null
     };
-    load.prototype = {
-        parseNode : function(element, options, file) {
-            var data = element.byTag("img")[0];
-            if (file) {
-                this.small.node = data || $.$new("img").jAppendTo(element);
+    o.prototype = {
+        parseNode: function(M, L, K) {
+            var N = M.byTag("img")[0];
+            if (K) {
+                this.small.node = N || q.$new("img").jAppendTo(M)
             }
             if (f > 1) {
-                this.small.url = element.getAttribute("data-image-2x");
+                this.small.url = M.getAttribute("data-image-2x");
                 if (this.small.url) {
-                    /** @type {number} */
-                    this.small.dppx = 2;
+                    this.small.dppx = 2
                 }
-                this.zoom.url = element.getAttribute("data-zoom-image-2x");
+                this.zoom.url = M.getAttribute("data-zoom-image-2x");
                 if (this.zoom.url) {
-                    /** @type {number} */
-                    this.zoom.dppx = 2;
+                    this.zoom.dppx = 2
                 }
             }
-            this.small.src = element.getAttribute("data-image") || element.getAttribute("rev") || (data ? data.currentSrc || data.getAttribute("src") : null);
+            this.small.src = M.getAttribute("data-image") || M.getAttribute("rev") || (N ? N.currentSrc || N.getAttribute("src") : null);
             if (this.small.src) {
-                this.small.src = $.getAbsoluteURL(this.small.src);
+                this.small.src = q.getAbsoluteURL(this.small.src)
             }
             this.small.url = this.small.url || this.small.src;
             if (this.small.url) {
-                this.small.url = $.getAbsoluteURL(this.small.url);
+                this.small.url = q.getAbsoluteURL(this.small.url)
             }
-            this.zoom.src = element.getAttribute("data-zoom-image") || element.getAttribute("href");
+            this.zoom.src = M.getAttribute("data-zoom-image") || M.getAttribute("href");
             if (this.zoom.src) {
-                this.zoom.src = $.getAbsoluteURL(this.zoom.src);
+                this.zoom.src = q.getAbsoluteURL(this.zoom.src)
             }
             this.zoom.url = this.zoom.url || this.zoom.src;
             if (this.zoom.url) {
-                this.zoom.url = $.getAbsoluteURL(this.zoom.url);
+                this.zoom.url = q.getAbsoluteURL(this.zoom.url)
             }
-            this.caption = element.getAttribute("data-caption") || element.getAttribute("title") || options;
-            this.link = element.getAttribute("data-link");
-            /** @type {!Object} */
-            this.origin = element;
-            return this;
+            this.caption = M.getAttribute("data-caption") || M.getAttribute("title") || L;
+            this.link = M.getAttribute("data-link");
+            this.origin = M;
+            return this
         },
-        loadImg : function(name) {
-            /** @type {null} */
-            var data = null;
-            if (arguments.length > 1 && $.jTypeOf(arguments[1]) === "function") {
-                data = arguments[1];
+        loadImg: function(K) {
+            var L = null;
+            if (arguments.length > 1 && q.jTypeOf(arguments[1]) === "function") {
+                L = arguments[1]
             }
-            if (this[name].state !== 0) {
-                if (this[name].loaded) {
-                    this.onload(data);
+            if (this[K].state !== 0) {
+                if (this[K].loaded) {
+                    this.onload(L)
                 }
-                return;
+                return
             }
-            if (this[name].url && this[name].node && !this[name].node.getAttribute("src") && !this[name].node.getAttribute("srcset")) {
-                this[name].node.setAttribute("src", this[name].url);
+            if (this[K].url && this[K].node && !this[K].node.getAttribute("src") && !this[K].node.getAttribute("srcset")) {
+                this[K].node.setAttribute("src", this[K].url)
             }
-            /** @type {number} */
-            this[name].state = 1;
-            new $.ImageLoader(this[name].node || this[name].url, {
-                oncomplete : callback(function(that) {
-                    /** @type {boolean} */
-                    this[name].loaded = true;
-                    /** @type {number} */
-                    this[name].state = that.ready ? 2 : -1;
-                    if (that.ready) {
-                        if (this[name].size.width === 0 && this[name].size.height === 0) {
-                            this[name].size = that.jGetSize();
+            this[K].state = 1;
+            new q.ImageLoader(this[K].node || this[K].url, {
+                oncomplete: v(function(M) {
+                    this[K].loaded = true;
+                    this[K].state = M.ready ? 2 : -1;
+                    if (M.ready) {
+                        if (this[K].size.width === 0 && this[K].size.height === 0) {
+                            this[K].size = M.jGetSize()
                         }
-                        if (!this[name].node) {
-                            this[name].node = callback(that.img);
-                            this[name].node.getAttribute("style");
-                            this[name].node.removeAttribute("style");
-                            this[name].size.width /= this[name].dppx;
-                            this[name].size.height /= this[name].dppx;
+                        if (!this[K].node) {
+                            this[K].node = v(M.img);
+                            this[K].node.getAttribute("style");
+                            this[K].node.removeAttribute("style");
+                            this[K].size.width /= this[K].dppx;
+                            this[K].size.height /= this[K].dppx
                         } else {
-                            this[name].node.jSetCss({
-                                maxWidth : this[name].size.width,
-                                maxHeight : this[name].size.height
+                            this[K].node.jSetCss({
+                                maxWidth: this[K].size.width,
+                                maxHeight: this[K].size.height
                             });
-                            if (this[name].node.currentSrc && this[name].node.currentSrc !== this[name].node.src) {
-                                this[name].url = this[name].node.currentSrc;
+                            if (this[K].node.currentSrc && this[K].node.currentSrc !== this[K].node.src) {
+                                this[K].url = this[K].node.currentSrc
                             } else {
-                                if ($.getAbsoluteURL(this[name].node.getAttribute("src") || "") !== this[name].url) {
-                                    this[name].node.setAttribute("src", this[name].url);
+                                if (q.getAbsoluteURL(this[K].node.getAttribute("src") || "") !== this[K].url) {
+                                    this[K].node.setAttribute("src", this[K].url)
                                 }
                             }
                         }
                     }
-                    this.onload(data);
+                    this.onload(L)
                 }).jBind(this)
-            });
+            })
         },
-        loadSmall : function() {
-            this.loadImg("small", arguments[0]);
+        loadSmall: function() {
+            this.loadImg("small", arguments[0])
         },
-        loadZoom : function() {
-            this.loadImg("zoom", arguments[0]);
+        loadZoom: function() {
+            this.loadImg("zoom", arguments[0])
         },
-        load : function() {
-            /** @type {null} */
+        load: function() {
             this.callback = null;
-            if (arguments.length > 0 && $.jTypeOf(arguments[0]) === "function") {
-                this.callback = arguments[0];
+            if (arguments.length > 0 && q.jTypeOf(arguments[0]) === "function") {
+                this.callback = arguments[0]
             }
             this.loadSmall();
-            this.loadZoom();
+            this.loadZoom()
         },
-        onload : function(_data) {
-            if (_data) {
-                _data.call(null, this);
+        onload: function(K) {
+            if (K) {
+                K.call(null, this)
             }
             if (this.callback && this.small.loaded && this.zoom.loaded) {
                 this.callback.call(null, this);
-                /** @type {null} */
                 this.callback = null;
-                return;
+                return
             }
         },
-        loaded : function() {
-            return this.small.loaded && this.zoom.loaded;
+        loaded: function() {
+            return (this.small.loaded && this.zoom.loaded)
         },
-        ready : function() {
-            return this.small.state === 2 && this.zoom.state === 2;
+        ready: function() {
+            return (this.small.state === 2 && this.zoom.state === 2)
         },
-        getURL : function(type) {
-            /** @type {string} */
-            var i = type === "small" ? "zoom" : "small";
-            if (!this[type].loaded || this[type].loaded && this[type].state === 2) {
-                return this[type].url;
+        getURL: function(L) {
+            var K = L === "small" ? "zoom" : "small";
+            if (!this[L].loaded || (this[L].loaded && this[L].state === 2)) {
+                return this[L].url
             } else {
-                if (!this[i].loaded || this[i].loaded && this[i].state === 2) {
-                    return this[i].url;
+                if (!this[K].loaded || (this[K].loaded && this[K].state === 2)) {
+                    return this[K].url
                 }
             }
-            return null;
+            return null
         },
-        getNode : function(name) {
-            /** @type {string} */
-            var i = name === "small" ? "zoom" : "small";
-            if (!this[name].loaded || this[name].loaded && this[name].state === 2) {
-                return this[name].node;
+        getNode: function(L) {
+            var K = L === "small" ? "zoom" : "small";
+            if (!this[L].loaded || (this[L].loaded && this[L].state === 2)) {
+                return this[L].node
             } else {
-                if (!this[i].loaded || this[i].loaded && this[i].state === 2) {
-                    return this[i].node;
+                if (!this[K].loaded || (this[K].loaded && this[K].state === 2)) {
+                    return this[K].node
                 }
             }
-            return null;
+            return null
         },
-        jGetSize : function(name) {
-            /** @type {string} */
-            var i = name === "small" ? "zoom" : "small";
-            if (!this[name].loaded || this[name].loaded && this[name].state === 2) {
-                return this[name].size;
+        jGetSize: function(L) {
+            var K = L === "small" ? "zoom" : "small";
+            if (!this[L].loaded || (this[L].loaded && this[L].state === 2)) {
+                return this[L].size
             } else {
-                if (!this[i].loaded || this[i].loaded && this[i].state === 2) {
-                    return this[i].size;
+                if (!this[K].loaded || (this[K].loaded && this[K].state === 2)) {
+                    return this[K].size
                 }
             }
             return {
-                width : 0,
-                height : 0
-            };
+                width: 0,
+                height: 0
+            }
         },
-        setSize : function(size, offset) {
-            /** @type {number} */
-            this[size].size = offset;
+        setSize: function(L, K) {
+            this[L].size = K
         },
-        getRatio : function(value) {
-            /** @type {string} */
-            var i = value === "small" ? "zoom" : "small";
-            if (!this[value].loaded || this[value].loaded && this[value].state === 2) {
-                return this[value].dppx;
+        getRatio: function(L) {
+            var K = L === "small" ? "zoom" : "small";
+            if (!this[L].loaded || (this[L].loaded && this[L].state === 2)) {
+                return this[L].dppx
             } else {
-                if (!this[i].loaded || this[i].loaded && this[i].state === 2) {
-                    return this[i].dppx;
+                if (!this[K].loaded || (this[K].loaded && this[K].state === 2)) {
+                    return this[K].dppx
                 }
             }
-            return 1;
+            return 1
         },
-        setCurNode : function(name) {
-            this.node = this.getNode(name);
+        setCurNode: function(K) {
+            this.node = this.getNode(K)
         }
     };
-    /**
-     * @param {!Object} theme
-     * @param {undefined} type
-     * @return {undefined}
-     */
-    var init = function(theme, type) {
-        this.options = new $.Options(options);
-        this.option = callback(function() {
+    var z = function(L, K) {
+        this.options = new q.Options(b);
+        this.option = v(function() {
             if (arguments.length > 1) {
-                return this.set(arguments[0], arguments[1]);
+                return this.set(arguments[0], arguments[1])
             }
-            return this.get(arguments[0]);
+            return this.get(arguments[0])
         }).jBind(this.options);
-        this.touchOptions = new $.Options(element);
-        /** @type {!Array} */
+        this.touchOptions = new q.Options(D);
         this.additionalImages = [];
-        /** @type {null} */
         this.image = null;
-        /** @type {null} */
         this.primaryImage = null;
-        this.placeholder = callback(theme).jAddEvent("dragstart selectstart click", function(incoming_item) {
-            incoming_item.stop();
+        this.placeholder = v(L).jAddEvent("dragstart selectstart click", function(M) {
+            M.stop()
         });
-        /** @type {null} */
         this.id = null;
-        /** @type {null} */
         this.node = null;
-        /** @type {null} */
         this.stubNode = null;
-        /** @type {null} */
         this.originalImg = null;
-        /** @type {null} */
         this.originalImgSrc = null;
-        /** @type {null} */
         this.originalTitle = null;
         this.normalSize = {
-            width : 0,
-            height : 0
+            width: 0,
+            height: 0
         };
         this.size = {
-            width : 0,
-            height : 0
+            width: 0,
+            height: 0
         };
         this.zoomSize = {
-            width : 0,
-            height : 0
+            width: 0,
+            height: 0
         };
         this.zoomSizeOrigin = {
-            width : 0,
-            height : 0
+            width: 0,
+            height: 0
         };
         this.boundaries = {
-            top : 0,
-            left : 0,
-            bottom : 0,
-            right : 0
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0
         };
-        /** @type {boolean} */
         this.ready = false;
-        /** @type {boolean} */
         this.expanded = false;
-        /** @type {null} */
         this.activateTimer = null;
-        /** @type {null} */
         this.resizeTimer = null;
-        this.resizeCallback = callback(function() {
+        this.resizeCallback = v(function() {
             if (this.expanded) {
-                if (playerObserver) {
+                if (G) {
                     this.expandBox.jSetCss({
-                        height : window.innerHeight,
-                        top : Math.abs(playerObserver.getBoundingClientRect().top)
-                    });
+                        height: window.innerHeight,
+                        top: Math.abs(G.getBoundingClientRect().top)
+                    })
                 }
                 this.image.node.jSetCss({
-                    "max-height" : Math.min(this.image.jGetSize("zoom").height, this.expandMaxHeight())
+                    "max-height": Math.min(this.image.jGetSize("zoom").height, this.expandMaxHeight())
                 });
                 this.image.node.jSetCss({
-                    "max-width" : Math.min(this.image.jGetSize("zoom").width, this.expandMaxWidth())
-                });
+                    "max-width": Math.min(this.image.jGetSize("zoom").width, this.expandMaxWidth())
+                })
             }
-            this.reflowZoom(arguments[0]);
+            this.reflowZoom(arguments[0])
         }).jBind(this);
-        this.onResize = callback(function(event) {
+        this.onResize = v(function(M) {
             clearTimeout(this.resizeTimer);
-            this.resizeTimer = callback(this.resizeCallback).jDelay(10, event.type === "scroll");
+            this.resizeTimer = v(this.resizeCallback).jDelay(10, M.type === "scroll")
         }).jBindAsEvent(this);
-        this.onHistoryStateChange = callback(function(rec) {
-            if (!rec.state && this.expanded) {
-                this.close();
+        this.onHistoryStateChange = v(function(M) {
+            if (!M.state && this.expanded) {
+                this.close()
             }
-            if (rec.state && rec.state.mzId === this.id && !this.expanded) {
-                this.expand();
+            if (M.state && M.state.mzId === this.id && !this.expanded) {
+                this.expand()
             }
         }).jBindAsEvent(this);
-        if (i) {
-            parent.append($.$new("div", {}, {
-                display : "none",
-                visibility : "hidden"
-            }).append(document.createTextNode(i)));
-            i = undefined;
+        if (y) {
+            r.append(q.$new("div", {}, {
+                display: "none",
+                visibility: "hidden"
+            }).append(document.createTextNode(y)));
+            y = undefined
         }
-        /** @type {null} */
         this.lens = null;
-        /** @type {null} */
         this.zoomBox = null;
-        /** @type {null} */
         this.hint = null;
-        /** @type {null} */
         this.hintMessage = null;
-        /** @type {number} */
         this.hintRuns = 0;
-        /** @type {boolean} */
         this.mobileZoomHint = true;
-        /** @type {null} */
         this.loadingBox = null;
-        /** @type {null} */
         this.loadTimer = null;
-        /** @type {null} */
         this.thumb = null;
-        /** @type {null} */
         this.expandBox = null;
-        /** @type {null} */
         this.expandBg = null;
-        /** @type {null} */
         this.expandCaption = null;
-        /** @type {null} */
         this.expandStage = null;
-        /** @type {null} */
         this.expandImageStage = null;
-        /** @type {null} */
         this.expandFigure = null;
-        /** @type {null} */
         this.navControlsLayer = null;
-        /** @type {null} */
         this.expandNav = null;
-        /** @type {null} */
         this.expandThumbs = null;
-        /** @type {!Array} */
         this.expandGallery = [];
         this.buttons = {};
-        /** @type {number} */
         this.startAttempts = 0;
-        /** @type {null} */
         this.startTimer = null;
-        this.start(type);
+        this.start(K)
     };
-    init.prototype = {
-        loadOptions : function(value) {
-            this.options.fromJSON(window[name + "Options"] || {});
+    z.prototype = {
+        loadOptions: function(K) {
+            this.options.fromJSON(window[j + "Options"] || {});
             this.options.fromString(this.placeholder.getAttribute("data-options") || "");
-            if (!$.browser.touchScreen) {
-                this.option("forceTouch", false);
+            if (!q.browser.touchScreen) {
+                this.option("forceTouch", false)
             }
-            if ($.browser.mobile || this.option("forceTouch")) {
+            if (q.browser.mobile || this.option("forceTouch")) {
                 this.options.fromJSON(this.touchOptions.getJSON());
-                this.options.fromJSON(window[name + "MobileOptions"] || {});
-                this.options.fromString(this.placeholder.getAttribute("data-mobile-options") || "");
+                this.options.fromJSON(window[j + "MobileOptions"] || {});
+                this.options.fromString(this.placeholder.getAttribute("data-mobile-options") || "")
             }
-            if ($.jTypeOf(value) === "string") {
-                this.options.fromString(value || "");
+            if (q.jTypeOf(K) === "string") {
+                this.options.fromString(K || "")
             } else {
-                this.options.fromJSON(value || {});
+                this.options.fromJSON(K || {})
             }
             if (this.option("cssClass")) {
-                this.option("cssClass", this.option("cssClass").replace(",", " "));
+                this.option("cssClass", this.option("cssClass").replace(",", " "))
             }
             if (this.option("zoomCaption") === false) {
-                this.option("zoomCaption", "off");
+                this.option("zoomCaption", "off")
             }
             if (this.option("hint") === false) {
-                this.option("hint", "off");
+                this.option("hint", "off")
             }
-            switch(this.option("hint")) {
+            switch (this.option("hint")) {
                 case "off":
-                    /** @type {number} */
                     this.hintRuns = 0;
                     break;
                 case "always":
-                    /** @type {number} */
                     this.hintRuns = Infinity;
                     break;
                 case "once":
                 default:
-                    /** @type {number} */
                     this.hintRuns = 2;
-                    break;
+                    break
             }
             if (this.option("zoomMode") === "off") {
-                this.option("zoomMode", false);
+                this.option("zoomMode", false)
             }
             if (this.option("expand") === "off") {
-                this.option("expand", false);
+                this.option("expand", false)
             }
             if (this.option("expandZoomMode") === "off") {
-                this.option("expandZoomMode", false);
+                this.option("expandZoomMode", false)
             }
-            if ($.browser.mobile && this.option("zoomMode") === "zoom" && this.option("zoomPosition") === "inner") {
+            if (q.browser.mobile && this.option("zoomMode") === "zoom" && this.option("zoomPosition") === "inner") {
                 if (this.option("expand")) {
-                    this.option("zoomMode", false);
+                    this.option("zoomMode", false)
                 } else {
-                    this.option("zoomOn", "click");
+                    this.option("zoomOn", "click")
                 }
             }
         },
-        start : function(key) {
-            var parts;
-            var self = this;
-            var element;
+        start: function(N) {
+            var L;
+            var K = this;
+            var M;
             if (this.startAttempts < 1) {
-                this.loadOptions(key);
+                this.loadOptions(N);
                 if (l && !this.option("autostart")) {
-                    return;
+                    return
                 }
                 this.originalImg = this.placeholder.querySelector("img");
                 this.originalImgSrc = this.originalImg ? this.originalImg.getAttribute("src") : null;
-                this.originalTitle = callback(this.placeholder).getAttribute("title");
-                callback(this.placeholder).removeAttribute("title");
+                this.originalTitle = v(this.placeholder).getAttribute("title");
+                v(this.placeholder).removeAttribute("title");
                 if (this.originalImg && this.originalImg.parentNode.tagName === "PICTURE") {
-                    /** @type {null} */
                     this.originalImgSrc = null;
-                    var item = $.$new("div").jAddClass("magic-temporary-img").jAppendTo(document.body);
+                    var R = q.$new("div").jAddClass("magic-temporary-img").jAppendTo(document.body);
                     var P = this.originalImg.parentNode.cloneNode(true);
                     P.getAttribute("style");
                     P.removeAttribute("style");
-                    var imageIcon = P.querySelector("img");
-                    imageIcon.getAttribute("style");
-                    imageIcon.removeAttribute("style");
-                    callback(imageIcon).jAddEvent("load", function() {
-                        self.size = callback(imageIcon).jGetSize();
-                        item.kill();
-                        var start_elm = self.originalImg.cloneNode(false);
-                        callback(start_elm).jSetCss({
-                            maxWidth : self.size.width,
-                            maxHeight : self.size.height
-                        }).setAttribute("src", self.originalImg.currentSrc || self.originalImg.src);
-                        self.originalImg = self.placeholder.replaceChild(start_elm, self.originalImg.parentNode);
-                        self.start();
+                    var O = P.querySelector("img");
+                    O.getAttribute("style");
+                    O.removeAttribute("style");
+                    v(O).jAddEvent("load", function() {
+                        K.size = v(O).jGetSize();
+                        R.kill();
+                        var S = K.originalImg.cloneNode(false);
+                        v(S).jSetCss({
+                            maxWidth: K.size.width,
+                            maxHeight: K.size.height
+                        }).setAttribute("src", K.originalImg.currentSrc || K.originalImg.src);
+                        K.originalImg = K.placeholder.replaceChild(S, K.originalImg.parentNode);
+                        K.start()
                     });
-                    item.append(P);
+                    R.append(P);
                     ++this.startAttempts;
-                    return;
+                    return
                 }
             }
-            element = (new load).parseNode(this.placeholder, this.originalTitle, true);
-            element.setSize("small", this.size);
-            if (!element.small.url) {
+            M = new o().parseNode(this.placeholder, this.originalTitle, true);
+            M.setSize("small", this.size);
+            if (!M.small.url) {
                 if (++this.startAttempts <= w) {
-                    /** @type {number} */
                     this.startTimer = setTimeout(function() {
-                        self.start();
-                    }, 100);
+                        K.start()
+                    }, 100)
                 }
-                return;
+                return
             }
-            this.primaryImage = element;
+            this.primaryImage = M;
             this.image = this.primaryImage;
-            render(this.placeholder);
-            this.id = this.placeholder.getAttribute("id") || "mz-" + Math.floor(Math.random() * $.now());
+            g(this.placeholder);
+            this.id = this.placeholder.getAttribute("id") || "mz-" + Math.floor(Math.random() * q.now());
             this.placeholder.setAttribute("id", this.id);
-            this.node = $.$new("figure").jAddClass("mz-figure");
+            this.node = q.$new("figure").jAddClass("mz-figure");
             this.node.enclose(this.image.small.node).jAddClass(this.option("cssClass"));
             if (this.option("rightClick") !== true) {
-                this.node.jAddEvent("contextmenu", function(incoming_item) {
-                    incoming_item.stop();
-                    return false;
-                });
+                this.node.jAddEvent("contextmenu", function(S) {
+                    S.stop();
+                    return false
+                })
             }
             this.node.jAddClass("mz-" + this.option("zoomOn") + "-zoom");
             if (!this.option("expand")) {
-                this.node.jAddClass("mz-no-expand");
+                this.node.jAddClass("mz-no-expand")
             }
             this.lens = {
-                node : $.$new("div", {
-                    "class" : "mz-lens"
+                node: q.$new("div", {
+                    "class": "mz-lens"
                 }, {
-                    top : 0
+                    top: 0
                 }).jAppendTo(this.node),
-                image : $.$new("img", {
-                    src : "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                image: q.$new("img", {
+                    src: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
                 }, {
-                    position : "absolute",
-                    top : 0,
-                    left : 0
+                    position: "absolute",
+                    top: 0,
+                    left: 0
                 }),
-                width : 0,
-                height : 0,
-                pos : {
-                    x : 0,
-                    y : 0
+                width: 0,
+                height: 0,
+                pos: {
+                    x: 0,
+                    y: 0
                 },
-                spos : {
-                    x : 0,
-                    y : 0
+                spos: {
+                    x: 0,
+                    y: 0
                 },
-                size : {
-                    width : 0,
-                    height : 0
+                size: {
+                    width: 0,
+                    height: 0
                 },
-                border : {
-                    x : 0,
-                    y : 0
+                border: {
+                    x: 0,
+                    y: 0
                 },
-                dx : 0,
-                dy : 0,
-                innertouch : false,
-                hide : function() {
-                    if ($.browser.features.transform) {
+                dx: 0,
+                dy: 0,
+                innertouch: false,
+                hide: function() {
+                    if (q.browser.features.transform) {
                         this.node.jSetCss({
-                            transform : "translate(-10000px, -10000px)"
-                        });
+                            transform: "translate(-10000px, -10000px)"
+                        })
                     } else {
                         this.node.jSetCss({
-                            top : -1E4
-                        });
+                            top: -10000
+                        })
                     }
                 }
             };
             this.lens.hide();
             this.lens.node.append(this.lens.image);
             this.zoomBox = {
-                node : $.$new("div", {
-                    "class" : "mz-zoom-window"
+                node: q.$new("div", {
+                    "class": "mz-zoom-window"
                 }, {
-                    top : -1E5
-                }).jAddClass(this.option("cssClass")).jAppendTo(parent),
-                image : $.$new("img", {
-                    src : "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                    top: -100000
+                }).jAddClass(this.option("cssClass")).jAppendTo(r),
+                image: q.$new("img", {
+                    src: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
                 }, {
-                    position : "absolute"
+                    position: "absolute"
                 }),
-                aspectRatio : 0,
-                width : 0,
-                height : 0,
-                innerWidth : 0,
-                innerHeight : 0,
-                size : {
-                    width : "auto",
-                    wunits : "px",
-                    height : "auto",
-                    hunits : "px"
+                aspectRatio: 0,
+                width: 0,
+                height: 0,
+                innerWidth: 0,
+                innerHeight: 0,
+                size: {
+                    width: "auto",
+                    wunits: "px",
+                    height: "auto",
+                    hunits: "px"
                 },
-                mode : this.option("zoomMode"),
-                position : this.option("zoomPosition"),
-                trigger : this.option("zoomOn"),
-                custom : false,
-                active : false,
-                activating : false,
-                enabled : false,
-                enable : callback(function() {
-                    /** @type {boolean} */
+                mode: this.option("zoomMode"),
+                position: this.option("zoomPosition"),
+                trigger: this.option("zoomOn"),
+                custom: false,
+                active: false,
+                activating: false,
+                enabled: false,
+                enable: v(function() {
                     this.zoomBox.enabled = arguments[0] !== false;
-                    this.node[this.zoomBox.enabled ? "jRemoveClass" : "jAddClass"]("mz-no-zoom");
+                    this.node[this.zoomBox.enabled ? "jRemoveClass" : "jAddClass"]("mz-no-zoom")
                 }).jBind(this),
-                hide : callback(function() {
-                    var crr = callback(this.node).jFetch("cr");
+                hide: v(function() {
+                    var S = v(this.node).jFetch("cr");
                     this.zoomBox.node.jRemoveEvent("transitionend");
                     this.zoomBox.node.jSetCss({
-                        top : -1E5
-                    }).jAppendTo(parent);
+                        top: -100000
+                    }).jAppendTo(r);
                     this.zoomBox.node.jRemoveClass("mz-deactivating mz-p-" + (this.zoomBox.mode === "zoom" ? this.zoomBox.position : this.zoomBox.mode));
-                    if (!this.expanded && crr) {
-                        crr.jRemove();
+                    if (!this.expanded && S) {
+                        S.jRemove()
                     }
                     this.zoomBox.image.getAttribute("style");
-                    this.zoomBox.image.removeAttribute("style");
+                    this.zoomBox.image.removeAttribute("style")
                 }).jBind(this),
-                setMode : callback(function(mode) {
-                    this.node[mode === false ? "jAddClass" : "jRemoveClass"]("mz-no-zoom");
-                    this.node[mode === "magnifier" ? "jAddClass" : "jRemoveClass"]("mz-magnifier-zoom");
-                    this.zoomBox.node[mode === "magnifier" ? "jAddClass" : "jRemoveClass"]("mz-magnifier");
-                    this.zoomBox.node[mode === "preview" ? "jAddClass" : "jRemoveClass"]("mz-preview");
-                    if (mode !== "zoom") {
+                setMode: v(function(S) {
+                    this.node[S === false ? "jAddClass" : "jRemoveClass"]("mz-no-zoom");
+                    this.node[S === "magnifier" ? "jAddClass" : "jRemoveClass"]("mz-magnifier-zoom");
+                    this.zoomBox.node[S === "magnifier" ? "jAddClass" : "jRemoveClass"]("mz-magnifier");
+                    this.zoomBox.node[S === "preview" ? "jAddClass" : "jRemoveClass"]("mz-preview");
+                    if (S !== "zoom") {
                         this.node.jRemoveClass("mz-inner-zoom");
-                        this.zoomBox.node.jRemoveClass("mz-inner");
+                        this.zoomBox.node.jRemoveClass("mz-inner")
                     }
-                    /** @type {string} */
-                    this.zoomBox.mode = mode;
-                    if (mode === false) {
-                        this.zoomBox.enable(false);
+                    this.zoomBox.mode = S;
+                    if (S === false) {
+                        this.zoomBox.enable(false)
                     }
                 }).jBind(this)
             };
@@ -5366,1805 +4559,1575 @@ window.MagicZoom = function() {
             this.zoomBox.setMode(this.option("zoomMode"));
             this.zoomBox.image.removeAttribute("width");
             this.zoomBox.image.removeAttribute("height");
-            if (typeof match !== "undefined") {
-                /** @type {number} */
-                var presentationExt = Math.floor(Math.random() * $.now());
-                callback(this.node).jStore("cr", $.$new((Math.floor(Math.random() * 101) + 1) % 2 ? "span" : "div").setProps({
-                    id : "crMz" + presentationExt
+            if (typeof(H) !== "undefined") {
+                var Q = Math.floor(Math.random() * q.now());
+                v(this.node).jStore("cr", q.$new(((Math.floor(Math.random() * 101) + 1) % 2) ? "span" : "div").setProps({
+                    id: "crMz" + Q
                 }).jSetCss({
-                    display : "inline",
-                    overflow : "hidden",
-                    visibility : "visible",
-                    color : match[1],
-                    fontSize : match[2],
-                    fontWeight : match[3],
-                    fontFamily : "sans-serif",
-                    position : "absolute",
-                    top : 8,
-                    left : 8,
-                    margin : "auto",
-                    width : "auto",
-                    textAlign : "right",
-                    lineHeight : "2em",
-                    zIndex : 2147483647
-                }).changeContent(transform(match[0])));
-                if (callback(callback(this.node).jFetch("cr")).byTag("a")[0]) {
-                    callback(callback(callback(this.node).jFetch("cr")).byTag("a")[0]).jAddEvent("tap btnclick", function(canCreateDiscussions) {
-                        canCreateDiscussions.stopDistribution();
-                        window.open(this.href);
+                    display: "inline",
+                    overflow: "hidden",
+                    visibility: "visible",
+                    color: H[1],
+                    fontSize: H[2],
+                    fontWeight: H[3],
+                    fontFamily: "sans-serif",
+                    position: "absolute",
+                    top: 8,
+                    left: 8,
+                    margin: "auto",
+                    width: "auto",
+                    textAlign: "right",
+                    lineHeight: "2em",
+                    zIndex: 2147483647
+                }).changeContent(i(H[0])));
+                if (v(v(this.node).jFetch("cr")).byTag("a")[0]) {
+                    v(v(v(this.node).jFetch("cr")).byTag("a")[0]).jAddEvent("tap btnclick", function(S) {
+                        S.stopDistribution();
+                        window.open(this.href)
                     }).setProps({
-                        id : "mzCrA" + presentationExt
-                    });
+                        id: "mzCrA" + Q
+                    })
                 }
-                $.addCSS("#" + this.id + " > figure.mz-figure > #" + ("crMz" + presentationExt) + ",#" + this.id + " > figure.mz-figure > #" + ("crMz" + presentationExt) + " > #" + ("mzCrA" + presentationExt) + ",html body .mz-expand > #" + ("crMz" + presentationExt) + ",html body .mz-expand > #" + ("crMz" + presentationExt) + " > #" + ("mzCrA" + presentationExt), {
-                    display : "inline !important;",
-                    visibility : "visible !important;",
-                    color : match[1] + " !important;",
-                    "font-size" : match[2] + "px !important;",
-                    "z-index" : "2147483647 !important;"
-                }, "mz-runtime-css", true);
+                q.addCSS("#" + this.id + " > figure.mz-figure > #" + ("crMz" + Q) + ",#" + this.id + " > figure.mz-figure > #" + ("crMz" + Q) + " > #" + ("mzCrA" + Q) + ",html body .mz-expand > #" + ("crMz" + Q) + ",html body .mz-expand > #" + ("crMz" + Q) + " > #" + ("mzCrA" + Q), {
+                    display: "inline !important;",
+                    visibility: "visible !important;",
+                    color: H[1] + " !important;",
+                    "font-size": H[2] + "px !important;",
+                    "z-index": "2147483647 !important;"
+                }, "mz-runtime-css", true)
             }
-            if (parts = ("" + this.option("zoomWidth")).match(/^([0-9]+)?(px|%)?$/)) {
-                this.zoomBox.size.wunits = parts[2] || "px";
-                /** @type {(number|string)} */
-                this.zoomBox.size.width = parseFloat(parts[1]) || "auto";
+            if ((L = ("" + this.option("zoomWidth")).match(/^([0-9]+)?(px|%)?$/))) {
+                this.zoomBox.size.wunits = L[2] || "px";
+                this.zoomBox.size.width = (parseFloat(L[1]) || "auto")
             }
-            if (parts = ("" + this.option("zoomHeight")).match(/^([0-9]+)?(px|%)?$/)) {
-                this.zoomBox.size.hunits = parts[2] || "px";
-                /** @type {(number|string)} */
-                this.zoomBox.size.height = parseFloat(parts[1]) || "auto";
+            if ((L = ("" + this.option("zoomHeight")).match(/^([0-9]+)?(px|%)?$/))) {
+                this.zoomBox.size.hunits = L[2] || "px";
+                this.zoomBox.size.height = (parseFloat(L[1]) || "auto")
             }
             if (this.zoomBox.mode === "magnifier") {
                 this.node.jAddClass("mz-magnifier-zoom");
                 this.zoomBox.node.jAddClass("mz-magnifier");
                 if (this.zoomBox.size.width === "auto") {
-                    /** @type {string} */
                     this.zoomBox.size.wunits = "%";
-                    /** @type {number} */
-                    this.zoomBox.size.width = 70;
+                    this.zoomBox.size.width = 70
                 }
                 if (this.zoomBox.size.height === "auto") {
-                    /** @type {string} */
-                    this.zoomBox.size.hunits = "%";
+                    this.zoomBox.size.hunits = "%"
                 }
             } else {
                 if (this.option("zoom-position").match(/^#/)) {
-                    if (this.zoomBox.custom = callback(this.option("zoom-position").replace(/^#/, ""))) {
-                        if (callback(this.zoomBox.custom).jGetSize().height > 50) {
+                    if (this.zoomBox.custom = v(this.option("zoom-position").replace(/^#/, ""))) {
+                        if (v(this.zoomBox.custom).jGetSize().height > 50) {
                             if (this.zoomBox.size.width === "auto") {
-                                /** @type {string} */
                                 this.zoomBox.size.wunits = "%";
-                                /** @type {number} */
-                                this.zoomBox.size.width = 100;
+                                this.zoomBox.size.width = 100
                             }
                             if (this.zoomBox.size.height === "auto") {
-                                /** @type {string} */
                                 this.zoomBox.size.hunits = "%";
-                                /** @type {number} */
-                                this.zoomBox.size.height = 100;
+                                this.zoomBox.size.height = 100
                             }
                         }
                     } else {
-                        this.option("zoom-position", "right");
+                        this.option("zoom-position", "right")
                     }
                 }
                 if (this.zoomBox.mode === "preview") {
                     if (this.zoomBox.size.width === "auto") {
-                        /** @type {string} */
-                        this.zoomBox.size.wunits = "px";
+                        this.zoomBox.size.wunits = "px"
                     }
                     if (this.zoomBox.size.height === "auto") {
-                        /** @type {string} */
-                        this.zoomBox.size.hunits = "px";
+                        this.zoomBox.size.hunits = "px"
                     }
                 }
                 if (this.zoomBox.mode === "zoom") {
                     if (this.zoomBox.size.width === "auto" || this.option("zoom-position") === "inner") {
-                        /** @type {string} */
                         this.zoomBox.size.wunits = "%";
-                        /** @type {number} */
-                        this.zoomBox.size.width = 100;
+                        this.zoomBox.size.width = 100
                     }
                     if (this.zoomBox.size.height === "auto" || this.option("zoom-position") === "inner") {
-                        /** @type {string} */
                         this.zoomBox.size.hunits = "%";
-                        /** @type {number} */
-                        this.zoomBox.size.height = 100;
+                        this.zoomBox.size.height = 100
                     }
                 }
                 if (this.option("zoom-position") === "inner") {
-                    this.node.jAddClass("mz-inner-zoom");
+                    this.node.jAddClass("mz-inner-zoom")
                 }
             }
             this.zoomBox.position = this.zoomBox.custom ? "custom" : this.option("zoom-position");
-            /** @type {number} */
             this.lens.border.x = parseFloat(this.lens.node.jGetCss("border-left-width") || "0");
-            /** @type {number} */
             this.lens.border.y = parseFloat(this.lens.node.jGetCss("border-top-width") || "0");
             this.image.loadSmall(function() {
                 if (this.image.small.state !== 2) {
-                    return;
+                    return
                 }
                 this.image.setCurNode("small");
                 this.size = this.image.node.jGetSize();
                 this.registerEvents();
-                /** @type {boolean} */
                 this.ready = true;
                 if (this.option("lazyZoom") === true) {
-                    bind("onZoomReady", this.id);
-                    if ($.browser.mobile) {
-                        this.reflowZoom();
+                    I("onZoomReady", this.id);
+                    if (q.browser.mobile) {
+                        this.reflowZoom()
                     } else {
-                        this.showHint();
+                        this.showHint()
                     }
                 }
             }.jBind(this));
             if (this.option("lazyZoom") !== true || this.option("zoomOn") === "always") {
-                this.image.load(callback(function(childCompute) {
-                    this.setupZoom(childCompute, true);
+                this.image.load(v(function(S) {
+                    this.setupZoom(S, true)
                 }).jBind(this));
-                this.loadTimer = callback(this.showLoading).jBind(this).jDelay(400);
+                this.loadTimer = v(this.showLoading).jBind(this).jDelay(400)
             }
             this.setupSelectors();
-            this.setupButtons();
+            this.setupButtons()
         },
-        stop : function() {
+        stop: function() {
             clearTimeout(this.startTimer);
             this.unregisterEvents();
             if (this.zoomBox) {
-                this.zoomBox.node.kill();
+                this.zoomBox.node.kill()
             }
             if (this.expandThumbs) {
                 this.expandThumbs.stop();
-                /** @type {null} */
-                this.expandThumbs = null;
+                this.expandThumbs = null
             }
             if (this.expandBox) {
-                this.expandBox.kill();
+                this.expandBox.kill()
             }
             if (this.expanded) {
-                callback($.browser.getDoc()).jSetCss({
-                    overflow : ""
-                });
+                v(q.browser.getDoc()).jSetCss({
+                    overflow: ""
+                })
             }
-            callback(this.additionalImages).jEach(function(messageObject) {
-                callback(messageObject.origin).jRemoveClass("mz-thumb-selected").jRemoveClass(this.option("cssClass") || "mz-$dummy-css-class-to-jRemove$");
+            v(this.additionalImages).jEach(function(K) {
+                v(K.origin).jRemoveClass("mz-thumb-selected").jRemoveClass(this.option("cssClass") || "mz-$dummy-css-class-to-jRemove$")
             }, this);
             if (this.originalImg) {
                 this.placeholder.append(this.originalImg);
                 if (this.originalImgSrc) {
-                    this.originalImg.setAttribute("src", this.originalImgSrc);
+                    this.originalImg.setAttribute("src", this.originalImgSrc)
                 }
             }
             if (this.originalTitle) {
-                this.placeholder.setAttribute("title", this.originalTitle);
+                this.placeholder.setAttribute("title", this.originalTitle)
             }
             if (this.node) {
-                this.node.kill();
+                this.node.kill()
             }
         },
-        setupZoom : function(value, _flexdatalist) {
-            var mod = this.image;
-            if (value.zoom.state !== 2) {
-                /** @type {!Object} */
-                this.image = value;
-                /** @type {boolean} */
+        setupZoom: function(L, M) {
+            var K = this.image;
+            if (L.zoom.state !== 2) {
+                this.image = L;
                 this.ready = true;
                 this.zoomBox.enable(false);
-                return;
+                return
             }
-            /** @type {!Object} */
-            this.image = value;
+            this.image = L;
             this.image.setCurNode(this.expanded ? "zoom" : "small");
             this.zoomBox.image.src = this.image.getURL("zoom");
             this.zoomBox.node.jRemoveClass("mz-preview");
             this.zoomBox.image.getAttribute("style");
             this.zoomBox.image.removeAttribute("style");
             this.zoomBox.node.jGetSize();
-            setTimeout(callback(function() {
-                var droprect = this.zoomBox.image.jGetSize();
-                var params;
+            setTimeout(v(function() {
+                var O = this.zoomBox.image.jGetSize();
+                var N;
                 this.zoomSizeOrigin = this.image.jGetSize("zoom");
-                if (droprect.width * droprect.height > 1 && droprect.width * droprect.height < this.zoomSizeOrigin.width * this.zoomSizeOrigin.height) {
-                    this.zoomSizeOrigin = droprect;
+                if (O.width * O.height > 1 && O.width * O.height < this.zoomSizeOrigin.width * this.zoomSizeOrigin.height) {
+                    this.zoomSizeOrigin = O
                 }
-                this.zoomSize = $.detach(this.zoomSizeOrigin);
+                this.zoomSize = q.detach(this.zoomSizeOrigin);
                 if (this.zoomBox.mode === "preview") {
-                    this.zoomBox.node.jAddClass("mz-preview");
+                    this.zoomBox.node.jAddClass("mz-preview")
                 }
                 this.setCaption();
                 this.lens.image.src = this.image.node.currentSrc || this.image.node.src;
                 this.zoomBox.enable(this.zoomBox.mode && !(this.expanded && this.zoomBox.mode === "preview"));
-                /** @type {boolean} */
                 this.ready = true;
-                /** @type {null} */
                 this.activateTimer = null;
                 this.resizeCallback();
                 this.node.jAddClass("mz-ready");
                 this.hideLoading();
-                if (mod !== this.image) {
-                    bind("onUpdate", this.id, mod.origin, this.image.origin);
+                if (K !== this.image) {
+                    I("onUpdate", this.id, K.origin, this.image.origin);
                     if (this.nextImage) {
-                        params = this.nextImage;
-                        /** @type {null} */
+                        N = this.nextImage;
                         this.nextImage = null;
-                        this.update(params.image, params.onswipe);
+                        this.update(N.image, N.onswipe)
                     }
                 } else {
-                    if (!!_flexdatalist) {
-                        bind("onZoomReady", this.id);
+                    if (!!M) {
+                        I("onZoomReady", this.id)
                     }
                 }
                 if (this.initEvent) {
-                    this.node.jCallEvent(this.initEvent.type, this.initEvent);
+                    this.node.jCallEvent(this.initEvent.type, this.initEvent)
                 } else {
                     if (this.expanded && this.option("expandZoomOn") === "always") {
-                        this.activate();
+                        this.activate()
                     } else {
-                        if (!!_flexdatalist) {
-                            this.showHint();
+                        if (!!M) {
+                            this.showHint()
                         }
                     }
                 }
-            }).jBind(this), 256);
+            }).jBind(this), 256)
         },
-        setupSelectors : function() {
-            var changeset_id = this.id;
-            var uniqueAncestors;
-            var validatorPattern;
-            /** @type {!RegExp} */
-            validatorPattern = new RegExp("zoom\\-id(\\s+)?:(\\s+)?" + changeset_id + "($|;)");
-            if ($.browser.features.query) {
-                uniqueAncestors = $.$A(document.querySelectorAll('[data-zoom-id="' + this.id + '"]'));
-                uniqueAncestors = callback(uniqueAncestors).concat($.$A(document.querySelectorAll('[rel*="zoom-id"]')).filter(function(ownerNode) {
-                    return validatorPattern.test(ownerNode.getAttribute("rel") || "");
-                }));
+        setupSelectors: function() {
+            var L = this.id;
+            var K;
+            var M;
+            M = new RegExp("zoom\\-id(\\s+)?:(\\s+)?" + L + "($|;)");
+            if (q.browser.features.query) {
+                K = q.$A(document.querySelectorAll('[data-zoom-id="' + this.id + '"]'));
+                K = v(K).concat(q.$A(document.querySelectorAll('[rel*="zoom-id"]')).filter(function(N) {
+                    return M.test(N.getAttribute("rel") || "")
+                }))
             } else {
-                uniqueAncestors = $.$A(document.getElementsByTagName("A")).filter(function(ownerNode) {
-                    return changeset_id === ownerNode.getAttribute("data-zoom-id") || validatorPattern.test(ownerNode.getAttribute("rel") || "");
-                });
+                K = q.$A(document.getElementsByTagName("A")).filter(function(N) {
+                    return L === N.getAttribute("data-zoom-id") || M.test(N.getAttribute("rel") || "")
+                })
             }
-            callback(uniqueAncestors).jEach(function(node) {
-                var data;
-                var iserr;
-                callback(node).jAddEvent("click", function(canCreateDiscussions) {
-                    canCreateDiscussions.stopDefaults();
+            v(K).jEach(function(O) {
+                var N;
+                var P;
+                v(O).jAddEvent("click", function(Q) {
+                    Q.stopDefaults()
                 });
-                data = (new load).parseNode(node, this.originalTitle);
-                if ((this.image.zoom.src.has(data.zoom.url) || this.image.zoom.url.has(data.zoom.url)) && (this.image.small.src.has(data.small.url) || this.image.small.url.has(data.small.url))) {
-                    callback(data.origin).jAddClass("mz-thumb-selected");
-                    data = this.image;
-                    /** @type {number} */
-                    data.origin = node;
+                N = new o().parseNode(O, this.originalTitle);
+                if ((this.image.zoom.src.has(N.zoom.url) || this.image.zoom.url.has(N.zoom.url)) && (this.image.small.src.has(N.small.url) || this.image.small.url.has(N.small.url))) {
+                    v(N.origin).jAddClass("mz-thumb-selected");
+                    N = this.image;
+                    N.origin = O
                 }
-                if (!data.link && this.image.link) {
-                    data.link = this.image.link;
+                if (!N.link && this.image.link) {
+                    N.link = this.image.link
                 }
-                iserr = callback(function() {
-                    this.update(data);
+                P = v(function() {
+                    this.update(N)
                 }).jBind(this);
-                callback(node).jAddEvent("mousedown", function(event) {
-                    if ("stopImmediatePropagation" in event) {
-                        event.stopImmediatePropagation();
+                v(O).jAddEvent("mousedown", function(Q) {
+                    if ("stopImmediatePropagation" in Q) {
+                        Q.stopImmediatePropagation()
                     }
                 }, 5);
-                callback(node).jAddEvent("tap " + (this.option("selectorTrigger") === "hover" ? "mouseover mouseout" : "btnclick"), callback(function(event, mmCoreSplitViewBlock) {
+                v(O).jAddEvent("tap " + (this.option("selectorTrigger") === "hover" ? "mouseover mouseout" : "btnclick"), v(function(R, Q) {
                     if (this.updateTimer) {
-                        clearTimeout(this.updateTimer);
+                        clearTimeout(this.updateTimer)
                     }
-                    /** @type {boolean} */
                     this.updateTimer = false;
-                    if (event.type === "mouseover") {
-                        this.updateTimer = callback(iserr).jDelay(mmCoreSplitViewBlock);
+                    if (R.type === "mouseover") {
+                        this.updateTimer = v(P).jDelay(Q)
                     } else {
-                        if (event.type === "tap" || event.type === "btnclick") {
-                            iserr();
+                        if (R.type === "tap" || R.type === "btnclick") {
+                            P()
                         }
                     }
                 }).jBindAsEvent(this, 60)).jAddClass(this.option("cssClass")).jAddClass("mz-thumb");
                 if (this.option("lazyZoom") !== true) {
-                    data.loadSmall();
-                    data.loadZoom();
+                    N.loadSmall();
+                    N.loadZoom()
                 }
-                this.additionalImages.push(data);
-            }, this);
+                this.additionalImages.push(N)
+            }, this)
         },
-        update : function(value, options) {
+        update: function(K, L) {
             if (!this.ready) {
                 this.nextImage = {
-                    image : value,
-                    onswipe : options
+                    image: K,
+                    onswipe: L
                 };
-                return;
+                return
             }
-            if (!value || value === this.image) {
-                return false;
+            if (!K || K === this.image) {
+                return false
             }
             this.deactivate(null, true);
-            /** @type {boolean} */
             this.ready = false;
             this.node.jRemoveClass("mz-ready");
-            this.loadTimer = callback(this.showLoading).jBind(this).jDelay(400);
-            value.load(callback(function(self) {
-                var newSizes;
-                var canvas2;
-                var target;
-                var testOpacity;
-                var element;
-                var Q;
-                /** @type {string} */
-                var key = $.browser.ieMode < 10 ? "jGetSize" : "getBoundingClientRect";
+            this.loadTimer = v(this.showLoading).jBind(this).jDelay(400);
+            K.load(v(function(S) {
+                var M, T, R, O, N, Q, P = (q.browser.ieMode < 10) ? "jGetSize" : "getBoundingClientRect";
                 this.hideLoading();
-                self.setCurNode("small");
-                if (!self.node) {
-                    /** @type {boolean} */
+                S.setCurNode("small");
+                if (!S.node) {
                     this.ready = true;
                     this.node.jAddClass("mz-ready");
-                    return;
+                    return
                 }
-                this.setActiveThumb(self);
-                newSizes = this.image.node[key]();
+                this.setActiveThumb(S);
+                M = this.image.node[P]();
                 if (this.expanded) {
-                    self.setCurNode("zoom");
-                    target = $.$new("div").jAddClass("mz-expand-bg");
-                    if ($.browser.features.cssFilters || $.browser.ieMode < 10) {
-                        target.append($.$new("img", {
-                            srcset : self.getURL("zoom") + " " + self.getRatio("zoom") + "x",
-                            src : self.getURL("zoom")
+                    S.setCurNode("zoom");
+                    R = q.$new("div").jAddClass("mz-expand-bg");
+                    if (q.browser.features.cssFilters || q.browser.ieMode < 10) {
+                        R.append(q.$new("img", {
+                            srcset: S.getURL("zoom") + " " + S.getRatio("zoom") + "x",
+                            src: S.getURL("zoom")
                         }).jSetCss({
-                            opacity : 0
-                        }));
+                            opacity: 0
+                        }))
                     } else {
-                        target.append((new $.SVGImage(self.node)).blur(id).getNode().jSetCss({
-                            opacity : 0
-                        }));
+                        R.append(new q.SVGImage(S.node).blur(k).getNode().jSetCss({
+                            opacity: 0
+                        }))
                     }
-                    callback(target).jSetCss({
-                        "z-index" : -99
-                    }).jAppendTo(this.expandBox);
+                    v(R).jSetCss({
+                        "z-index": -99
+                    }).jAppendTo(this.expandBox)
                 }
                 if (this.expanded && this.zoomBox.mode === "zoom" && this.option("expandZoomOn") === "always") {
-                    callback(self.node).jSetCss({
-                        opacity : 0
+                    v(S.node).jSetCss({
+                        opacity: 0
                     }).jAppendTo(this.node);
-                    canvas2 = newSizes;
-                    /** @type {!Array} */
-                    element = [self.node, this.image.node];
-                    /** @type {!Array} */
+                    T = M;
+                    N = [S.node, this.image.node];
                     Q = [{
-                        opacity : [0, 1]
+                        opacity: [0, 1]
                     }, {
-                        opacity : [1, 0]
+                        opacity: [1, 0]
                     }];
-                    callback(self.node).jSetCss({
-                        "max-width" : Math.min(self.jGetSize("zoom").width, this.expandMaxWidth()),
-                        "max-height" : Math.min(self.jGetSize("zoom").height, this.expandMaxHeight())
-                    });
+                    v(S.node).jSetCss({
+                        "max-width": Math.min(S.jGetSize("zoom").width, this.expandMaxWidth()),
+                        "max-height": Math.min(S.jGetSize("zoom").height, this.expandMaxHeight())
+                    })
                 } else {
                     this.node.jSetCss({
-                        height : this.node[key]().height
+                        height: this.node[P]().height
                     });
                     this.image.node.jSetCss({
-                        position : "absolute",
-                        top : 0,
-                        left : 0,
-                        bottom : 0,
-                        right : 0,
-                        width : "100%",
-                        height : "100%",
-                        "max-width" : "",
-                        "max-height" : ""
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        width: "100%",
+                        height: "100%",
+                        "max-width": "",
+                        "max-height": ""
                     });
-                    callback(self.node).jSetCss({
-                        "max-width" : Math.min(self.jGetSize(this.expanded ? "zoom" : "small").width, this.expanded ? this.expandMaxWidth() : Infinity),
-                        "max-height" : Math.min(self.jGetSize(this.expanded ? "zoom" : "small").height, this.expanded ? this.expandMaxHeight() : Infinity),
-                        position : "relative",
-                        top : 0,
-                        left : 0,
-                        opacity : 0,
-                        transform : ""
+                    v(S.node).jSetCss({
+                        "max-width": Math.min(S.jGetSize(this.expanded ? "zoom" : "small").width, this.expanded ? this.expandMaxWidth() : Infinity),
+                        "max-height": Math.min(S.jGetSize(this.expanded ? "zoom" : "small").height, this.expanded ? this.expandMaxHeight() : Infinity),
+                        position: "relative",
+                        top: 0,
+                        left: 0,
+                        opacity: 0,
+                        transform: ""
                     }).jAppendTo(this.node);
-                    canvas2 = callback(self.node)[key]();
-                    if (!options) {
-                        callback(self.node).jSetCss({
-                            "min-width" : newSizes.width,
-                            height : newSizes.height,
-                            "max-width" : newSizes.width,
-                            "max-height" : ""
-                        });
+                    T = v(S.node)[P]();
+                    if (!L) {
+                        v(S.node).jSetCss({
+                            "min-width": M.width,
+                            height: M.height,
+                            "max-width": M.width,
+                            "max-height": ""
+                        })
                     }
                     this.node.jSetCss({
-                        height : "",
-                        overflow : ""
+                        height: "",
+                        overflow: ""
                     }).jGetSize();
-                    callback(self.node).jGetSize();
-                    /** @type {!Array} */
-                    element = [self.node, this.image.node];
-                    /** @type {!Array} */
-                    Q = [$.extend({
-                        opacity : [0, 1]
-                    }, options ? {
-                        scale : [.6, 1]
+                    v(S.node).jGetSize();
+                    N = [S.node, this.image.node];
+                    Q = [q.extend({
+                        opacity: [0, 1]
+                    }, L ? {
+                        scale: [0.6, 1]
                     } : {
-                        "min-width" : [newSizes.width, canvas2.width],
-                        "max-width" : [newSizes.width, canvas2.width],
-                        height : [newSizes.height, canvas2.height]
+                        "min-width": [M.width, T.width],
+                        "max-width": [M.width, T.width],
+                        height: [M.height, T.height]
                     }), {
-                        opacity : [1, 0]
-                    }];
+                        opacity: [1, 0]
+                    }]
                 }
                 if (this.expanded) {
-                    if (this.expandBg.firstChild && target.firstChild) {
-                        testOpacity = callback(this.expandBg.firstChild).jGetCss("opacity");
-                        if ($.browser.gecko) {
-                            /** @type {!Array<?>} */
-                            element = element.concat([target.firstChild]);
-                            /** @type {!Array<?>} */
+                    if (this.expandBg.firstChild && R.firstChild) {
+                        O = v(this.expandBg.firstChild).jGetCss("opacity");
+                        if (q.browser.gecko) {
+                            N = N.concat([R.firstChild]);
                             Q = Q.concat([{
-                                opacity : [1E-4, testOpacity]
-                            }]);
+                                opacity: [0.0001, O]
+                            }])
                         } else {
-                            /** @type {!Array<?>} */
-                            element = element.concat([target.firstChild, this.expandBg.firstChild]);
-                            /** @type {!Array<?>} */
+                            N = N.concat([R.firstChild, this.expandBg.firstChild]);
                             Q = Q.concat([{
-                                opacity : [1E-4, testOpacity]
+                                opacity: [0.0001, O]
                             }, {
-                                opacity : [testOpacity, 1E-4]
-                            }]);
+                                opacity: [O, 0.0001]
+                            }])
                         }
                     }
                 }
-                (new $.PFX(element, {
-                    duration : options || this.option("transitionEffect") ? options ? 160 : 350 : 0,
-                    transition : options ? "cubic-bezier(0.175, 0.885, 0.320, 1)" : newSizes.width === canvas2.width ? "linear" : "cubic-bezier(0.25, .1, .1, 1)",
-                    onComplete : callback(function() {
+                new q.PFX(N, {
+                    duration: (L || this.option("transitionEffect")) ? L ? 160 : 350 : 0,
+                    transition: L ? "cubic-bezier(0.175, 0.885, 0.320, 1)" : (M.width === T.width) ? "linear" : "cubic-bezier(0.25, .1, .1, 1)",
+                    onComplete: v(function() {
                         this.image.node.jRemove().getAttribute("style");
                         this.image.node.removeAttribute("style");
-                        callback(self.node).jSetCss(this.expanded ? {
-                            width : "auto",
-                            height : "auto"
+                        v(S.node).jSetCss(this.expanded ? {
+                            width: "auto",
+                            height: "auto"
                         } : {
-                            width : "",
-                            height : ""
+                            width: "",
+                            height: ""
                         }).jSetCss({
-                            "min-width" : "",
-                            "min-height" : "",
-                            opacity : "",
-                            "max-width" : Math.min(self.jGetSize(this.expanded ? "zoom" : "small").width, this.expanded ? this.expandMaxWidth() : Infinity),
-                            "max-height" : Math.min(self.jGetSize(this.expanded ? "zoom" : "small").height, this.expanded ? this.expandMaxHeight() : Infinity)
+                            "min-width": "",
+                            "min-height": "",
+                            opacity: "",
+                            "max-width": Math.min(S.jGetSize(this.expanded ? "zoom" : "small").width, this.expanded ? this.expandMaxWidth() : Infinity),
+                            "max-height": Math.min(S.jGetSize(this.expanded ? "zoom" : "small").height, this.expanded ? this.expandMaxHeight() : Infinity)
                         });
                         if (this.expanded) {
                             this.expandBg.jRemove();
                             this.expandBg = undefined;
-                            this.expandBg = target.jSetCssProp("z-index", -100);
-                            callback(this.expandBg.firstChild).jSetCss({
-                                opacity : ""
+                            this.expandBg = R.jSetCssProp("z-index", -100);
+                            v(this.expandBg.firstChild).jSetCss({
+                                opacity: ""
                             });
                             if (this.expandCaption) {
-                                if (self.caption) {
-                                    if (self.link) {
-                                        this.expandCaption.changeContent("").append($.$new("a", {
-                                            href : self.link
-                                        }).jAddEvent("tap btnclick", this.openLink.jBind(this)).changeContent(self.caption));
+                                if (S.caption) {
+                                    if (S.link) {
+                                        this.expandCaption.changeContent("").append(q.$new("a", {
+                                            href: S.link
+                                        }).jAddEvent("tap btnclick", this.openLink.jBind(this)).changeContent(S.caption))
                                     } else {
-                                        this.expandCaption.changeContent(self.caption).jAddClass("mz-show");
+                                        this.expandCaption.changeContent(S.caption).jAddClass("mz-show")
                                     }
                                 } else {
-                                    this.expandCaption.jRemoveClass("mz-show");
+                                    this.expandCaption.jRemoveClass("mz-show")
                                 }
                             }
                         }
-                        this.setupZoom(self);
+                        this.setupZoom(S)
                     }).jBind(this),
-                    onBeforeRender : callback(function(options, knobOuter) {
-                        if (undefined !== options.scale) {
-                            knobOuter.jSetCssProp("transform", "scale(" + options.scale + ")");
+                    onBeforeRender: v(function(U, V) {
+                        if (undefined !== U.scale) {
+                            V.jSetCssProp("transform", "scale(" + U.scale + ")")
                         }
                     })
-                })).start(Q);
-            }).jBind(this));
+                }).start(Q)
+            }).jBind(this))
         },
-        setActiveThumb : function(self) {
-            /** @type {boolean} */
-            var type = false;
-            callback(this.additionalImages).jEach(function(box) {
-                callback(box.origin).jRemoveClass("mz-thumb-selected");
-                if (box === self) {
-                    /** @type {boolean} */
-                    type = true;
+        setActiveThumb: function(L) {
+            var K = false;
+            v(this.additionalImages).jEach(function(M) {
+                v(M.origin).jRemoveClass("mz-thumb-selected");
+                if (M === L) {
+                    K = true
                 }
             });
-            if (type && self.origin) {
-                callback(self.origin).jAddClass("mz-thumb-selected");
+            if (K && L.origin) {
+                v(L.origin).jAddClass("mz-thumb-selected")
             }
             if (this.expandThumbs) {
-                this.expandThumbs.selectItem(self.selector);
+                this.expandThumbs.selectItem(L.selector)
             }
         },
-        setCaption : function(isError) {
+        setCaption: function(K) {
             if (this.image.caption && this.option("zoomCaption") !== "off" && this.zoomBox.mode !== "magnifier") {
                 if (!this.zoomBox.caption) {
-                    this.zoomBox.caption = $.$new("div", {
-                        "class" : "mz-caption"
-                    }).jAppendTo(this.zoomBox.node.jAddClass("caption-" + this.option("zoomCaption")));
+                    this.zoomBox.caption = q.$new("div", {
+                        "class": "mz-caption"
+                    }).jAppendTo(this.zoomBox.node.jAddClass("caption-" + this.option("zoomCaption")))
                 }
-                this.zoomBox.caption.changeContent(this.image.caption);
+                this.zoomBox.caption.changeContent(this.image.caption)
             }
         },
-        showHint : function(options, index, html) {
-            var node;
+        showHint: function(K, N, L) {
+            var M;
             if (!this.expanded) {
                 if (this.hintRuns <= 0) {
-                    return;
+                    return
                 }
-                if (html !== true) {
-                    this.hintRuns--;
+                if (L !== true) {
+                    this.hintRuns--
                 }
             }
-            if (index === undefined || index === null) {
+            if (N === undefined || N === null) {
                 if (!this.zoomBox.active && !this.zoomBox.activating) {
-                    if (this.option("zoomMode") && (this.zoomBox.enabled || !this.image.loaded()) && !($.browser.mobile && this.option("expand") && this.zoomBox.mode === "zoom" && this.zoomBox.position === "inner")) {
+                    if (this.option("zoomMode") && (this.zoomBox.enabled || !this.image.loaded()) && !(q.browser.mobile && this.option("expand") && this.zoomBox.mode === "zoom" && this.zoomBox.position === "inner")) {
                         if (this.zoomBox.trigger === "hover") {
-                            index = this.option("textHoverZoomHint");
+                            N = this.option("textHoverZoomHint")
                         } else {
                             if (this.zoomBox.trigger === "click") {
-                                index = this.option("textClickZoomHint");
+                                N = this.option("textClickZoomHint")
                             }
                         }
                     } else {
-                        index = this.option("expand") ? this.option("textExpandHint") : "";
+                        N = this.option("expand") ? this.option("textExpandHint") : ""
                     }
                 } else {
-                    index = this.option("expand") ? this.option("textExpandHint") : "";
+                    N = this.option("expand") ? this.option("textExpandHint") : ""
                 }
             }
-            if (!index) {
+            if (!N) {
                 this.hideHint();
-                return;
+                return
             }
-            node = this.node;
+            M = this.node;
             if (!this.hint) {
-                this.hint = $.$new("div", {
-                    "class" : "mz-hint"
+                this.hint = q.$new("div", {
+                    "class": "mz-hint"
                 });
-                this.hintMessage = $.$new("span", {
-                    "class" : "mz-hint-message"
-                }).append(document.createTextNode(index)).jAppendTo(this.hint);
-                callback(this.hint).jAppendTo(this.node);
+                this.hintMessage = q.$new("span", {
+                    "class": "mz-hint-message"
+                }).append(document.createTextNode(N)).jAppendTo(this.hint);
+                v(this.hint).jAppendTo(this.node)
             } else {
-                callback(this.hintMessage).changeContent(index);
+                v(this.hintMessage).changeContent(N)
             }
             this.hint.jSetCss({
-                "transition-delay" : ""
+                "transition-delay": ""
             }).jRemoveClass("mz-hint-hidden");
             if (this.expanded) {
-                node = this.expandFigure;
+                M = this.expandFigure
             } else {
                 if ((this.zoomBox.active || this.zoomBox.activating) && this.zoomBox.mode !== "magnifier" && this.zoomBox.position === "inner") {
-                    node = this.zoomBox.node;
+                    M = this.zoomBox.node
                 }
             }
-            if (options === true) {
-                setTimeout(callback(function() {
-                    this.hint.jAddClass("mz-hint-hidden");
-                }).jBind(this), 16);
+            if (K === true) {
+                setTimeout(v(function() {
+                    this.hint.jAddClass("mz-hint-hidden")
+                }).jBind(this), 16)
             }
-            this.hint.jAppendTo(node);
+            this.hint.jAppendTo(M)
         },
-        hideHint : function() {
+        hideHint: function() {
             if (this.hint) {
                 this.hint.jSetCss({
-                    "transition-delay" : "0ms"
-                }).jAddClass("mz-hint-hidden");
+                    "transition-delay": "0ms"
+                }).jAddClass("mz-hint-hidden")
             }
         },
-        showLoading : function() {
+        showLoading: function() {
             if (!this.loadingBox) {
-                this.loadingBox = $.$new("div", {
-                    "class" : "mz-loading"
+                this.loadingBox = q.$new("div", {
+                    "class": "mz-loading"
                 });
                 this.node.append(this.loadingBox);
-                this.loadingBox.jGetSize();
+                this.loadingBox.jGetSize()
             }
-            this.loadingBox.jAddClass("shown");
+            this.loadingBox.jAddClass("shown")
         },
-        hideLoading : function() {
+        hideLoading: function() {
             clearTimeout(this.loadTimer);
-            /** @type {null} */
             this.loadTimer = null;
             if (this.loadingBox) {
-                callback(this.loadingBox).jRemoveClass("shown");
+                v(this.loadingBox).jRemoveClass("shown")
             }
         },
-        setSize : function(size, type) {
-            var style = $.detach(this.zoomBox.size);
-            var ui = !this.expanded && this.zoomBox.custom ? callback(this.zoomBox.custom).jGetSize() : {
-                width : 0,
-                height : 0
-            };
-            var popoverBoundingBox;
-            var multiple;
-            var previewImageDimensions = this.size;
-            var to = {
-                x : 0,
-                y : 0
-            };
-            type = type || this.zoomBox.position;
+        setSize: function(M, Q) {
+            var P = q.detach(this.zoomBox.size),
+                O = (!this.expanded && this.zoomBox.custom) ? v(this.zoomBox.custom).jGetSize() : {
+                    width: 0,
+                    height: 0
+                },
+                L, K, N = this.size,
+                R = {
+                    x: 0,
+                    y: 0
+                };
+            Q = Q || this.zoomBox.position;
             this.normalSize = this.image.node.jGetSize();
             this.size = this.image.node.jGetSize();
             this.boundaries = this.image.node.getBoundingClientRect();
-            if (!ui.height) {
-                ui = this.size;
+            if (!O.height) {
+                O = this.size
             }
             if (this.option("upscale") === false || this.zoomBox.mode === false || this.zoomBox.mode === "preview") {
-                /** @type {boolean} */
-                size = false;
+                M = false
             }
             if (this.zoomBox.mode === "preview") {
-                if (style.width === "auto") {
-                    style.width = this.zoomSizeOrigin.width;
+                if (P.width === "auto") {
+                    P.width = this.zoomSizeOrigin.width
                 }
-                if (style.height === "auto") {
-                    style.height = this.zoomSizeOrigin.height;
+                if (P.height === "auto") {
+                    P.height = this.zoomSizeOrigin.height
                 }
             }
             if (this.expanded && this.zoomBox.mode === "magnifier") {
-                /** @type {number} */
-                style.width = 70;
-                /** @type {string} */
-                style.height = "auto";
+                P.width = 70;
+                P.height = "auto"
             }
-            if (this.zoomBox.mode === "magnifier" && style.height === "auto") {
-                /** @type {number} */
-                this.zoomBox.width = parseFloat(style.width / 100) * Math.min(ui.width, ui.height);
-                /** @type {number} */
-                this.zoomBox.height = this.zoomBox.width;
+            if (this.zoomBox.mode === "magnifier" && P.height === "auto") {
+                this.zoomBox.width = parseFloat(P.width / 100) * Math.min(O.width, O.height);
+                this.zoomBox.height = this.zoomBox.width
             } else {
-                if (this.zoomBox.mode === "zoom" && type === "inner") {
+                if (this.zoomBox.mode === "zoom" && Q === "inner") {
                     this.size = this.node.jGetSize();
-                    ui = this.size;
+                    O = this.size;
                     this.boundaries = this.node.getBoundingClientRect();
-                    this.zoomBox.width = ui.width;
-                    this.zoomBox.height = ui.height;
+                    this.zoomBox.width = O.width;
+                    this.zoomBox.height = O.height
                 } else {
-                    /** @type {number} */
-                    this.zoomBox.width = style.wunits === "%" ? parseFloat(style.width / 100) * ui.width : parseInt(style.width);
-                    /** @type {number} */
-                    this.zoomBox.height = style.hunits === "%" ? parseFloat(style.height / 100) * ui.height : parseInt(style.height);
+                    this.zoomBox.width = (P.wunits === "%") ? parseFloat(P.width / 100) * O.width : parseInt(P.width);
+                    this.zoomBox.height = (P.hunits === "%") ? parseFloat(P.height / 100) * O.height : parseInt(P.height)
                 }
             }
             if (this.zoomBox.mode === "preview") {
-                /** @type {number} */
-                multiple = Math.min(Math.min(this.zoomBox.width / this.zoomSizeOrigin.width, this.zoomBox.height / this.zoomSizeOrigin.height), 1);
-                /** @type {number} */
-                this.zoomBox.width = this.zoomSizeOrigin.width * multiple;
-                /** @type {number} */
-                this.zoomBox.height = this.zoomSizeOrigin.height * multiple;
+                K = Math.min(Math.min(this.zoomBox.width / this.zoomSizeOrigin.width, this.zoomBox.height / this.zoomSizeOrigin.height), 1);
+                this.zoomBox.width = this.zoomSizeOrigin.width * K;
+                this.zoomBox.height = this.zoomSizeOrigin.height * K
             }
-            /** @type {number} */
             this.zoomBox.width = Math.ceil(this.zoomBox.width);
-            /** @type {number} */
             this.zoomBox.height = Math.ceil(this.zoomBox.height);
-            /** @type {number} */
             this.zoomBox.aspectRatio = this.zoomBox.width / this.zoomBox.height;
             this.zoomBox.node.jSetCss({
-                width : this.zoomBox.width,
-                height : this.zoomBox.height
+                width: this.zoomBox.width,
+                height: this.zoomBox.height
             });
-            if (size) {
-                ui = this.expanded ? this.expandBox.jGetSize() : this.zoomBox.node.jGetSize();
-                if (!this.expanded && this.normalSize.width * this.normalSize.height / (this.zoomSizeOrigin.width * this.zoomSizeOrigin.height) > .8) {
-                    /** @type {number} */
+            if (M) {
+                O = this.expanded ? this.expandBox.jGetSize() : this.zoomBox.node.jGetSize();
+                if (!this.expanded && (this.normalSize.width * this.normalSize.height) / (this.zoomSizeOrigin.width * this.zoomSizeOrigin.height) > 0.8) {
                     this.zoomSize.width = 1.5 * this.zoomSizeOrigin.width;
-                    /** @type {number} */
-                    this.zoomSize.height = 1.5 * this.zoomSizeOrigin.height;
+                    this.zoomSize.height = 1.5 * this.zoomSizeOrigin.height
                 } else {
-                    this.zoomSize = $.detach(this.zoomSizeOrigin);
+                    this.zoomSize = q.detach(this.zoomSizeOrigin)
                 }
             }
             if (this.zoomBox.mode !== false && !this.zoomBox.active && !(this.expanded && this.option("expandZoomOn") === "always")) {
-                if (this.normalSize.width * this.normalSize.height / (this.zoomSize.width * this.zoomSize.height) > .8) {
-                    this.zoomSize = $.detach(this.zoomSizeOrigin);
-                    this.zoomBox.enable(false);
+                if ((this.normalSize.width * this.normalSize.height) / (this.zoomSize.width * this.zoomSize.height) > 0.8) {
+                    this.zoomSize = q.detach(this.zoomSizeOrigin);
+                    this.zoomBox.enable(false)
                 } else {
-                    this.zoomBox.enable(true);
+                    this.zoomBox.enable(true)
                 }
             }
             this.zoomBox.image.jSetCss({
-                width : this.zoomSize.width,
-                height : this.zoomSize.height
+                width: this.zoomSize.width,
+                height: this.zoomSize.height
             });
             this.zoomSize.maxWidth = this.zoomSize.width;
             this.zoomSize.maxHeight = this.zoomSize.height;
-            popoverBoundingBox = this.zoomBox.node.getInnerSize();
-            /** @type {number} */
-            this.zoomBox.innerWidth = Math.ceil(popoverBoundingBox.width);
-            /** @type {number} */
-            this.zoomBox.innerHeight = Math.ceil(popoverBoundingBox.height);
-            /** @type {number} */
+            L = this.zoomBox.node.getInnerSize();
+            this.zoomBox.innerWidth = Math.ceil(L.width);
+            this.zoomBox.innerHeight = Math.ceil(L.height);
             this.lens.width = Math.ceil(this.zoomBox.innerWidth / (this.zoomSize.width / this.size.width));
-            /** @type {number} */
             this.lens.height = Math.ceil(this.zoomBox.innerHeight / (this.zoomSize.height / this.size.height));
             this.lens.node.jSetCss({
-                width : this.lens.width,
-                height : this.lens.height
+                width: this.lens.width,
+                height: this.lens.height
             });
             this.lens.image.jSetCss(this.size);
-            $.extend(this.lens, this.lens.node.jGetSize());
+            q.extend(this.lens, this.lens.node.jGetSize());
             if (this.zoomBox.active) {
                 clearTimeout(this.moveTimer);
-                /** @type {null} */
                 this.moveTimer = null;
                 if (this.lens.innertouch) {
-                    this.lens.pos.x *= this.size.width / previewImageDimensions.width;
-                    this.lens.pos.y *= this.size.height / previewImageDimensions.height;
-                    to.x = this.lens.spos.x;
-                    to.y = this.lens.spos.y;
+                    this.lens.pos.x *= (this.size.width / N.width);
+                    this.lens.pos.y *= (this.size.height / N.height);
+                    R.x = this.lens.spos.x;
+                    R.y = this.lens.spos.y
                 } else {
-                    to.x = this.boundaries.left + this.lens.width / 2 + this.lens.pos.x * (this.size.width / previewImageDimensions.width);
-                    to.y = this.boundaries.top + this.lens.height / 2 + this.lens.pos.y * (this.size.height / previewImageDimensions.height);
+                    R.x = this.boundaries.left + this.lens.width / 2 + (this.lens.pos.x * (this.size.width / N.width));
+                    R.y = this.boundaries.top + this.lens.height / 2 + (this.lens.pos.y * (this.size.height / N.height))
                 }
-                this.animate(null, to);
+                this.animate(null, R)
             }
         },
-        reflowZoom : function(canCreateDiscussions) {
-            var y;
-            var x;
-            var rect;
-            var type;
-            var trackXY;
-            var url;
-            var rowContainer = callback(this.node).jFetch("cr");
-            rect = extend(5);
-            trackXY = this.zoomBox.position;
-            type = this.expanded ? "inner" : this.zoomBox.custom ? "custom" : this.option("zoom-position");
-            url = this.expanded && this.zoomBox.mode === "zoom" ? this.expandImageStage : document.body;
+        reflowZoom: function(O) {
+            var R;
+            var Q;
+            var K;
+            var P;
+            var N;
+            var M;
+            var L = v(this.node).jFetch("cr");
+            K = s(5);
+            N = this.zoomBox.position;
+            P = this.expanded ? "inner" : this.zoomBox.custom ? "custom" : this.option("zoom-position");
+            M = this.expanded && this.zoomBox.mode === "zoom" ? this.expandImageStage : document.body;
             if (this.expanded) {
-                /** @type {number} */
-                rect.y = 0;
-                /** @type {number} */
-                rect.x = 0;
+                K.y = 0;
+                K.x = 0
             }
-            if (!canCreateDiscussions) {
-                this.setSize(true, type);
+            if (!O) {
+                this.setSize(true, P)
             }
-            y = this.boundaries.top;
+            R = this.boundaries.top;
             if (this.zoomBox.mode !== "magnifier") {
-                if (canCreateDiscussions) {
+                if (O) {
                     this.setSize(false);
-                    return;
+                    return
                 }
-                switch(type) {
+                switch (P) {
                     case "inner":
                     case "custom":
-                        /** @type {number} */
-                        y = 0;
-                        /** @type {number} */
-                        x = 0;
+                        R = 0;
+                        Q = 0;
                         break;
                     case "top":
-                        /** @type {number} */
-                        y = this.boundaries.top - this.zoomBox.height - this.option("zoom-distance");
-                        if (rect.top > y) {
-                            y = this.boundaries.bottom + this.option("zoom-distance");
-                            /** @type {string} */
-                            type = "bottom";
+                        R = this.boundaries.top - this.zoomBox.height - this.option("zoom-distance");
+                        if (K.top > R) {
+                            R = this.boundaries.bottom + this.option("zoom-distance");
+                            P = "bottom"
                         }
-                        x = this.boundaries.left;
+                        Q = this.boundaries.left;
                         break;
                     case "bottom":
-                        y = this.boundaries.bottom + this.option("zoom-distance");
-                        if (rect.bottom < y + this.zoomBox.height) {
-                            /** @type {number} */
-                            y = this.boundaries.top - this.zoomBox.height - this.option("zoom-distance");
-                            /** @type {string} */
-                            type = "top";
+                        R = this.boundaries.bottom + this.option("zoom-distance");
+                        if (K.bottom < R + this.zoomBox.height) {
+                            R = this.boundaries.top - this.zoomBox.height - this.option("zoom-distance");
+                            P = "top"
                         }
-                        x = this.boundaries.left;
+                        Q = this.boundaries.left;
                         break;
                     case "left":
-                        /** @type {number} */
-                        x = this.boundaries.left - this.zoomBox.width - this.option("zoom-distance");
-                        if (rect.left > x && rect.right >= this.boundaries.right + this.option("zoom-distance") + this.zoomBox.width) {
-                            x = this.boundaries.right + this.option("zoom-distance");
-                            /** @type {string} */
-                            type = "right";
+                        Q = this.boundaries.left - this.zoomBox.width - this.option("zoom-distance");
+                        if (K.left > Q && K.right >= this.boundaries.right + this.option("zoom-distance") + this.zoomBox.width) {
+                            Q = this.boundaries.right + this.option("zoom-distance");
+                            P = "right"
                         }
                         break;
                     case "right":
                     default:
-                        x = this.boundaries.right + this.option("zoom-distance");
-                        if (rect.right < x + this.zoomBox.width && rect.left <= this.boundaries.left - this.zoomBox.width - this.option("zoom-distance")) {
-                            /** @type {number} */
-                            x = this.boundaries.left - this.zoomBox.width - this.option("zoom-distance");
-                            /** @type {string} */
-                            type = "left";
+                        Q = this.boundaries.right + this.option("zoom-distance");
+                        if (K.right < Q + this.zoomBox.width && K.left <= this.boundaries.left - this.zoomBox.width - this.option("zoom-distance")) {
+                            Q = this.boundaries.left - this.zoomBox.width - this.option("zoom-distance");
+                            P = "left"
                         }
-                        break;
+                        break
                 }
-                switch(this.option("zoom-position")) {
+                switch (this.option("zoom-position")) {
                     case "top":
                     case "bottom":
-                        if (rect.top > y || rect.bottom < y + this.zoomBox.height) {
-                            /** @type {string} */
-                            type = "inner";
+                        if (K.top > R || K.bottom < R + this.zoomBox.height) {
+                            P = "inner"
                         }
                         break;
                     case "left":
                     case "right":
-                        if (rect.left > x || rect.right < x + this.zoomBox.width) {
-                            /** @type {string} */
-                            type = "inner";
+                        if (K.left > Q || K.right < Q + this.zoomBox.width) {
+                            P = "inner"
                         }
                         break;
                     default:
                 }
-                this.zoomBox.position = type;
+                this.zoomBox.position = P;
                 if (!this.zoomBox.activating && !this.zoomBox.active) {
-                    if ($.browser.mobile && !this.expanded && (this.zoomBox.mode === "zoom" || this.zoomBox.mode === false && this.option("expand"))) {
+                    if (q.browser.mobile && !this.expanded && (this.zoomBox.mode === "zoom" || this.zoomBox.mode === false && this.option("expand"))) {
                         if (this.option("expand")) {
-                            this.zoomBox.enable(type !== "inner");
+                            this.zoomBox.enable(P !== "inner")
                         } else {
                             if (this.option("zoomOn") !== "click") {
-                                this.zoomBox.trigger = type === "inner" ? "click" : this.option("zoomOn");
+                                this.zoomBox.trigger = P === "inner" ? "click" : this.option("zoomOn");
                                 this.unregisterActivateEvent();
                                 this.unregisterDeactivateEvent();
                                 this.registerActivateEvent(this.zoomBox.trigger === "click");
-                                this.registerDeactivateEvent(this.zoomBox.trigger === "click" && !this.option("expand"));
+                                this.registerDeactivateEvent(this.zoomBox.trigger === "click" && !this.option("expand"))
                             }
                         }
-                        this.showHint(false, null, !this.image.loaded());
+                        this.showHint(false, null, !this.image.loaded())
                     }
-                    return;
+                    return
                 }
                 this.setSize(false);
-                if (canCreateDiscussions) {
-                    return;
+                if (O) {
+                    return
                 }
-                if (type === "custom") {
-                    url = this.zoomBox.custom;
-                    /** @type {number} */
-                    rect.y = 0;
-                    /** @type {number} */
-                    rect.x = 0;
+                if (P === "custom") {
+                    M = this.zoomBox.custom;
+                    K.y = 0;
+                    K.x = 0
                 }
-                if (type === "inner") {
+                if (P === "inner") {
                     if (this.zoomBox.mode !== "preview") {
                         this.zoomBox.node.jAddClass("mz-inner");
-                        this.node.jAddClass("mz-inner-zoom");
+                        this.node.jAddClass("mz-inner-zoom")
                     }
                     this.lens.hide();
-                    y = this.boundaries.top + rect.y;
-                    x = this.boundaries.left + rect.x;
-                    /** @type {number} */
-                    y = 0;
-                    /** @type {number} */
-                    x = 0;
+                    R = this.boundaries.top + K.y;
+                    Q = this.boundaries.left + K.x;
+                    R = 0;
+                    Q = 0;
                     if (!this.expanded) {
-                        url = this.node;
+                        M = this.node
                     }
                 } else {
-                    y = y + rect.y;
-                    x = x + rect.x;
+                    R += K.y;
+                    Q += K.x;
                     this.node.jRemoveClass("mz-inner-zoom");
-                    this.zoomBox.node.jRemoveClass("mz-inner");
+                    this.zoomBox.node.jRemoveClass("mz-inner")
                 }
                 this.zoomBox.node.jSetCss({
-                    top : y,
-                    left : x
-                });
+                    top: R,
+                    left: Q
+                })
             } else {
                 this.setSize(false);
-                url = this.node;
-                if ($.browser.mobile && !this.expanded && !this.zoomBox.activating && !this.zoomBox.active) {
-                    this.showHint(false, null, !(this.option("lazyZoom") && this.image.loaded()));
+                M = this.node;
+                if (q.browser.mobile && !this.expanded && !this.zoomBox.activating && !this.zoomBox.active) {
+                    this.showHint(false, null, !(this.option("lazyZoom") && this.image.loaded()))
                 }
             }
             this.zoomBox.node[this.expanded ? "jAddClass" : "jRemoveClass"]("mz-expanded");
-            if (!this.expanded && rowContainer) {
-                rowContainer.jAppendTo(this.zoomBox.mode === "zoom" && type === "inner" ? this.zoomBox.node : this.node, (Math.floor(Math.random() * 101) + 1) % 2 ? "top" : "bottom");
+            if (!this.expanded && L) {
+                L.jAppendTo(this.zoomBox.mode === "zoom" && P === "inner" ? this.zoomBox.node : this.node, ((Math.floor(Math.random() * 101) + 1) % 2) ? "top" : "bottom")
             }
-            this.zoomBox.node.jAppendTo(url);
+            this.zoomBox.node.jAppendTo(M)
         },
-        changeZoomLevel : function(e) {
-            var popoverBoundingBox;
-            var width;
-            var height;
-            var orthogonal;
-            /** @type {boolean} */
+        changeZoomLevel: function(Q) {
+            var M;
+            var K;
+            var O;
+            var N;
             var P = false;
-            /** @type {number} */
-            var multiplier = e.isMouse ? 5 : 3 / 54;
+            var L = Q.isMouse ? 5 : 3 / 54;
             if (!this.zoomBox.active) {
-                return;
+                return
             }
-            callback(e).stop();
-            /** @type {number} */
-            multiplier = (100 + multiplier * Math.abs(e.deltaY)) / 100;
-            if (e.deltaY < 0) {
-                /** @type {number} */
-                multiplier = 1 / multiplier;
+            v(Q).stop();
+            L = (100 + L * Math.abs(Q.deltaY)) / 100;
+            if (Q.deltaY < 0) {
+                L = 1 / L
             }
             if (this.zoomBox.mode === "magnifier") {
-                /** @type {number} */
-                width = Math.max(100, Math.round(this.zoomBox.width * multiplier));
-                /** @type {number} */
-                width = Math.min(width, this.size.width * .9);
-                /** @type {number} */
-                height = width / this.zoomBox.aspectRatio;
-                /** @type {number} */
-                this.zoomBox.width = Math.ceil(width);
-                /** @type {number} */
-                this.zoomBox.height = Math.ceil(height);
+                K = Math.max(100, Math.round(this.zoomBox.width * L));
+                K = Math.min(K, this.size.width * 0.9);
+                O = K / this.zoomBox.aspectRatio;
+                this.zoomBox.width = Math.ceil(K);
+                this.zoomBox.height = Math.ceil(O);
                 this.zoomBox.node.jSetCss({
-                    width : this.zoomBox.width,
-                    height : this.zoomBox.height
+                    width: this.zoomBox.width,
+                    height: this.zoomBox.height
                 });
-                popoverBoundingBox = this.zoomBox.node.getInnerSize();
-                /** @type {number} */
-                this.zoomBox.innerWidth = Math.ceil(popoverBoundingBox.width);
-                /** @type {number} */
-                this.zoomBox.innerHeight = Math.ceil(popoverBoundingBox.height);
-                /** @type {boolean} */
-                P = true;
+                M = this.zoomBox.node.getInnerSize();
+                this.zoomBox.innerWidth = Math.ceil(M.width);
+                this.zoomBox.innerHeight = Math.ceil(M.height);
+                P = true
             } else {
                 if (!this.expanded && this.zoomBox.mode === "zoom") {
-                    /** @type {number} */
-                    width = Math.max(this.size.width, Math.round(this.zoomSize.width * multiplier));
-                    /** @type {number} */
-                    width = Math.min(width, this.zoomSize.maxWidth);
-                    /** @type {number} */
-                    height = width / (this.zoomSize.maxWidth / this.zoomSize.maxHeight);
-                    /** @type {number} */
-                    this.zoomSize.width = Math.ceil(width);
-                    /** @type {number} */
-                    this.zoomSize.height = Math.ceil(height);
+                    K = Math.max(this.size.width, Math.round(this.zoomSize.width * L));
+                    K = Math.min(K, this.zoomSize.maxWidth);
+                    O = K / (this.zoomSize.maxWidth / this.zoomSize.maxHeight);
+                    this.zoomSize.width = Math.ceil(K);
+                    this.zoomSize.height = Math.ceil(O)
                 } else {
-                    return;
+                    return
                 }
             }
-            orthogonal = callback(window).jGetScroll();
-            /** @type {number} */
-            this.lens.width = this.zoomBox.innerWidth / (this.zoomSize.width / this.size.width);
-            /** @type {number} */
-            this.lens.height = this.zoomBox.innerHeight / (this.zoomSize.height / this.size.height);
+            N = v(window).jGetScroll();
+            this.lens.width = (this.zoomBox.innerWidth / (this.zoomSize.width / this.size.width));
+            this.lens.height = (this.zoomBox.innerHeight / (this.zoomSize.height / this.size.height));
             this.lens.node.jSetCss({
-                width : this.lens.width,
-                height : this.lens.height
+                width: this.lens.width,
+                height: this.lens.height
             });
-            $.extend(this.lens, this.lens.node.jGetSize());
+            q.extend(this.lens, this.lens.node.jGetSize());
             if (this.zoomBox.active) {
                 clearTimeout(this.moveTimer);
-                /** @type {null} */
                 this.moveTimer = null;
                 if (P) {
-                    /** @type {boolean} */
-                    this.moveTimer = true;
+                    this.moveTimer = true
                 }
                 this.animate(null, {
-                    x : e.x - orthogonal.x,
-                    y : e.y - orthogonal.y
+                    x: Q.x - N.x,
+                    y: Q.y - N.y
                 });
                 if (P) {
-                    /** @type {null} */
-                    this.moveTimer = null;
+                    this.moveTimer = null
                 }
             }
         },
-        registerActivateEvent : function(maxRes) {
-            var url;
-            /** @type {string} */
-            var h = maxRes ? "dbltap btnclick" : "touchstart" + (window.navigator.pointerEnabled ? " pointerdown" : window.navigator.msPointerEnabled ? " MSPointerDown" : "") + (window.navigator.pointerEnabled ? " pointermove" : window.navigator.msPointerEnabled ? " MSPointerMove" : " mousemove");
-            var pornResult = this.node.jFetch("mz:handlers:activate:fn", !maxRes ? callback(function(data) {
-                if (data.isTouchEvent() && !data.isPrimaryTouch()) {
-                    return;
+        registerActivateEvent: function(M) {
+            var L;
+            var K = M ? "dbltap btnclick" : "touchstart" + (window.navigator.pointerEnabled ? " pointerdown" : window.navigator.msPointerEnabled ? " MSPointerDown" : "") + (window.navigator.pointerEnabled ? " pointermove" : window.navigator.msPointerEnabled ? " MSPointerMove" : " mousemove");
+            var N = this.node.jFetch("mz:handlers:activate:fn", (!M) ? v(function(O) {
+                if (O.isTouchEvent() && !O.isPrimaryTouch()) {
+                    return
                 }
-                if (data && data.pointerType === "touch" && data.type !== "pointerdown") {
-                    return;
+                if (O && O.pointerType === "touch" && O.type !== "pointerdown") {
+                    return
                 }
-                url = $.browser.ieMode < 9 ? $.extend({}, data) : data;
+                L = (q.browser.ieMode < 9) ? q.extend({}, O) : O;
                 if (!this.activateTimer) {
                     clearTimeout(this.activateTimer);
-                    /** @type {number} */
-                    this.activateTimer = setTimeout(callback(function() {
-                        this.activate(url);
-                    }).jBind(this), 120);
+                    this.activateTimer = setTimeout(v(function() {
+                        this.activate(L)
+                    }).jBind(this), 120)
                 }
-            }).jBindAsEvent(this) : callback(this.activate).jBindAsEvent(this));
-            this.node.jStore("mz:handlers:activate:event", h).jAddEvent(h, pornResult, 10);
+            }).jBindAsEvent(this) : v(this.activate).jBindAsEvent(this));
+            this.node.jStore("mz:handlers:activate:event", K).jAddEvent(K, N, 10)
         },
-        unregisterActivateEvent : function() {
-            var elem = this.node.jFetch("mz:handlers:activate:event");
-            var cb = this.node.jFetch("mz:handlers:activate:fn");
-            this.node.jRemoveEvent(elem, cb);
-            this.node.jDel("mz:handlers:activate:fn");
+        unregisterActivateEvent: function() {
+            var K = this.node.jFetch("mz:handlers:activate:event");
+            var L = this.node.jFetch("mz:handlers:activate:fn");
+            this.node.jRemoveEvent(K, L);
+            this.node.jDel("mz:handlers:activate:fn")
         },
-        registerDeactivateEvent : function(zoomAware) {
-            /** @type {string} */
-            var type = "touchend";
+        registerDeactivateEvent: function(L) {
+            var K = "touchend";
             if (window.navigator.pointerEnabled) {
-                /** @type {string} */
-                type = type + " pointerup pointerout pointermove";
+                K += " pointerup pointerout pointermove"
             } else {
                 if (window.navigator.msPointerEnabled) {
-                    /** @type {string} */
-                    type = type + " MSPointerUp MSPointerOut MSPointerMove";
+                    K += " MSPointerUp MSPointerOut MSPointerMove"
                 } else {
-                    /** @type {string} */
-                    type = type + " mouseout mousemove";
+                    K += " mouseout mousemove"
                 }
             }
-            if (zoomAware) {
-                if (this.expanded || $.browser.mobile) {
-                    /** @type {string} */
-                    type = "dbltap btnclick";
+            if (L) {
+                if (this.expanded || q.browser.mobile) {
+                    K = "dbltap btnclick"
                 } else {
-                    /** @type {string} */
-                    type = type + " dbltap btnclick";
+                    K += " dbltap btnclick"
                 }
             }
-            var pornResult = this.node.jFetch("mz:handlers:deactivate:fn", callback(function(event) {
-                if (event.isTouchEvent() && !event.isPrimaryTouch()) {
-                    return;
+            var M = this.node.jFetch("mz:handlers:deactivate:fn", v(function(O) {
+                if (O.isTouchEvent() && !O.isPrimaryTouch()) {
+                    return
                 }
-                if (event && event.type === "pointerup" && event.pointerType !== "touch") {
-                    return;
+                if (O && O.type === "pointerup" && O.pointerType !== "touch") {
+                    return
                 }
-                if (event && (event.type === "pointermove" || event.type === "MSPointerMove" || event.type === "mousemove")) {
+                if (O && (O.type === "pointermove" || O.type === "MSPointerMove" || O.type === "mousemove")) {
                     if (!this.ready || !this.zoomBox.enabled || !this.zoomBox.active) {
-                        return;
+                        return
                     }
-                    var windowPos = event.getClientXY();
-                    if (windowPos.x < this.boundaries.left || windowPos.x > this.boundaries.right || windowPos.y < this.boundaries.top || windowPos.y > this.boundaries.bottom) {
-                        this.deactivate(event);
-                        return;
+                    var N = O.getClientXY();
+                    if (N.x < this.boundaries.left || N.x > this.boundaries.right || N.y < this.boundaries.top || N.y > this.boundaries.bottom) {
+                        this.deactivate(O);
+                        return
                     }
                 } else {
-                    if (this.zoomBox.node !== event.getRelated() && !((this.zoomBox.position === "inner" || this.zoomBox.mode === "magnifier") && this.zoomBox.node.hasChild(event.getRelated())) && !this.node.hasChild(event.getRelated())) {
-                        this.deactivate(event);
-                        return;
+                    if (this.zoomBox.node !== O.getRelated() && !((this.zoomBox.position === "inner" || this.zoomBox.mode === "magnifier") && this.zoomBox.node.hasChild(O.getRelated())) && !this.node.hasChild(O.getRelated())) {
+                        this.deactivate(O);
+                        return
                     }
                 }
             }).jBindAsEvent(this));
-            this.node.jStore("mz:handlers:deactivate:event", type).jAddEvent(type, pornResult, 20);
+            this.node.jStore("mz:handlers:deactivate:event", K).jAddEvent(K, M, 20)
         },
-        unregisterDeactivateEvent : function() {
-            var elem = this.node.jFetch("mz:handlers:deactivate:event");
-            var cb = this.node.jFetch("mz:handlers:deactivate:fn");
-            this.node.jRemoveEvent(elem, cb);
-            this.node.jDel("mz:handlers:deactivate:fn");
+        unregisterDeactivateEvent: function() {
+            var K = this.node.jFetch("mz:handlers:deactivate:event");
+            var L = this.node.jFetch("mz:handlers:deactivate:fn");
+            this.node.jRemoveEvent(K, L);
+            this.node.jDel("mz:handlers:deactivate:fn")
         },
-        registerAnimateEvent : function() {
-            /** @type {string} */
-            var type = "touchmove";
-            if ($.browser.platform !== "android") {
+        registerAnimateEvent: function() {
+            var K = "touchmove";
+            if (q.browser.platform !== "android") {
                 if (window.navigator.pointerEnabled) {
-                    /** @type {string} */
-                    type = type + " pointermove";
+                    K += " pointermove"
                 } else {
                     if (window.navigator.msPointerEnabled) {
-                        /** @type {string} */
-                        type = type + " MSPointerMove";
+                        K += " MSPointerMove"
                     } else {
-                        /** @type {string} */
-                        type = type + " mousemove";
+                        K += " mousemove"
                     }
                 }
             }
-            var pornResult = this.node.jFetch("mz:handlers:animate:fn", callback(this.animate).jBindAsEvent(this));
-            this.node.jStore("mz:handlers:animate:event", type).jAddEvent(type, pornResult);
+            var L = this.node.jFetch("mz:handlers:animate:fn", v(this.animate).jBindAsEvent(this));
+            this.node.jStore("mz:handlers:animate:event", K).jAddEvent(K, L)
         },
-        unregisterAnimateEvent : function() {
-            var elem = this.node.jFetch("mz:handlers:animate:event");
-            var cb = this.node.jFetch("mz:handlers:animate:fn");
-            this.node.jRemoveEvent(elem, cb);
+        unregisterAnimateEvent: function() {
+            var K = this.node.jFetch("mz:handlers:animate:event");
+            var L = this.node.jFetch("mz:handlers:animate:fn");
+            this.node.jRemoveEvent(K, L)
         },
-        registerEvents : function() {
+        registerEvents: function() {
             this.moveBind = this.move.jBind(this);
-            this.node.jAddEvent(["touchstart", window.navigator.pointerEnabled ? "pointerdown" : "MSPointerDown"], callback(function(parentEvent) {
-                if ($.browser.androidBrowser && this.option("zoomMode") && this.option("zoomOn") !== "click" && parentEvent.type === "touchstart") {
-                    parentEvent.stopDefaults();
-                    if ($.browser.gecko) {
-                        parentEvent.stopDistribution();
+            this.node.jAddEvent(["touchstart", window.navigator.pointerEnabled ? "pointerdown" : "MSPointerDown"], v(function(K) {
+                if ((q.browser.androidBrowser) && this.option("zoomMode") && this.option("zoomOn") !== "click" && K.type === "touchstart") {
+                    K.stopDefaults();
+                    if (q.browser.gecko) {
+                        K.stopDistribution()
                     }
                 }
                 if (!this.zoomBox.active) {
-                    return;
+                    return
                 }
-                if (this.zoomBox.position === "inner" && parentEvent.isPrimaryTouch()) {
-                    this.lens.spos = parentEvent.getClientXY();
+                if (this.zoomBox.position === "inner" && K.isPrimaryTouch()) {
+                    this.lens.spos = K.getClientXY()
                 }
             }).jBindAsEvent(this), 10);
-            this.node.jAddEvent(["touchend", window.navigator.pointerEnabled ? "pointerup" : "MSPointerUp"], callback(function(touches) {
-                if (touches.isTouchEvent() && touches.isPrimaryTouch()) {
-                    /** @type {boolean} */
-                    this.lens.touchmovement = false;
+            this.node.jAddEvent(["touchend", window.navigator.pointerEnabled ? "pointerup" : "MSPointerUp"], v(function(K) {
+                if (K.isTouchEvent() && K.isPrimaryTouch()) {
+                    this.lens.touchmovement = false
                 }
             }).jBindAsEvent(this), 10);
             this.registerAnimateEvent();
             if (this.option("zoomMode")) {
                 this.registerActivateEvent(this.option("zoomOn") === "click");
-                this.registerDeactivateEvent(this.option("zoomOn") === "click");
+                this.registerDeactivateEvent(this.option("zoomOn") === "click")
             }
-            this.node.jAddEvent("mousedown", function(canCreateDiscussions) {
-                canCreateDiscussions.stopDistribution();
-            }, 10).jAddEvent("btnclick", callback(function(metaIn) {
+            this.node.jAddEvent("mousedown", function(K) {
+                K.stopDistribution()
+            }, 10).jAddEvent("btnclick", v(function(K) {
                 this.node.jRaiseEvent("MouseEvent", "click");
                 if (this.expanded) {
-                    this.expandBox.jCallEvent("btnclick", metaIn);
+                    this.expandBox.jCallEvent("btnclick", K)
                 }
             }).jBind(this), 15);
             if (this.option("expand")) {
-                this.node.jAddEvent("tap btnclick", callback(this.expand).jBindAsEvent(this), 15);
+                this.node.jAddEvent("tap btnclick", v(this.expand).jBindAsEvent(this), 15)
             } else {
-                this.node.jAddEvent("tap btnclick", callback(this.openLink).jBindAsEvent(this), 15);
+                this.node.jAddEvent("tap btnclick", v(this.openLink).jBindAsEvent(this), 15)
             }
             if (this.additionalImages.length > 1) {
-                this.swipe();
+                this.swipe()
             }
-            if (!$.browser.mobile && this.option("variableZoom")) {
-                this.node.jAddEvent("mousescroll", this.changeZoomLevel.jBindAsEvent(this));
+            if (!q.browser.mobile && this.option("variableZoom")) {
+                this.node.jAddEvent("mousescroll", this.changeZoomLevel.jBindAsEvent(this))
             }
-            if ($.browser.mobile) {
-                this.pinchToZoom();
+            if (q.browser.mobile) {
+                this.pinchToZoom()
             }
-            callback(window).jAddEvent($.browser.mobile ? "resize" : "resize scroll", this.onResize);
+            v(window).jAddEvent(q.browser.mobile ? "resize" : "resize scroll", this.onResize);
             if (this.option("history")) {
-                callback(window).jAddEvent("popstate", this.onHistoryStateChange);
+                v(window).jAddEvent("popstate", this.onHistoryStateChange)
             }
         },
-        unregisterEvents : function() {
+        unregisterEvents: function() {
             if (this.node) {
-                this.node.jRemoveEvent("mousescroll");
+                this.node.jRemoveEvent("mousescroll")
             }
-            callback(window).jRemoveEvent("resize scroll", this.onResize);
+            v(window).jRemoveEvent("resize scroll", this.onResize);
             if (this.option("history")) {
-                callback(window).jRemoveEvent("popstate", this.onHistoryStateChange);
+                v(window).jRemoveEvent("popstate", this.onHistoryStateChange)
             }
-            callback(this.additionalImages).jEach(function(messageObject) {
-                callback(messageObject.origin).jClearEvents();
-            });
+            v(this.additionalImages).jEach(function(K) {
+                v(K.origin).jClearEvents()
+            })
         },
-        activate : function(e) {
-            var bounds;
-            var labelPosition;
-            var patternSource;
-            var bboxClient;
-            var bodyMargin;
-            /** @type {number} */
-            var oy = 0;
-            /** @type {number} */
-            var ox = 0;
+        activate: function(Q) {
+            var R;
+            var P;
+            var N;
+            var O;
+            var K;
+            var L = 0;
+            var M = 0;
             if (!this.image.loaded() || !this.ready || !this.zoomBox.enabled || this.zoomBox.active || this.zoomBox.activating) {
                 if (!this.image.loaded() && !this.initEvent) {
-                    if (e) {
-                        this.initEvent = handleTouch(e);
-                        e.stopQueue();
+                    if (Q) {
+                        this.initEvent = m(Q);
+                        Q.stopQueue()
                     }
                     this.image.load(this.setupZoom.jBind(this));
                     if (!this.loadTimer) {
-                        this.loadTimer = callback(this.showLoading).jBind(this).jDelay(400);
+                        this.loadTimer = v(this.showLoading).jBind(this).jDelay(400)
                     }
                 }
-                return;
+                return
             }
-            if (e && e.type === "pointermove" && e.pointerType === "touch") {
-                return;
+            if (Q && Q.type === "pointermove" && Q.pointerType === "touch") {
+                return
             }
             if (!this.option("zoomMode") && this.option("expand") && !this.expanded) {
-                /** @type {boolean} */
                 this.zoomBox.active = true;
-                return;
+                return
             }
-            /** @type {boolean} */
             this.zoomBox.activating = true;
             if (this.expanded && this.zoomBox.mode === "zoom") {
-                bboxClient = this.image.node.jGetRect();
+                O = this.image.node.jGetRect();
                 this.expandStage.jAddClass("mz-zoom-in");
-                bodyMargin = this.expandFigure.jGetRect();
-                /** @type {number} */
-                ox = (bboxClient.left + bboxClient.right) / 2 - (bodyMargin.left + bodyMargin.right) / 2;
-                /** @type {number} */
-                oy = (bboxClient.top + bboxClient.bottom) / 2 - (bodyMargin.top + bodyMargin.bottom) / 2;
+                K = this.expandFigure.jGetRect();
+                M = ((O.left + O.right) / 2 - (K.left + K.right) / 2);
+                L = ((O.top + O.bottom) / 2 - (K.top + K.bottom) / 2)
             }
             this.zoomBox.image.jRemoveEvent("transitionend");
             this.zoomBox.node.jRemoveClass("mz-deactivating").jRemoveEvent("transitionend");
             this.zoomBox.node.jAddClass("mz-activating");
             this.node.jAddClass("mz-activating");
             this.reflowZoom();
-            labelPosition = this.zoomBox.mode === "zoom" ? this.zoomBox.position : this.zoomBox.mode;
-            if ($.browser.features.transition && !(this.expanded && this.option("expandZoomOn") === "always")) {
-                if (labelPosition === "inner") {
-                    patternSource = this.image.node.jGetSize();
+            P = (this.zoomBox.mode === "zoom") ? this.zoomBox.position : this.zoomBox.mode;
+            if (q.browser.features.transition && !(this.expanded && this.option("expandZoomOn") === "always")) {
+                if (P === "inner") {
+                    N = this.image.node.jGetSize();
                     this.zoomBox.image.jSetCss({
-                        transform : "translate3d(0," + oy + "px, 0) scale(" + patternSource.width / this.zoomSize.width + ", " + patternSource.height / this.zoomSize.height + ")"
+                        transform: "translate3d(0," + L + "px, 0) scale(" + N.width / this.zoomSize.width + ", " + N.height / this.zoomSize.height + ")"
                     }).jGetSize();
-                    this.zoomBox.image.jAddEvent("transitionend", callback(function() {
+                    this.zoomBox.image.jAddEvent("transitionend", v(function() {
                         this.zoomBox.image.jRemoveEvent("transitionend");
-                        this.zoomBox.node.jRemoveClass("mz-activating mz-p-" + labelPosition);
-                        /** @type {boolean} */
+                        this.zoomBox.node.jRemoveClass("mz-activating mz-p-" + P);
                         this.zoomBox.activating = false;
-                        /** @type {boolean} */
-                        this.zoomBox.active = true;
+                        this.zoomBox.active = true
                     }).jBind(this));
-                    this.zoomBox.node.jAddClass("mz-p-" + labelPosition).jGetSize();
-                    if (!$.browser.mobile && $.browser.chrome && ($.browser.uaName === "chrome" || $.browser.uaName === "opera")) {
-                        /** @type {boolean} */
+                    this.zoomBox.node.jAddClass("mz-p-" + P).jGetSize();
+                    if (!q.browser.mobile && q.browser.chrome && (q.browser.uaName === "chrome" || q.browser.uaName === "opera")) {
                         this.zoomBox.activating = false;
-                        /** @type {boolean} */
-                        this.zoomBox.active = true;
+                        this.zoomBox.active = true
                     }
                 } else {
-                    this.zoomBox.node.jAddEvent("transitionend", callback(function() {
+                    this.zoomBox.node.jAddEvent("transitionend", v(function() {
                         this.zoomBox.node.jRemoveEvent("transitionend");
-                        this.zoomBox.node.jRemoveClass("mz-activating mz-p-" + labelPosition);
+                        this.zoomBox.node.jRemoveClass("mz-activating mz-p-" + P)
                     }).jBind(this));
                     this.zoomBox.node.jSetCss({
-                        transition : "none"
+                        transition: "none"
                     });
-                    this.zoomBox.node.jAddClass("mz-p-" + labelPosition).jGetSize();
+                    this.zoomBox.node.jAddClass("mz-p-" + P).jGetSize();
                     this.zoomBox.node.jSetCss({
-                        transition : ""
+                        transition: ""
                     }).jGetSize();
-                    this.zoomBox.node.jRemoveClass("mz-p-" + labelPosition);
-                    /** @type {boolean} */
+                    this.zoomBox.node.jRemoveClass("mz-p-" + P);
                     this.zoomBox.activating = false;
-                    /** @type {boolean} */
-                    this.zoomBox.active = true;
+                    this.zoomBox.active = true
                 }
             } else {
                 this.zoomBox.node.jRemoveClass("mz-activating");
-                /** @type {boolean} */
                 this.zoomBox.activating = false;
-                /** @type {boolean} */
-                this.zoomBox.active = true;
+                this.zoomBox.active = true
             }
             if (!this.expanded) {
-                this.showHint(true);
+                this.showHint(true)
             }
-            if (e) {
-                e.stop().stopQueue();
-                bounds = e.getClientXY();
-                if (this.zoomBox.mode === "magnifier" && /tap/i.test(e.type)) {
-                    bounds.y -= this.zoomBox.height / 2 + 10;
+            if (Q) {
+                Q.stop().stopQueue();
+                R = Q.getClientXY();
+                if (this.zoomBox.mode === "magnifier" && (/tap/i).test(Q.type)) {
+                    R.y -= this.zoomBox.height / 2 + 10
                 }
-                if (labelPosition === "inner" && (/tap/i.test(e.type) || e.isTouchEvent())) {
+                if (P === "inner" && ((/tap/i).test(Q.type) || Q.isTouchEvent())) {
                     this.lens.pos = {
-                        x : 0,
-                        y : 0
+                        x: 0,
+                        y: 0
                     };
-                    /** @type {number} */
-                    bounds.x = -(bounds.x - this.boundaries.left - this.size.width / 2) * (this.zoomSize.width / this.size.width);
-                    /** @type {number} */
-                    bounds.y = -(bounds.y - this.boundaries.top - this.size.height / 2) * (this.zoomSize.height / this.size.height);
+                    R.x = -(R.x - this.boundaries.left - this.size.width / 2) * (this.zoomSize.width / this.size.width);
+                    R.y = -(R.y - this.boundaries.top - this.size.height / 2) * (this.zoomSize.height / this.size.height)
                 }
             } else {
-                bounds = {
-                    x : this.boundaries.left + (this.boundaries.right - this.boundaries.left) / 2,
-                    y : this.boundaries.top + (this.boundaries.bottom - this.boundaries.top) / 2
+                R = {
+                    x: this.boundaries.left + (this.boundaries.right - this.boundaries.left) / 2,
+                    y: this.boundaries.top + (this.boundaries.bottom - this.boundaries.top) / 2
                 };
-                if ($.browser.mobile && this.expanded && this.option("expandZoomOn") === "always") {
-                    /** @type {boolean} */
+                if (q.browser.mobile && this.expanded && this.option("expandZoomOn") === "always") {
                     this.lens.innertouch = true;
                     this.lens.pos = {
-                        x : 0,
-                        y : 0
+                        x: 0,
+                        y: 0
                     };
-                    /** @type {number} */
-                    bounds.x = -(bounds.x - this.boundaries.left - this.size.width / 2) * (this.zoomSize.width / this.size.width);
-                    /** @type {number} */
-                    bounds.y = -(bounds.y - this.boundaries.top - this.size.height / 2) * (this.zoomSize.height / this.size.height);
+                    R.x = -(R.x - this.boundaries.left - this.size.width / 2) * (this.zoomSize.width / this.size.width);
+                    R.y = -(R.y - this.boundaries.top - this.size.height / 2) * (this.zoomSize.height / this.size.height)
                 }
             }
             this.node.jRemoveClass("mz-activating").jAddClass("mz-active");
-            bounds.x += -ox;
-            bounds.y += -oy;
+            R.x += -M;
+            R.y += -L;
             this.lens.spos = {
-                x : 0,
-                y : 0
+                x: 0,
+                y: 0
             };
-            /** @type {number} */
             this.lens.dx = 0;
-            /** @type {number} */
             this.lens.dy = 0;
-            this.animate(e, bounds, true);
-            bind("onZoomIn", this.id);
+            this.animate(Q, R, true);
+            I("onZoomIn", this.id)
         },
-        deactivate : function(evt, drop) {
-            var labelPosition;
-            var imageThumbnail;
-            var bboxClient;
-            var bodyMargin;
-            /** @type {number} */
+        deactivate: function(M, R) {
+            var P;
+            var N;
+            var K;
+            var L;
             var O = 0;
-            /** @type {number} */
             var Q = 0;
-            var originalzoomBox = this.zoomBox.active;
-            /** @type {null} */
+            var S = this.zoomBox.active;
             this.initEvent = null;
             if (!this.ready) {
-                return;
+                return
             }
-            if (evt && evt.type === "pointerout" && evt.pointerType === "touch") {
-                return;
+            if (M && M.type === "pointerout" && M.pointerType === "touch") {
+                return
             }
             clearTimeout(this.moveTimer);
-            /** @type {null} */
             this.moveTimer = null;
             clearTimeout(this.activateTimer);
-            /** @type {null} */
             this.activateTimer = null;
-            /** @type {boolean} */
             this.zoomBox.activating = false;
-            /** @type {boolean} */
             this.zoomBox.active = false;
-            if (drop !== true && !this.expanded) {
-                if (originalzoomBox) {
-                    if ($.browser.mobile && !this.expanded && this.zoomBox.mode === "zoom") {
-                        this.reflowZoom();
+            if (R !== true && !this.expanded) {
+                if (S) {
+                    if (q.browser.mobile && !this.expanded && this.zoomBox.mode === "zoom") {
+                        this.reflowZoom()
                     } else {
-                        this.showHint();
+                        this.showHint()
                     }
                 }
             }
             if (!this.zoomBox.enabled) {
-                return;
+                return
             }
-            if (evt) {
-                evt.stop();
+            if (M) {
+                M.stop()
             }
             this.zoomBox.image.jRemoveEvent("transitionend");
             this.zoomBox.node.jRemoveClass("mz-activating").jRemoveEvent("transitionend");
             if (this.expanded) {
-                bodyMargin = this.expandFigure.jGetRect();
+                L = this.expandFigure.jGetRect();
                 if (this.option("expandZoomOn") !== "always") {
-                    this.expandStage.jRemoveClass("mz-zoom-in");
+                    this.expandStage.jRemoveClass("mz-zoom-in")
                 }
                 this.image.node.jSetCss({
-                    "max-height" : this.expandMaxHeight()
+                    "max-height": this.expandMaxHeight()
                 });
-                bboxClient = this.image.node.jGetRect();
-                /** @type {number} */
-                Q = (bboxClient.left + bboxClient.right) / 2 - (bodyMargin.left + bodyMargin.right) / 2;
-                /** @type {number} */
-                O = (bboxClient.top + bboxClient.bottom) / 2 - (bodyMargin.top + bodyMargin.bottom) / 2;
+                K = this.image.node.jGetRect();
+                Q = ((K.left + K.right) / 2 - (L.left + L.right) / 2);
+                O = ((K.top + K.bottom) / 2 - (L.top + L.bottom) / 2)
             }
-            labelPosition = this.zoomBox.mode === "zoom" ? this.zoomBox.position : this.zoomBox.mode;
-            if ($.browser.features.transition && evt && !(this.expanded && this.option("expandZoomOn") === "always")) {
-                if (labelPosition === "inner") {
-                    this.zoomBox.image.jAddEvent("transitionend", callback(function() {
+            P = (this.zoomBox.mode === "zoom") ? this.zoomBox.position : this.zoomBox.mode;
+            if (q.browser.features.transition && M && !(this.expanded && this.option("expandZoomOn") === "always")) {
+                if (P === "inner") {
+                    this.zoomBox.image.jAddEvent("transitionend", v(function() {
                         this.zoomBox.image.jRemoveEvent("transitionend");
                         this.node.jRemoveClass("mz-active");
-                        setTimeout(callback(function() {
-                            this.zoomBox.hide();
-                        }).jBind(this), 32);
+                        setTimeout(v(function() {
+                            this.zoomBox.hide()
+                        }).jBind(this), 32)
                     }).jBind(this));
-                    imageThumbnail = this.image.node.jGetSize();
-                    this.zoomBox.node.jAddClass("mz-deactivating mz-p-" + labelPosition).jGetSize();
+                    N = this.image.node.jGetSize();
+                    this.zoomBox.node.jAddClass("mz-deactivating mz-p-" + P).jGetSize();
                     this.zoomBox.image.jSetCss({
-                        transform : "translate3d(0," + O + "px,0) scale(" + imageThumbnail.width / this.zoomSize.maxWidth + ", " + imageThumbnail.height / this.zoomSize.maxHeight + ")"
-                    });
+                        transform: "translate3d(0," + O + "px,0) scale(" + N.width / this.zoomSize.maxWidth + ", " + N.height / this.zoomSize.maxHeight + ")"
+                    })
                 } else {
-                    this.zoomBox.node.jAddEvent("transitionend", callback(function() {
+                    this.zoomBox.node.jAddEvent("transitionend", v(function() {
                         this.zoomBox.hide();
-                        this.node.jRemoveClass("mz-active");
+                        this.node.jRemoveClass("mz-active")
                     }).jBind(this));
                     this.zoomBox.node.jGetCss("opacity");
-                    this.zoomBox.node.jAddClass("mz-deactivating mz-p-" + labelPosition);
-                    this.node.jRemoveClass("mz-active");
+                    this.zoomBox.node.jAddClass("mz-deactivating mz-p-" + P);
+                    this.node.jRemoveClass("mz-active")
                 }
             } else {
                 this.zoomBox.hide();
-                this.node.jRemoveClass("mz-active");
+                this.node.jRemoveClass("mz-active")
             }
-            /** @type {number} */
             this.lens.dx = 0;
-            /** @type {number} */
             this.lens.dy = 0;
             this.lens.spos = {
-                x : 0,
-                y : 0
+                x: 0,
+                y: 0
             };
             this.lens.hide();
-            if (originalzoomBox) {
-                bind("onZoomOut", this.id);
+            if (S) {
+                I("onZoomOut", this.id)
             }
         },
-        animate : function(self, value, create) {
-            /** @type {number} */
-            var e = value;
-            var left;
-            var i;
-            /** @type {number} */
-            var minMarginLeft = 0;
-            var cmDesiredHeight;
-            /** @type {number} */
-            var lo0 = 0;
-            var max_input_height;
+        animate: function(U, T, S) {
+            var M = T;
+            var O;
+            var N;
+            var Q = 0;
+            var L;
+            var P = 0;
+            var K;
             var V;
-            /** @type {boolean} */
-            var method = false;
-            if (!this.zoomBox.active && !create) {
-                return;
+            var R = false;
+            if (!this.zoomBox.active && !S) {
+                return
             }
-            if (self) {
-                callback(self).stopDefaults().stopDistribution();
-                if (self.isTouchEvent() && !self.isPrimaryTouch()) {
-                    return;
+            if (U) {
+                v(U).stopDefaults().stopDistribution();
+                if (U.isTouchEvent() && !U.isPrimaryTouch()) {
+                    return
                 }
-                method = /tap/i.test(self.type) || self.isTouchEvent();
-                if (method && !this.lens.touchmovement) {
-                    this.lens.touchmovement = method;
+                R = (/tap/i).test(U.type) || U.isTouchEvent();
+                if (R && !this.lens.touchmovement) {
+                    this.lens.touchmovement = R
                 }
-                if (!e) {
-                    e = self.getClientXY();
+                if (!M) {
+                    M = U.getClientXY()
                 }
             }
             if (this.zoomBox.mode === "preview") {
-                return;
+                return
             }
-            if (this.zoomBox.mode === "zoom" && this.zoomBox.position === "inner" && (self && method || !self && this.lens.innertouch)) {
-                /** @type {boolean} */
+            if (this.zoomBox.mode === "zoom" && this.zoomBox.position === "inner" && (U && R || !U && this.lens.innertouch)) {
                 this.lens.innertouch = true;
-                left = this.lens.pos.x + (e.x - this.lens.spos.x);
-                i = this.lens.pos.y + (e.y - this.lens.spos.y);
-                this.lens.spos = e;
-                /** @type {number} */
-                minMarginLeft = Math.min(0, this.zoomBox.innerWidth - this.zoomSize.width) / 2;
-                /** @type {number} */
-                cmDesiredHeight = -minMarginLeft;
-                /** @type {number} */
-                lo0 = Math.min(0, this.zoomBox.innerHeight - this.zoomSize.height) / 2;
-                /** @type {number} */
-                max_input_height = -lo0;
+                O = this.lens.pos.x + (M.x - this.lens.spos.x);
+                N = this.lens.pos.y + (M.y - this.lens.spos.y);
+                this.lens.spos = M;
+                Q = Math.min(0, this.zoomBox.innerWidth - this.zoomSize.width) / 2;
+                L = -Q;
+                P = Math.min(0, this.zoomBox.innerHeight - this.zoomSize.height) / 2;
+                K = -P
             } else {
-                /** @type {boolean} */
                 this.lens.innertouch = false;
                 if (this.zoomBox.mode === "magnifier") {
-                    /** @type {number} */
-                    e.y = Math.max(this.boundaries.top, Math.min(e.y, this.boundaries.bottom));
-                    /** @type {number} */
-                    e.x = Math.max(this.boundaries.left, Math.min(e.x, this.boundaries.right));
+                    M.y = Math.max(this.boundaries.top, Math.min(M.y, this.boundaries.bottom));
+                    M.x = Math.max(this.boundaries.left, Math.min(M.x, this.boundaries.right))
                 }
-                /** @type {number} */
-                left = e.x - this.boundaries.left;
-                /** @type {number} */
-                i = e.y - this.boundaries.top;
-                /** @type {number} */
-                cmDesiredHeight = this.size.width - this.lens.width;
-                /** @type {number} */
-                max_input_height = this.size.height - this.lens.height;
-                /** @type {number} */
-                left = left - this.lens.width / 2;
-                /** @type {number} */
-                i = i - this.lens.height / 2;
+                O = M.x - this.boundaries.left;
+                N = M.y - this.boundaries.top;
+                L = this.size.width - this.lens.width;
+                K = this.size.height - this.lens.height;
+                O -= this.lens.width / 2;
+                N -= this.lens.height / 2
             }
             if (this.zoomBox.mode !== "magnifier") {
-                /** @type {number} */
-                left = Math.max(minMarginLeft, Math.min(left, cmDesiredHeight));
-                /** @type {number} */
-                i = Math.max(lo0, Math.min(i, max_input_height));
+                O = Math.max(Q, Math.min(O, L));
+                N = Math.max(P, Math.min(N, K))
             }
-            this.lens.pos.x = left;
-            this.lens.pos.y = i;
+            this.lens.pos.x = O;
+            this.lens.pos.y = N;
             if (this.zoomBox.mode === "zoom") {
-                if ($.browser.features.transform) {
+                if (q.browser.features.transform) {
                     this.lens.node.jSetCss({
-                        transform : "translate(" + this.lens.pos.x + "px," + this.lens.pos.y + "px)"
+                        transform: "translate(" + this.lens.pos.x + "px," + this.lens.pos.y + "px)"
                     });
                     this.lens.image.jSetCss({
-                        transform : "translate(" + -(this.lens.pos.x + this.lens.border.x) + "px, " + -(this.lens.pos.y + this.lens.border.y) + "px)"
-                    });
+                        transform: "translate(" + -(this.lens.pos.x + this.lens.border.x) + "px, " + -(this.lens.pos.y + this.lens.border.y) + "px)"
+                    })
                 } else {
                     this.lens.node.jSetCss({
-                        top : this.lens.pos.y,
-                        left : this.lens.pos.x
+                        top: this.lens.pos.y,
+                        left: this.lens.pos.x
                     });
                     this.lens.image.jSetCss({
-                        top : -(this.lens.pos.y + this.lens.border.y),
-                        left : -(this.lens.pos.x + this.lens.border.x)
-                    });
+                        top: -(this.lens.pos.y + this.lens.border.y),
+                        left: -(this.lens.pos.x + this.lens.border.x)
+                    })
                 }
             }
             if (this.zoomBox.mode === "magnifier") {
-                if (this.lens.touchmovement && !(self && self.type === "dbltap")) {
-                    e.y -= this.zoomBox.height / 2 + 10;
+                if (this.lens.touchmovement && !(U && U.type === "dbltap")) {
+                    M.y -= this.zoomBox.height / 2 + 10
                 }
                 this.zoomBox.node.jSetCss({
-                    top : e.y - this.boundaries.top - this.zoomBox.height / 2,
-                    left : e.x - this.boundaries.left - this.zoomBox.width / 2
-                });
+                    top: M.y - this.boundaries.top - this.zoomBox.height / 2,
+                    left: M.x - this.boundaries.left - this.zoomBox.width / 2
+                })
             }
             if (!this.moveTimer) {
-                /** @type {number} */
                 this.lens.dx = 0;
-                /** @type {number} */
                 this.lens.dy = 0;
-                this.move(1);
+                this.move(1)
             }
         },
-        move : function(delta) {
-            var dx;
-            var dy;
-            var x;
-            var height;
+        move: function(P) {
+            var N;
+            var L;
+            var K;
+            var Q;
             var O;
             var M;
-            if (!isFinite(delta)) {
+            if (!isFinite(P)) {
                 if (this.lens.innertouch) {
-                    /** @type {number} */
-                    delta = this.lens.touchmovement ? .4 : .16;
+                    P = this.lens.touchmovement ? 0.4 : 0.16
                 } else {
-                    /** @type {number} */
-                    delta = this.option("smoothing") ? .2 : this.lens.touchmovement ? .4 : .8;
+                    P = this.option("smoothing") ? 0.2 : this.lens.touchmovement ? 0.4 : 0.8
                 }
             }
-            /** @type {number} */
-            dx = (this.lens.pos.x - this.lens.dx) * delta;
-            /** @type {number} */
-            dy = (this.lens.pos.y - this.lens.dy) * delta;
-            this.lens.dx += dx;
-            this.lens.dy += dy;
-            if (!this.moveTimer || Math.abs(dx) > 1E-6 || Math.abs(dy) > 1E-6) {
+            N = ((this.lens.pos.x - this.lens.dx) * P);
+            L = ((this.lens.pos.y - this.lens.dy) * P);
+            this.lens.dx += N;
+            this.lens.dy += L;
+            if (!this.moveTimer || Math.abs(N) > 0.000001 || Math.abs(L) > 0.000001) {
                 if (this.lens.innertouch) {
-                    x = this.lens.dx;
-                    height = this.lens.dy;
+                    K = this.lens.dx;
+                    Q = this.lens.dy
                 } else {
-                    /** @type {number} */
-                    x = this.lens.dx * (this.zoomSize.width / this.size.width) - Math.max(0, this.zoomSize.width - this.zoomBox.innerWidth) / 2;
-                    /** @type {number} */
-                    height = this.lens.dy * (this.zoomSize.height / this.size.height) - Math.max(0, this.zoomSize.height - this.zoomBox.innerHeight) / 2;
+                    K = (this.lens.dx * (this.zoomSize.width / this.size.width) - Math.max(0, this.zoomSize.width - this.zoomBox.innerWidth) / 2);
+                    Q = (this.lens.dy * (this.zoomSize.height / this.size.height) - Math.max(0, this.zoomSize.height - this.zoomBox.innerHeight) / 2);
                     if (this.zoomBox.mode === "magnifier") {
-                        /** @type {number} */
-                        x = Math.round(x);
-                        /** @type {number} */
-                        height = Math.round(height);
+                        K = Math.round(K);
+                        Q = Math.round(Q)
                     }
-                    /** @type {number} */
-                    x = -x;
-                    /** @type {number} */
-                    height = -height;
+                    K = -K;
+                    Q = -Q
                 }
-                /** @type {number} */
                 O = this.zoomSize.width / this.zoomSize.maxWidth;
-                /** @type {number} */
                 M = this.zoomSize.height / this.zoomSize.maxHeight;
-                this.zoomBox.image.jSetCss($.browser.features.transform ? {
-                    transform : img_dim + x + "px," + height + "px" + trnClose + " scale(" + O + "," + M + ")"
+                this.zoomBox.image.jSetCss(q.browser.features.transform ? {
+                    transform: d + K + "px," + Q + "px" + C + " scale(" + O + "," + M + ")"
                 } : {
-                    width : this.zoomSize.width,
-                    height : this.zoomSize.height,
-                    left : -(this.lens.dx * (this.zoomSize.width / this.size.width) + Math.min(0, this.zoomSize.width - this.zoomBox.innerWidth) / 2),
-                    top : -(this.lens.dy * (this.zoomSize.height / this.size.height) + Math.min(0, this.zoomSize.height - this.zoomBox.innerHeight) / 2)
-                });
+                    width: this.zoomSize.width,
+                    height: this.zoomSize.height,
+                    left: -(this.lens.dx * (this.zoomSize.width / this.size.width) + Math.min(0, this.zoomSize.width - this.zoomBox.innerWidth) / 2),
+                    top: -(this.lens.dy * (this.zoomSize.height / this.size.height) + Math.min(0, this.zoomSize.height - this.zoomBox.innerHeight) / 2)
+                })
             }
             if (this.zoomBox.mode === "magnifier") {
-                return;
+                return
             }
-            /** @type {number} */
-            this.moveTimer = setTimeout(this.moveBind, 16);
+            this.moveTimer = setTimeout(this.moveBind, 16)
         },
-        swipe : function() {
-            var width;
-            var scale;
-            /** @type {number} */
-            var I = 30;
-            /** @type {number} */
+        swipe: function() {
+            var W;
+            var M;
+            var R = 30;
             var O = 201;
-            var rowOrigin;
-            /** @type {string} */
-            var moveDirection = "";
-            var s = {};
-            var i;
-            var point;
-            /** @type {number} */
-            var offset = 0;
-            var a = {
-                transition : $.browser.cssTransform + String.fromCharCode(32) + "300ms cubic-bezier(.18,.35,.58,1)"
+            var T;
+            var U = "";
+            var L = {};
+            var K;
+            var Q;
+            var V = 0;
+            var X = {
+                transition: q.browser.cssTransform + String.fromCharCode(32) + "300ms cubic-bezier(.18,.35,.58,1)"
             };
-            var model;
+            var N;
             var S;
-            var target = callback(function(e) {
+            var P = v(function(Y) {
                 if (!this.ready || this.zoomBox.active) {
-                    return;
+                    return
                 }
-                if (e.state === "dragstart") {
+                if (Y.state === "dragstart") {
                     clearTimeout(this.activateTimer);
-                    /** @type {null} */
                     this.activateTimer = null;
-                    /** @type {number} */
-                    offset = 0;
-                    s = {
-                        x : e.x,
-                        y : e.y,
-                        ts : e.timeStamp
+                    V = 0;
+                    L = {
+                        x: Y.x,
+                        y: Y.y,
+                        ts: Y.timeStamp
                     };
-                    width = this.size.width;
-                    /** @type {number} */
-                    scale = width / 2;
+                    W = this.size.width;
+                    M = W / 2;
                     this.image.node.jRemoveEvent("transitionend");
                     this.image.node.jSetCssProp("transition", "");
                     this.image.node.jSetCssProp("transform", "translate3d(0, 0, 0)");
-                    /** @type {null} */
-                    S = null;
+                    S = null
                 } else {
-                    /** @type {number} */
-                    i = e.x - s.x;
-                    point = {
-                        x : 0,
-                        y : 0,
-                        z : 0
+                    K = (Y.x - L.x);
+                    Q = {
+                        x: 0,
+                        y: 0,
+                        z: 0
                     };
                     if (S === null) {
-                        /** @type {boolean} */
-                        S = Math.abs(e.x - s.x) < Math.abs(e.y - s.y);
+                        S = (Math.abs(Y.x - L.x) < Math.abs(Y.y - L.y))
                     }
                     if (S) {
-                        return;
+                        return
                     }
-                    e.stop();
-                    if (e.state === "dragend") {
-                        /** @type {number} */
-                        offset = 0;
-                        /** @type {null} */
-                        model = null;
-                        /** @type {number} */
-                        rowOrigin = e.timeStamp - s.ts;
-                        if (Math.abs(i) > scale || rowOrigin < O && Math.abs(i) > I) {
-                            if (moveDirection = i > 0 ? "backward" : i <= 0 ? "forward" : "") {
-                                if (moveDirection === "backward") {
-                                    model = this.getPrev();
-                                    /** @type {number} */
-                                    offset = offset + width * 10;
+                    Y.stop();
+                    if (Y.state === "dragend") {
+                        V = 0;
+                        N = null;
+                        T = Y.timeStamp - L.ts;
+                        if (Math.abs(K) > M || (T < O && Math.abs(K) > R)) {
+                            if ((U = (K > 0) ? "backward" : (K <= 0) ? "forward" : "")) {
+                                if (U === "backward") {
+                                    N = this.getPrev();
+                                    V += W * 10
                                 } else {
-                                    model = this.getNext();
-                                    /** @type {number} */
-                                    offset = offset - width * 10;
+                                    N = this.getNext();
+                                    V -= W * 10
                                 }
                             }
                         }
-                        /** @type {number} */
-                        point.x = offset;
-                        /** @type {number} */
-                        point.deg = -90 * (point.x / width);
-                        this.image.node.jAddEvent("transitionend", callback(function(canCreateDiscussions) {
+                        Q.x = V;
+                        Q.deg = -90 * (Q.x / W);
+                        this.image.node.jAddEvent("transitionend", v(function(Z) {
                             this.image.node.jRemoveEvent("transitionend");
                             this.image.node.jSetCssProp("transition", "");
-                            if (model) {
+                            if (N) {
                                 this.image.node.jSetCss({
-                                    transform : "translate3d(" + point.x + "px, 0px, 0px)"
+                                    transform: "translate3d(" + Q.x + "px, 0px, 0px)"
                                 });
-                                this.update(model, true);
+                                this.update(N, true)
                             }
                         }).jBind(this));
-                        this.image.node.jSetCss(a);
+                        this.image.node.jSetCss(X);
                         this.image.node.jSetCss({
-                            "transition-duration" : point.x ? "100ms" : "300ms",
-                            opacity : 1 - .2 * Math.abs(point.x / width),
-                            transform : "translate3d(" + point.x + "px, 0px, 0px)"
+                            "transition-duration": Q.x ? "100ms" : "300ms",
+                            opacity: 1 - 0.2 * Math.abs(Q.x / W),
+                            transform: "translate3d(" + Q.x + "px, 0px, 0px)"
                         });
-                        /** @type {number} */
-                        i = 0;
-                        return;
+                        K = 0;
+                        return
                     }
-                    /** @type {number} */
-                    point.x = i;
-                    /** @type {number} */
-                    point.z = -50 * Math.abs(point.x / scale);
-                    /** @type {number} */
-                    point.deg = -60 * (point.x / scale);
+                    Q.x = K;
+                    Q.z = -50 * Math.abs(Q.x / M);
+                    Q.deg = -60 * (Q.x / M);
                     this.image.node.jSetCss({
-                        opacity : 1 - .2 * Math.abs(point.x / scale),
-                        transform : "translate3d(" + point.x + "px, 0px, " + point.z + "px)"
-                    });
+                        opacity: 1 - 0.2 * Math.abs(Q.x / M),
+                        transform: "translate3d(" + Q.x + "px, 0px, " + Q.z + "px)"
+                    })
                 }
             }).jBind(this);
-            this.node.jAddEvent("touchdrag", target);
+            this.node.jAddEvent("touchdrag", P)
         },
-        pinchToZoom : function() {
-            var diff = {
-                width : 0,
-                height : 0
+        pinchToZoom: function() {
+            var M = {
+                width: 0,
+                height: 0
             };
-            /** @type {boolean} */
             var O = false;
-            var size;
-            var defaultValue = callback(function(i, elpos, canCreateDiscussions) {
-                var newWidth;
-                var newHeight;
-                if (!this.zoomBox.active && !canCreateDiscussions) {
-                    return;
+            var N;
+            var L = v(function(T, P, S) {
+                var Q;
+                var R;
+                if (!this.zoomBox.active && !S) {
+                    return
                 }
-                var previewImageDimensions = $.detach(this.zoomSize);
-                /** @type {number} */
-                newWidth = Math.max(size.width, Math.round(diff.width * i));
-                /** @type {number} */
-                newWidth = Math.min(newWidth, this.zoomSize.maxWidth);
-                /** @type {number} */
-                newHeight = newWidth / (this.zoomSize.maxWidth / this.zoomSize.maxHeight);
-                /** @type {number} */
-                this.zoomSize.width = Math.floor(newWidth);
-                /** @type {number} */
-                this.zoomSize.height = Math.floor(newHeight);
-                /** @type {number} */
-                this.lens.width = Math.ceil(this.zoomBox.innerWidth / (this.zoomSize.width / size.width));
-                /** @type {number} */
-                this.lens.height = Math.ceil(this.zoomBox.innerHeight / (this.zoomSize.height / size.height));
+                var U = q.detach(this.zoomSize);
+                Q = Math.max(N.width, Math.round(M.width * T));
+                Q = Math.min(Q, this.zoomSize.maxWidth);
+                R = Q / (this.zoomSize.maxWidth / this.zoomSize.maxHeight);
+                this.zoomSize.width = Math.floor(Q);
+                this.zoomSize.height = Math.floor(R);
+                this.lens.width = Math.ceil(this.zoomBox.innerWidth / (this.zoomSize.width / N.width));
+                this.lens.height = Math.ceil(this.zoomBox.innerHeight / (this.zoomSize.height / N.height));
                 this.lens.node.jSetCss({
-                    width : this.lens.width,
-                    height : this.lens.height
+                    width: this.lens.width,
+                    height: this.lens.height
                 });
-                $.extend(this.lens, this.lens.node.jGetSize());
+                q.extend(this.lens, this.lens.node.jGetSize());
                 clearTimeout(this.moveTimer);
-                /** @type {null} */
                 this.moveTimer = null;
-                /** @type {number} */
-                elpos.x = this.lens.spos.x * (this.zoomSize.width / previewImageDimensions.width) + (elpos.x - this.boundaries.left - this.size.width / 2) * (1 - this.zoomSize.width / previewImageDimensions.width);
-                /** @type {number} */
-                elpos.y = this.lens.spos.y * (this.zoomSize.height / previewImageDimensions.height) + (elpos.y - this.boundaries.top - this.size.height / 2) * (1 - this.zoomSize.height / previewImageDimensions.height);
+                P.x = this.lens.spos.x * (this.zoomSize.width / U.width) + (P.x - this.boundaries.left - this.size.width / 2) * (1 - (this.zoomSize.width / U.width));
+                P.y = this.lens.spos.y * (this.zoomSize.height / U.height) + (P.y - this.boundaries.top - this.size.height / 2) * (1 - (this.zoomSize.height / U.height));
                 this.lens.spos = {
-                    x : 0,
-                    y : 0
+                    x: 0,
+                    y: 0
                 };
                 this.lens.pos = {
-                    x : 0,
-                    y : 0
+                    x: 0,
+                    y: 0
                 };
-                /** @type {boolean} */
                 this.lens.innertouch = true;
                 this.animate(null, {
-                    x : elpos.x,
-                    y : elpos.y
+                    x: P.x,
+                    y: P.y
                 });
                 clearTimeout(this.moveTimer);
-                /** @type {null} */
-                this.moveTimer = null;
+                this.moveTimer = null
             }).jBind(this);
-            var target = callback(function(options) {
-                if (!O && options.state !== "pinchstart" && !options.cloned) {
-                    return;
+            var K = v(function(R) {
+                if (!O && R.state !== "pinchstart" && !R.cloned) {
+                    return
                 }
-                options.stop();
-                var spaceClick = callback(window).jGetScroll();
-                /** @type {boolean} */
-                var url = false;
-                var size = {
-                    x : options.centerPoint.x - spaceClick.x,
-                    y : options.centerPoint.y - spaceClick.y
+                R.stop();
+                var Q = v(window).jGetScroll();
+                var P = false;
+                var S = {
+                    x: R.centerPoint.x - Q.x,
+                    y: R.centerPoint.y - Q.y
                 };
-                switch(options.state) {
+                switch (R.state) {
                     case "pinchstart":
                         this.unregisterAnimateEvent();
-                        diff = $.detach(this.zoomSize);
+                        M = q.detach(this.zoomSize);
                         if (this.expanded) {
-                            size = this.image.node.jGetSize();
+                            N = this.image.node.jGetSize()
                         } else {
-                            size = this.size;
+                            N = this.size
                         }
                         clearTimeout(this.moveTimer);
-                        /** @type {null} */
                         this.moveTimer = null;
                         if (this.zoomBox.active) {
-                            this.lens.spos = $.detach(this.lens.pos);
+                            this.lens.spos = q.detach(this.lens.pos)
                         }
-                        /** @type {boolean} */
                         O = true;
                         break;
                     case "pinchend":
-                        /** @type {boolean} */
                         O = false;
                         if (this.zoomBox.active) {
-                            if (this.option("expandZoomOn") !== "always" && this.zoomSize.width <= size.width && this.zoomSize.height <= size.height) {
-                                /** @type {boolean} */
+                            if (this.option("expandZoomOn") !== "always" && this.zoomSize.width <= N.width && this.zoomSize.height <= N.height) {
                                 O = false;
-                                this.deactivate(null);
+                                this.deactivate(null)
                             } else {
-                                if (options.points.length > 0) {
+                                if (R.points.length > 0) {
                                     this.lens.spos = {
-                                        x : options.points[0].clientX,
-                                        y : options.points[0].clientY
-                                    };
+                                        x: R.points[0].clientX,
+                                        y: R.points[0].clientY
+                                    }
                                 }
                             }
                         }
@@ -7173,209 +6136,195 @@ window.MagicZoom = function() {
                     case "pinchresize":
                         break;
                     case "pinchmove":
-                        if (this.expanded && options.zoom === -1 && (!this.zoomBox.active || this.option("expandZoomOn") === "always")) {
-                            if (options.scale < outwardsMinScaleToTranslate) {
-                                this.close();
+                        if (this.expanded && R.zoom === -1 && (!this.zoomBox.active || this.option("expandZoomOn") === "always")) {
+                            if (R.scale < c) {
+                                this.close()
                             }
                         } else {
-                            if (this.expanded && options.zoom === 1 && this.option("expandZoomOn") === "always") {
-                            } else {
+                            if (this.expanded && R.zoom === 1 && this.option("expandZoomOn") === "always") {} else {
                                 if (this.option("expand") && !this.expanded) {
-                                    if (options.scale > midpoint) {
-                                        /** @type {boolean} */
+                                    if (R.scale > x) {
                                         O = false;
                                         this.registerAnimateEvent();
-                                        this.expand(options);
-                                        return;
+                                        this.expand(R);
+                                        return
                                     }
                                 } else {
-                                    if (options.zoom === 1 && !this.zoomBox.active) {
+                                    if (R.zoom === 1 && !this.zoomBox.active) {
                                         if (!this.image.loaded() || !this.ready || !this.zoomBox.enabled) {
                                             if (!this.image.loaded() && !this.initEvent) {
-                                                if (options) {
-                                                    this.initEvent = handleTouch(options);
-                                                    options.stopQueue();
+                                                if (R) {
+                                                    this.initEvent = m(R);
+                                                    R.stopQueue()
                                                 }
                                                 this.image.load(this.setupZoom.jBind(this));
                                                 if (!this.loadTimer) {
-                                                    this.loadTimer = callback(this.showLoading).jBind(this).jDelay(400);
+                                                    this.loadTimer = v(this.showLoading).jBind(this).jDelay(400)
                                                 }
                                             }
-                                            return;
+                                            return
                                         }
-                                        /** @type {boolean} */
                                         this.zoomBox.activating = true;
                                         if (this.expanded && this.zoomBox.mode === "zoom") {
-                                            this.expandStage.jAddClass("mz-zoom-in");
+                                            this.expandStage.jAddClass("mz-zoom-in")
                                         }
                                         this.zoomBox.image.jRemoveEvent("transitionend");
                                         this.zoomBox.node.jRemoveClass("mz-deactivating").jRemoveEvent("transitionend");
                                         this.zoomBox.node.jAddClass("mz-activating");
                                         this.node.jAddClass("mz-activating");
                                         this.reflowZoom();
-                                        this.zoomSize.width = size.width;
-                                        this.zoomSize.height = size.height;
-                                        /** @type {boolean} */
+                                        this.zoomSize.width = N.width;
+                                        this.zoomSize.height = N.height;
                                         this.zoomBox.activating = false;
-                                        /** @type {boolean} */
                                         this.zoomBox.active = true;
-                                        diff = $.detach(this.zoomSize);
+                                        M = q.detach(this.zoomSize);
                                         this.zoomBox.node.jRemoveClass("mz-activating");
                                         this.node.jRemoveClass("mz-activating").jAddClass("mz-active");
                                         this.lens.spos = {
-                                            x : 0,
-                                            y : 0
+                                            x: 0,
+                                            y: 0
                                         };
                                         this.lens.pos = {
-                                            x : 0,
-                                            y : 0
+                                            x: 0,
+                                            y: 0
                                         };
-                                        /** @type {boolean} */
-                                        url = true;
+                                        P = true
                                     }
-                                    defaultValue(options.scale, size, url);
-                                    if (url) {
-                                        bind("onZoomIn", this.id);
+                                    L(R.scale, S, P);
+                                    if (P) {
+                                        I("onZoomIn", this.id)
                                     }
                                 }
                             }
                         }
-                        break;
+                        break
                 }
             }).jBind(this);
-            this.node.jAddEvent("pinch", target);
+            this.node.jAddEvent("pinch", K)
         },
-        setupButtons : function() {
-            /** @type {!DocumentFragment} */
-            var video = document.createDocumentFragment();
-            callback(["prev", "next", "close"]).jEach(function(type) {
-                /** @type {string} */
-                var dialog = "mz-button";
-                this.buttons[type] = $.$new("button", {
-                    title : this.option("text-btn-" + type)
-                }).jAddClass(dialog).jAddClass(dialog + "-" + type);
-                video.appendChild(this.buttons[type]);
-                switch(type) {
+        setupButtons: function() {
+            var K = document.createDocumentFragment();
+            v(["prev", "next", "close"]).jEach(function(M) {
+                var L = "mz-button";
+                this.buttons[M] = q.$new("button", {
+                    title: this.option("text-btn-" + M)
+                }).jAddClass(L).jAddClass(L + "-" + M);
+                K.appendChild(this.buttons[M]);
+                switch (M) {
                     case "prev":
-                        this.buttons[type].jAddEvent("tap btnclick", function(incoming_item) {
-                            incoming_item.stop();
-                            this.update(this.getPrev());
+                        this.buttons[M].jAddEvent("tap btnclick", function(N) {
+                            N.stop();
+                            this.update(this.getPrev())
                         }.jBindAsEvent(this));
                         break;
                     case "next":
-                        this.buttons[type].jAddEvent("tap btnclick", function(incoming_item) {
-                            incoming_item.stop();
-                            this.update(this.getNext());
+                        this.buttons[M].jAddEvent("tap btnclick", function(N) {
+                            N.stop();
+                            this.update(this.getNext())
                         }.jBindAsEvent(this));
                         break;
                     case "close":
-                        this.buttons[type].jAddEvent("tap btnclick", function(incoming_item) {
-                            incoming_item.stop();
-                            this.close();
+                        this.buttons[M].jAddEvent("tap btnclick", function(N) {
+                            N.stop();
+                            this.close()
                         }.jBindAsEvent(this)).hide();
                         break;
                     default:
                 }
             }, this);
             this.toggleNavButtons(this.additionalImages.length > 1);
-            this.navControlsLayer = $.$new("div").jAddClass("mz-nav-controls").append(video).jAppendTo(this.node);
+            this.navControlsLayer = q.$new("div").jAddClass("mz-nav-controls").append(K).jAppendTo(this.node)
         },
-        toggleNavButtons : function(canCreateDiscussions) {
-            if (canCreateDiscussions) {
+        toggleNavButtons: function(K) {
+            if (K) {
                 this.buttons.next.show();
-                this.buttons.prev.show();
+                this.buttons.prev.show()
             } else {
                 this.buttons.next.hide();
-                this.buttons.prev.hide();
+                this.buttons.prev.hide()
             }
         },
-        setupExpandGallery : function() {
-            var galleryName;
-            var identifierPositions;
+        setupExpandGallery: function() {
+            var L, K;
             if (this.additionalImages.length) {
-                this.expandGallery = this.additionalImages;
+                this.expandGallery = this.additionalImages
             } else {
-                galleryName = this.placeholder.getAttribute("data-gallery");
-                if (galleryName) {
-                    if ($.browser.features.query) {
-                        identifierPositions = $.$A(document.querySelectorAll('.MagicZoom[data-gallery="' + galleryName + '"], .MagicZoomPlus[data-gallery="' + galleryName + '"]'));
+                L = this.placeholder.getAttribute("data-gallery");
+                if (L) {
+                    if (q.browser.features.query) {
+                        K = q.$A(document.querySelectorAll('.MagicZoom[data-gallery="' + L + '"], .MagicZoomPlus[data-gallery="' + L + '"]'))
                     } else {
-                        identifierPositions = $.$A(document.getElementsByTagName("A")).filter(function($this) {
-                            return galleryName === $this.getAttribute("data-gallery");
-                        });
+                        K = q.$A(document.getElementsByTagName("A")).filter(function(M) {
+                            return L === M.getAttribute("data-gallery")
+                        })
                     }
-                    callback(identifierPositions).jEach(function(child) {
-                        var data;
-                        var obj;
-                        data = cb(child);
-                        if (data && data.additionalImages.length > 0) {
-                            return;
+                    v(K).jEach(function(N) {
+                        var M, O;
+                        M = n(N);
+                        if (M && M.additionalImages.length > 0) {
+                            return
                         }
-                        if (data) {
-                            obj = new load(data.image.small.url, data.image.zoom.url, data.image.caption, null, data.image.origin);
-                            obj.link = data.image.link;
+                        if (M) {
+                            O = new o(M.image.small.url, M.image.zoom.url, M.image.caption, null, M.image.origin);
+                            O.link = M.image.link
                         } else {
-                            obj = (new load).parseNode(child, data ? data.originalTitle : null);
+                            O = new o().parseNode(N, M ? M.originalTitle : null)
                         }
-                        if ((this.image.zoom.src.has(obj.zoom.url) || this.image.zoom.url.has(obj.zoom.url)) && (this.image.small.src.has(obj.small.url) || this.image.small.url.has(obj.small.url))) {
-                            obj = this.image;
+                        if ((this.image.zoom.src.has(O.zoom.url) || this.image.zoom.url.has(O.zoom.url)) && (this.image.small.src.has(O.small.url) || this.image.small.url.has(O.small.url))) {
+                            O = this.image
                         }
-                        this.expandGallery.push(obj);
+                        this.expandGallery.push(O)
                     }, this);
-                    this.primaryImage = this.image;
+                    this.primaryImage = this.image
                 }
             }
             if (!this.expandedViewId) {
-                /** @type {number} */
-                this.expandedViewId = Math.floor(Math.random() * $.now());
+                this.expandedViewId = Math.floor(Math.random() * q.now())
             }
             if (this.expandGallery.length > 1) {
                 this.expandStage.jAddClass("with-thumbs");
-                this.expandNav = $.$new("div", {
-                    "class" : "mz-expand-thumbnails"
+                this.expandNav = q.$new("div", {
+                    "class": "mz-expand-thumbnails"
                 }).jAppendTo(this.expandStage);
-                this.expandThumbs = new __m1(this.expandNav);
-                callback(this.expandGallery).jEach(function(item) {
-                    var iserr = callback(function(canCreateDiscussions) {
-                        this.setActiveThumb(item);
-                        this.update(item);
+                this.expandThumbs = new E(this.expandNav);
+                v(this.expandGallery).jEach(function(M) {
+                    var N = v(function(O) {
+                        this.setActiveThumb(M);
+                        this.update(M)
                     }).jBind(this);
-                    item.selector = this.expandThumbs.addItem($.$new("img", {
-                        src : item.getURL("small")
-                    }).jAddEvent("tap btnclick", function(incoming_item) {
-                        incoming_item.stop();
-                    }).jAddEvent("tap " + (this.option("selectorTrigger") === "hover" ? "mouseover mouseout" : "btnclick"), callback(function(event, mmCoreSplitViewBlock) {
+                    M.selector = this.expandThumbs.addItem(q.$new("img", {
+                        src: M.getURL("small")
+                    }).jAddEvent("tap btnclick", function(O) {
+                        O.stop()
+                    }).jAddEvent("tap " + (this.option("selectorTrigger") === "hover" ? "mouseover mouseout" : "btnclick"), v(function(P, O) {
                         if (this.updateTimer) {
-                            clearTimeout(this.updateTimer);
+                            clearTimeout(this.updateTimer)
                         }
-                        /** @type {boolean} */
                         this.updateTimer = false;
-                        if (event.type === "mouseover") {
-                            this.updateTimer = callback(iserr).jDelay(mmCoreSplitViewBlock);
+                        if (P.type === "mouseover") {
+                            this.updateTimer = v(N).jDelay(O)
                         } else {
-                            if (event.type === "tap" || event.type === "btnclick") {
-                                iserr();
+                            if (P.type === "tap" || P.type === "btnclick") {
+                                N()
                             }
                         }
-                    }).jBindAsEvent(this, 60)));
-                }, this);
+                    }).jBindAsEvent(this, 60)))
+                }, this)
             } else {
-                this.expandStage.jRemoveClass("with-thumbs");
+                this.expandStage.jRemoveClass("with-thumbs")
             }
             this.toggleNavButtons(this.expandGallery.length > 1);
-            this.buttons.close.show();
+            this.buttons.close.show()
         },
-        destroyExpandGallery : function() {
-            var me;
+        destroyExpandGallery: function() {
+            var K;
             if (this.expandThumbs) {
                 this.expandThumbs.stop();
-                /** @type {null} */
-                this.expandThumbs = null;
+                this.expandThumbs = null
             }
             if (this.expandNav) {
                 this.expandNav.jRemove();
-                /** @type {null} */
-                this.expandNav = null;
+                this.expandNav = null
             }
             this.toggleNavButtons(this.additionalImages.length > 1);
             this.buttons.close.hide();
@@ -7385,668 +6334,614 @@ window.MagicZoom = function() {
                 this.image.node.removeAttribute("style");
                 this.primaryImage.node.jAppendTo(this.node);
                 this.setupZoom(this.primaryImage);
-                for (; me = this.expandGallery.pop();) {
-                    if (me !== this.primaryImage) {
-                        if (me.small.node) {
-                            me.small.node.kill();
-                            /** @type {null} */
-                            me.small.node = null;
+                while (K = this.expandGallery.pop()) {
+                    if (K !== this.primaryImage) {
+                        if (K.small.node) {
+                            K.small.node.kill();
+                            K.small.node = null
                         }
-                        if (me.zoom.node) {
-                            me.zoom.node.kill();
-                            /** @type {null} */
-                            me.zoom.node = null;
+                        if (K.zoom.node) {
+                            K.zoom.node.kill();
+                            K.zoom.node = null
                         }
-                        /** @type {null} */
-                        me = null;
+                        K = null
                     }
                 }
             }
-            /** @type {!Array} */
-            this.expandGallery = [];
+            this.expandGallery = []
         },
-        close : function() {
+        close: function() {
             if (!this.ready || !this.expanded) {
-                return;
+                return
             }
-            if ($.browser.platform === "ios" && $.browser.uaName === "safari" && parseInt($.browser.uaVersion) === 7) {
-                clearInterval(logIntervalId);
-                /** @type {null} */
-                logIntervalId = null;
+            if (q.browser.platform === "ios" && q.browser.uaName === "safari" && parseInt(q.browser.uaVersion) === 7) {
+                clearInterval(h);
+                h = null
             }
-            callback(document).jRemoveEvent("keydown", this.keyboardCallback);
+            v(document).jRemoveEvent("keydown", this.keyboardCallback);
             this.deactivate(null, true);
-            /** @type {boolean} */
             this.ready = false;
-            if ($.browser.fullScreen.capable && $.browser.fullScreen.enabled()) {
-                $.browser.fullScreen.cancel();
+            if (q.browser.fullScreen.capable && q.browser.fullScreen.enabled()) {
+                q.browser.fullScreen.cancel()
             } else {
-                if ($.browser.features.transition) {
+                if (q.browser.features.transition) {
                     this.node.jRemoveEvent("transitionend").jSetCss({
-                        transition : ""
+                        transition: ""
                     });
                     this.node.jAddEvent("transitionend", this.onClose);
-                    if ($.browser.webkit) {
-                        setTimeout(callback(function() {
-                            this.onClose();
-                        }).jBind(this), 260);
+                    if (q.browser.webkit) {
+                        setTimeout(v(function() {
+                            this.onClose()
+                        }).jBind(this), 260)
                     }
                     this.expandBg.jRemoveEvent("transitionend").jSetCss({
-                        transition : ""
+                        transition: ""
                     });
                     this.expandBg.jSetCss({
-                        transition : "all 0.6s cubic-bezier(0.895, 0.030, 0.685, 0.220) 0.0s"
+                        transition: "all 0.6s cubic-bezier(0.895, 0.030, 0.685, 0.220) 0.0s"
                     }).jGetSize();
                     this.node.jSetCss({
-                        transition : "all .3s cubic-bezier(0.600, 0, 0.735, 0.045) 0s"
+                        transition: "all .3s cubic-bezier(0.600, 0, 0.735, 0.045) 0s"
                     }).jGetSize();
                     if (this.zoomBox.mode !== false && this.option("expandZoomOn") === "always" && this.option("expandZoomMode") !== "magnifier") {
                         this.image.node.jSetCss({
-                            "max-height" : this.image.jGetSize("zoom").height
+                            "max-height": this.image.jGetSize("zoom").height
                         });
                         this.image.node.jSetCss({
-                            "max-width" : this.image.jGetSize("zoom").width
-                        });
+                            "max-width": this.image.jGetSize("zoom").width
+                        })
                     }
                     this.expandBg.jSetCss({
-                        opacity : .4
+                        opacity: 0.4
                     });
                     this.node.jSetCss({
-                        opacity : .01,
-                        transform : "scale(0.4)"
-                    });
+                        opacity: 0.01,
+                        transform: "scale(0.4)"
+                    })
                 } else {
-                    this.onClose();
+                    this.onClose()
                 }
             }
         },
-        expand : function(event) {
+        expand: function(L) {
             if (!this.image.loaded() || !this.ready || this.expanded) {
                 if (!this.image.loaded() && !this.initEvent) {
-                    if (event) {
-                        this.initEvent = handleTouch(event);
-                        event.stopQueue();
-                        if (event.type === "tap") {
-                            event.events[1].stopQueue();
+                    if (L) {
+                        this.initEvent = m(L);
+                        L.stopQueue();
+                        if (L.type === "tap") {
+                            L.events[1].stopQueue()
                         }
                     }
                     this.image.load(this.setupZoom.jBind(this));
                     if (!this.loadTimer) {
-                        this.loadTimer = callback(this.showLoading).jBind(this).jDelay(400);
+                        this.loadTimer = v(this.showLoading).jBind(this).jDelay(400)
                     }
                 }
-                return;
+                return
             }
-            if (event) {
-                event.stopQueue();
+            if (L) {
+                L.stopQueue()
             }
-            var rowContainer = callback(this.node).jFetch("cr");
+            var K = v(this.node).jFetch("cr");
             this.hideHint();
             this.hintRuns--;
             this.deactivate(null, true);
             this.unregisterActivateEvent();
             this.unregisterDeactivateEvent();
-            /** @type {boolean} */
             this.ready = false;
             if (!this.expandBox) {
-                this.expandBox = $.$new("div").jAddClass("mz-expand").jAddClass(this.option("cssClass")).jSetCss({
-                    opacity : 0
+                this.expandBox = q.$new("div").jAddClass("mz-expand").jAddClass(this.option("cssClass")).jSetCss({
+                    opacity: 0
                 });
-                this.expandStage = $.$new("div").jAddClass("mz-expand-stage").jAppendTo(this.expandBox);
-                this.expandBox.jAddEvent("mousescroll touchstart dbltap", callback(function(e) {
-                    callback(e).stop();
+                this.expandStage = q.$new("div").jAddClass("mz-expand-stage").jAppendTo(this.expandBox);
+                this.expandBox.jAddEvent("mousescroll touchstart dbltap", v(function(M) {
+                    v(M).stop()
                 }));
                 if (this.option("closeOnClickOutside")) {
-                    this.expandBox.jAddEvent("tap btnclick", function(options) {
-                        var rect2 = options.jGetPageXY();
-                        var rect = callback(this.option("expandZoomMode") === "magnifier" ? this.zoomBox.node : this.zoomBox.image).jGetRect();
-                        if (this.option("expandZoomOn") !== "always" && rect.top <= rect2.y && rect2.y <= rect.bottom && rect.left <= rect2.x && rect2.x <= rect.right) {
-                            options.stopQueue();
-                            this.deactivate(options);
-                            return;
+                    this.expandBox.jAddEvent("tap btnclick", function(O) {
+                        var N = O.jGetPageXY();
+                        var M = v(this.option("expandZoomMode") === "magnifier" ? this.zoomBox.node : this.zoomBox.image).jGetRect();
+                        if (this.option("expandZoomOn") !== "always" && M.top <= N.y && N.y <= M.bottom && M.left <= N.x && N.x <= M.right) {
+                            O.stopQueue();
+                            this.deactivate(O);
+                            return
                         }
-                        if (this.option("expandZoomOn") !== "always" && this.node.hasChild(options.getOriginalTarget())) {
-                            return;
+                        if (this.option("expandZoomOn") !== "always" && this.node.hasChild(O.getOriginalTarget())) {
+                            return
                         }
-                        options.stop();
-                        this.close();
-                    }.jBindAsEvent(this));
+                        O.stop();
+                        this.close()
+                    }.jBindAsEvent(this))
                 }
-                this.keyboardCallback = callback(function(e) {
-                    /** @type {null} */
-                    var both = null;
-                    if (e.keyCode !== 27 && e.keyCode !== 37 && e.keyCode !== 39) {
-                        return;
+                this.keyboardCallback = v(function(N) {
+                    var M = null;
+                    if (N.keyCode !== 27 && N.keyCode !== 37 && N.keyCode !== 39) {
+                        return
                     }
-                    callback(e).stop();
-                    if (e.keyCode === 27) {
-                        this.close();
+                    v(N).stop();
+                    if (N.keyCode === 27) {
+                        this.close()
                     } else {
-                        both = e.keyCode === 37 ? this.getPrev() : this.getNext();
-                        if (both) {
-                            this.update(both);
+                        M = (N.keyCode === 37) ? this.getPrev() : this.getNext();
+                        if (M) {
+                            this.update(M)
                         }
                     }
                 }).jBindAsEvent(this);
-                this.onExpand = callback(function() {
+                this.onExpand = v(function() {
                     var O;
                     this.node.jRemoveEvent("transitionend").jSetCss({
-                        transition : "",
-                        transform : "translate3d(0, 0, 0)"
+                        transition: "",
+                        transform: "translate3d(0, 0, 0)"
                     });
                     if (this.expanded) {
-                        return;
+                        return
                     }
-                    /** @type {boolean} */
                     this.expanded = true;
                     if (this.option("history")) {
                         try {
-                            /** @type {string} */
-                            var hash = "#mz-expanded-view-" + this.expandedViewId;
-                            if (window.location.hash !== hash) {
+                            var M = "#mz-expanded-view-" + this.expandedViewId;
+                            if (window.location.hash !== M) {
                                 if (history.state && history.state.expandedView && history.state.mzId) {
                                     history.replaceState({
-                                        expandedView : this.expandedViewId,
-                                        mzId : this.id
-                                    }, document.title, hash);
+                                        expandedView: this.expandedViewId,
+                                        mzId: this.id
+                                    }, document.title, M)
                                 } else {
                                     history.pushState({
-                                        expandedView : this.expandedViewId,
-                                        mzId : this.id
-                                    }, document.title, hash);
+                                        expandedView: this.expandedViewId,
+                                        mzId: this.id
+                                    }, document.title, M)
                                 }
                             }
-                        } catch (N) {
-                        }
+                        } catch (N) {}
                     }
                     this.expandBox.jRemoveClass("mz-expand-opening").jSetCss({
-                        opacity : 1
+                        opacity: 1
                     });
                     this.zoomBox.setMode(this.option("expandZoomMode"));
-                    this.zoomSize = $.detach(this.zoomSizeOrigin);
+                    this.zoomSize = q.detach(this.zoomSizeOrigin);
                     this.resizeCallback();
                     if (this.expandCaption && this.image.caption) {
-                        this.expandCaption.jAddClass("mz-show");
+                        this.expandCaption.jAddClass("mz-show")
                     }
                     if (this.option("expandZoomOn") !== "always") {
                         this.registerActivateEvent(true);
-                        this.registerDeactivateEvent(true);
+                        this.registerDeactivateEvent(true)
                     }
-                    /** @type {boolean} */
                     this.ready = true;
                     if (this.option("expandZoomOn") === "always") {
                         if (this.zoomBox.mode !== false) {
-                            this.zoomBox.enable(true);
+                            this.zoomBox.enable(true)
                         }
-                        if ($.browser.mobile && this.mobileZoomHint) {
-                            /** @type {boolean} */
-                            this.mobileZoomHint = false;
+                        if (q.browser.mobile && this.mobileZoomHint) {
+                            this.mobileZoomHint = false
                         }
-                        this.activate();
+                        this.activate()
                     }
-                    if (($.browser.mobile || this.option("forceTouch")) && this.mobileZoomHint && this.zoomBox.enabled) {
+                    if ((q.browser.mobile || this.option("forceTouch")) && this.mobileZoomHint && this.zoomBox.enabled) {
                         this.showHint(true, this.option("textClickZoomHint"));
                         if (this.hintRuns !== Infinity) {
-                            /** @type {boolean} */
-                            this.mobileZoomHint = false;
+                            this.mobileZoomHint = false
                         }
                     }
                     this.navControlsLayer.jRemoveClass("mz-hidden").jAddClass("mz-fade mz-visible");
                     if (this.expandNav) {
-                        this.expandNav.jRemoveClass("mz-hidden").jAddClass("mz-fade mz-visible");
+                        this.expandNav.jRemoveClass("mz-hidden").jAddClass("mz-fade mz-visible")
                     }
                     if (this.expandThumbs) {
                         this.expandThumbs.run();
-                        this.setActiveThumb(this.image);
+                        this.setActiveThumb(this.image)
                     }
-                    if (rowContainer) {
-                        rowContainer.jAppendTo(this.expandBox, (Math.floor(Math.random() * 101) + 1) % 2 ? "top" : "bottom");
+                    if (K) {
+                        K.jAppendTo(this.expandBox, ((Math.floor(Math.random() * 101) + 1) % 2) ? "top" : "bottom")
                     }
                     if (this.expandGallery.length > 1 && !this.additionalImages.length) {
-                        this.swipe();
+                        this.swipe()
                     }
-                    callback(document).jAddEvent("keydown", this.keyboardCallback);
-                    if ($.browser.platform === "ios" && $.browser.uaName === "safari" && parseInt($.browser.uaVersion) === 7) {
-                        logIntervalId = resize();
+                    v(document).jAddEvent("keydown", this.keyboardCallback);
+                    if (q.browser.platform === "ios" && q.browser.uaName === "safari" && parseInt(q.browser.uaVersion) === 7) {
+                        h = J()
                     }
-                    bind("onExpandOpen", this.id);
+                    I("onExpandOpen", this.id)
                 }).jBind(this);
-                this.onClose = callback(function() {
+                this.onClose = v(function() {
                     this.node.jRemoveEvent("transitionend");
                     if (!this.expanded) {
-                        return;
+                        return
                     }
                     if (this.expanded) {
-                        callback(document).jRemoveEvent("keydown", this.keyboardCallback);
-                        this.deactivate(null, true);
+                        v(document).jRemoveEvent("keydown", this.keyboardCallback);
+                        this.deactivate(null, true)
                     }
                     this.setSize(true);
                     this.destroyExpandGallery();
-                    /** @type {boolean} */
                     this.expanded = false;
                     if (this.option("history")) {
                         if (window.location.hash === "#mz-expanded-view-" + this.expandedViewId) {
-                            history.back();
+                            history.back()
                         }
                     }
                     this.zoomBox.setMode(this.option("zoomMode"));
                     this.node.replaceChild(this.image.getNode("small"), this.image.node);
                     this.image.setCurNode("small");
-                    callback(this.image.node).jSetCss({
-                        width : "",
-                        height : "",
-                        "max-width" : Math.min(this.image.jGetSize("small").width),
-                        "max-height" : Math.min(this.image.jGetSize("small").height)
+                    v(this.image.node).jSetCss({
+                        width: "",
+                        height: "",
+                        "max-width": Math.min(this.image.jGetSize("small").width),
+                        "max-height": Math.min(this.image.jGetSize("small").height)
                     });
                     this.lens.image.src = this.image.getURL("small");
                     this.node.jSetCss({
-                        opacity : "",
-                        transition : ""
+                        opacity: "",
+                        transition: ""
                     });
                     this.node.jSetCss({
-                        transform : "translate3d(0, 0, 0)"
+                        transform: "translate3d(0, 0, 0)"
                     });
-                    callback(this.placeholder).replaceChild(this.node, this.stubNode);
+                    v(this.placeholder).replaceChild(this.node, this.stubNode);
                     this.navControlsLayer.jRemoveClass("mz-expand-controls").jRemoveClass("mz-hidden").jAddClass("mz-fade mz-visible").jAppendTo(this.node);
                     this.setSize(true);
                     if (this.expandCaption) {
                         this.expandCaption.jRemove();
-                        /** @type {null} */
-                        this.expandCaption = null;
+                        this.expandCaption = null
                     }
                     this.unregisterActivateEvent();
                     this.unregisterDeactivateEvent();
                     if (this.option("zoomOn") === "always") {
-                        this.activate();
+                        this.activate()
                     } else {
                         if (this.option("zoomMode") !== false) {
                             this.registerActivateEvent(this.option("zoomOn") === "click");
-                            this.registerDeactivateEvent(this.option("zoomOn") === "click");
+                            this.registerDeactivateEvent(this.option("zoomOn") === "click")
                         }
                     }
                     this.showHint();
                     this.expandBg.jRemoveEvent("transitionend");
                     this.expandBox.jRemove();
                     this.expandBg.jRemove();
-                    /** @type {null} */
                     this.expandBg = null;
-                    if (playerObserver) {
-                        playerObserver.jRemove();
+                    if (G) {
+                        G.jRemove()
                     }
-                    callback($.browser.getDoc()).jRemoveClass("mz-expanded-view-open");
-                    /** @type {boolean} */
+                    v(q.browser.getDoc()).jRemoveClass("mz-expanded-view-open");
                     this.ready = true;
-                    if ($.browser.ieMode < 10) {
-                        this.resizeCallback();
+                    if (q.browser.ieMode < 10) {
+                        this.resizeCallback()
                     } else {
-                        callback(window).jRaiseEvent("UIEvent", "resize");
+                        v(window).jRaiseEvent("UIEvent", "resize")
                     }
-                    bind("onExpandClose", this.id);
+                    I("onExpandClose", this.id)
                 }).jBind(this);
-                this.expandImageStage = $.$new("div", {
-                    "class" : "mz-image-stage"
+                this.expandImageStage = q.$new("div", {
+                    "class": "mz-image-stage"
                 }).jAppendTo(this.expandStage);
-                this.expandFigure = $.$new("figure").jAppendTo(this.expandImageStage);
-                this.stubNode = this.node.cloneNode(false);
+                this.expandFigure = q.$new("figure").jAppendTo(this.expandImageStage);
+                this.stubNode = this.node.cloneNode(false)
             }
             this.navControlsLayer.jAddClass("mz-expand-controls").jAppendTo(this.expandImageStage);
             this.setupExpandGallery();
-            if (playerObserver) {
-                playerObserver.jAppendTo(document.body);
+            if (G) {
+                G.jAppendTo(document.body)
             }
-            callback($.browser.getDoc()).jAddClass("mz-expanded-view-open");
-            callback(document.body).jGetSize();
+            v(q.browser.getDoc()).jAddClass("mz-expanded-view-open");
+            v(document.body).jGetSize();
             if (this.option("expand") === "fullscreen") {
                 this.prepareExpandedView();
-                $.browser.fullScreen.request(this.expandBox, {
-                    onEnter : callback(function() {
-                        this.onExpand();
+                q.browser.fullScreen.request(this.expandBox, {
+                    onEnter: v(function() {
+                        this.onExpand()
                     }).jBind(this),
-                    onExit : this.onClose,
-                    fallback : callback(function() {
-                        this.expandToWindow();
+                    onExit: this.onClose,
+                    fallback: v(function() {
+                        this.expandToWindow()
                     }).jBind(this)
-                });
+                })
             } else {
-                setTimeout(callback(function() {
+                setTimeout(v(function() {
                     this.prepareExpandedView();
-                    this.expandToWindow();
-                }).jBind(this), 96);
+                    this.expandToWindow()
+                }).jBind(this), 96)
             }
         },
-        prepareExpandedView : function() {
-            var el;
-            var element_box;
-            el = $.$new("img", {
-                srcset : this.image.getURL("zoom") + " " + this.image.getRatio("zoom") + "x",
-                src : this.image.getURL("zoom")
+        prepareExpandedView: function() {
+            var L;
+            var K;
+            L = q.$new("img", {
+                srcset: this.image.getURL("zoom") + " " + this.image.getRatio("zoom") + "x",
+                src: this.image.getURL("zoom")
             });
-            this.expandBg = $.$new("div").jAddClass("mz-expand-bg").append($.browser.features.cssFilters || $.browser.ieMode < 10 ? el : (new $.SVGImage(el)).blur(id).getNode()).jAppendTo(this.expandBox);
+            this.expandBg = q.$new("div").jAddClass("mz-expand-bg").append((q.browser.features.cssFilters || q.browser.ieMode < 10) ? L : new q.SVGImage(L).blur(k).getNode()).jAppendTo(this.expandBox);
             if (this.option("expandZoomOn") === "always" && this.option("expandZoomMode") !== false) {
-                this.expandStage.jAddClass("mz-always-zoom" + (this.option("expandZoomMode") === "zoom" ? " mz-zoom-in" : "")).jGetSize();
+                this.expandStage.jAddClass("mz-always-zoom" + (this.option("expandZoomMode") === "zoom" ? " mz-zoom-in" : "")).jGetSize()
             }
-            element_box = callback(this.node)[$.browser.ieMode < 10 ? "jGetSize" : "getBoundingClientRect"]();
-            callback(this.stubNode).jSetCss({
-                width : element_box.width,
-                height : element_box.height
+            K = v(this.node)[(q.browser.ieMode < 10) ? "jGetSize" : "getBoundingClientRect"]();
+            v(this.stubNode).jSetCss({
+                width: K.width,
+                height: K.height
             });
             this.node.replaceChild(this.image.getNode("zoom"), this.image.node);
             this.image.setCurNode("zoom");
             this.expandBox.jAppendTo(document.body);
-            if (playerObserver) {
+            if (G) {
                 this.expandBox.jSetCss({
-                    height : window.innerHeight,
-                    maxHeight : "100vh",
-                    top : Math.abs(playerObserver.getBoundingClientRect().top)
-                });
+                    height: window.innerHeight,
+                    maxHeight: "100vh",
+                    top: Math.abs(G.getBoundingClientRect().top)
+                })
             }
             this.expandMaxWidth = function() {
-                var identifierPositions = this.expandImageStage;
-                if (callback(this.expandFigure).jGetSize().width > 50) {
-                    identifierPositions = this.expandFigure;
+                var M = this.expandImageStage;
+                if (v(this.expandFigure).jGetSize().width > 50) {
+                    M = this.expandFigure
                 }
                 return function() {
-                    return this.option("expandZoomOn") === "always" && this.option("expandZoomMode") !== false && this.option("expandZoomMode") !== "magnifier" ? Infinity : Math.round(callback(identifierPositions).getInnerSize().width);
-                };
+                    return this.option("expandZoomOn") === "always" && this.option("expandZoomMode") !== false && this.option("expandZoomMode") !== "magnifier" ? Infinity : Math.round(v(M).getInnerSize().width)
+                }
             }.call(this);
             this.expandMaxHeight = function() {
-                var identifierPositions = this.expandImageStage;
-                if (callback(this.expandFigure).jGetSize().height > 50) {
-                    identifierPositions = this.expandFigure;
+                var M = this.expandImageStage;
+                if (v(this.expandFigure).jGetSize().height > 50) {
+                    M = this.expandFigure
                 }
                 return function() {
-                    return this.option("expandZoomOn") === "always" && this.option("expandZoomMode") !== false && this.option("expandZoomMode") !== "magnifier" ? Infinity : Math.round(callback(identifierPositions).getInnerSize().height);
-                };
+                    return this.option("expandZoomOn") === "always" && this.option("expandZoomMode") !== false && this.option("expandZoomMode") !== "magnifier" ? Infinity : Math.round(v(M).getInnerSize().height)
+                }
             }.call(this);
             this.navControlsLayer.jRemoveClass("mz-fade mz-visible").jAddClass("mz-hidden");
             if (this.expandNav) {
-                this.expandNav.jRemoveClass("mz-fade mz-visible").jAddClass("mz-hidden");
+                this.expandNav.jRemoveClass("mz-fade mz-visible").jAddClass("mz-hidden")
             }
             if (this.option("expandCaption")) {
-                this.expandCaption = $.$new("figcaption", {
-                    "class" : "mz-caption"
+                this.expandCaption = q.$new("figcaption", {
+                    "class": "mz-caption"
                 }).jAppendTo(this.expandImageStage);
                 if (this.expandCaption && this.image.caption) {
                     if (this.image.link) {
-                        this.expandCaption.append($.$new("a", {
-                            href : this.image.link
-                        }).jAddEvent("tap btnclick", this.openLink.jBind(this)).changeContent(this.image.caption));
+                        this.expandCaption.append(q.$new("a", {
+                            href: this.image.link
+                        }).jAddEvent("tap btnclick", this.openLink.jBind(this)).changeContent(this.image.caption))
                     } else {
-                        this.expandCaption.changeContent(this.image.caption);
+                        this.expandCaption.changeContent(this.image.caption)
                     }
                 }
             }
             this.image.node.jSetCss({
-                "max-height" : Math.min(this.image.jGetSize("zoom").height, this.expandMaxHeight())
+                "max-height": Math.min(this.image.jGetSize("zoom").height, this.expandMaxHeight())
             });
             this.image.node.jSetCss({
-                "max-width" : Math.min(this.image.jGetSize("zoom").width, this.expandMaxWidth())
+                "max-width": Math.min(this.image.jGetSize("zoom").width, this.expandMaxWidth())
             });
-            this.expandFigure.append(callback(this.placeholder).replaceChild(this.stubNode, this.node));
+            this.expandFigure.append(v(this.placeholder).replaceChild(this.stubNode, this.node))
         },
-        expandToWindow : function() {
+        expandToWindow: function() {
             this.node.jSetCss({
-                transition : ""
+                transition: ""
             });
             this.node.jSetCss({
-                transform : "scale(0.6)"
+                transform: "scale(0.6)"
             }).jGetSize();
             this.node.jSetCss({
-                transition : $.browser.cssTransform + " 0.4s cubic-bezier(0.175, 0.885, 0.320, 1) 0s"
+                transition: q.browser.cssTransform + " 0.4s cubic-bezier(0.175, 0.885, 0.320, 1) 0s"
             });
-            if ($.browser.features.transition) {
+            if (q.browser.features.transition) {
                 this.node.jAddEvent("transitionend", this.onExpand);
-                if ($.browser.chrome && ($.browser.uaName === "chrome" || $.browser.uaName === "opera")) {
-                    setTimeout(callback(function() {
-                        this.onExpand();
-                    }).jBind(this), 500);
+                if (q.browser.chrome && (q.browser.uaName === "chrome" || q.browser.uaName === "opera")) {
+                    setTimeout(v(function() {
+                        this.onExpand()
+                    }).jBind(this), 500)
                 }
             } else {
-                this.onExpand.jDelay(16, this);
+                this.onExpand.jDelay(16, this)
             }
             this.expandBox.jSetCss({
-                opacity : 1
+                opacity: 1
             });
             this.node.jSetCss({
-                transform : "scale(1)"
-            });
+                transform: "scale(1)"
+            })
         },
-        openLink : function() {
+        openLink: function() {
             if (this.image.link) {
-                window.open(this.image.link, "_self");
+                window.open(this.image.link, "_self")
             }
         },
-        getNext : function() {
-            var collection = (this.expanded ? this.expandGallery : this.additionalImages).filter(function(feature) {
-                return feature.small.state !== -1 || feature.zoom.state !== -1;
+        getNext: function() {
+            var K = (this.expanded ? this.expandGallery : this.additionalImages).filter(function(N) {
+                return (N.small.state !== -1 || N.zoom.state !== -1)
             });
-            var index = collection.length;
-            var i = callback(collection).indexOf(this.image) + 1;
-            return index <= 1 ? null : collection[i >= index ? 0 : i];
+            var L = K.length;
+            var M = v(K).indexOf(this.image) + 1;
+            return (L <= 1) ? null : K[(M >= L) ? 0 : M]
         },
-        getPrev : function() {
-            var b = (this.expanded ? this.expandGallery : this.additionalImages).filter(function(feature) {
-                return feature.small.state !== -1 || feature.zoom.state !== -1;
+        getPrev: function() {
+            var K = (this.expanded ? this.expandGallery : this.additionalImages).filter(function(N) {
+                return (N.small.state !== -1 || N.zoom.state !== -1)
             });
-            var len = b.length;
-            /** @type {number} */
-            var i = callback(b).indexOf(this.image) - 1;
-            return len <= 1 ? null : b[i < 0 ? len - 1 : i];
+            var L = K.length;
+            var M = v(K).indexOf(this.image) - 1;
+            return (L <= 1) ? null : K[(M < 0) ? L - 1 : M]
         },
-        imageByURL : function(name, value) {
-            var K = this.additionalImages.filter(function(options) {
-                return (options.zoom.src.has(name) || options.zoom.url.has(name)) && (options.small.src.has(value) || options.small.url.has(value));
+        imageByURL: function(L, M) {
+            var K = this.additionalImages.filter(function(N) {
+                return ((N.zoom.src.has(L) || N.zoom.url.has(L)) && (N.small.src.has(M) || N.small.url.has(M)))
             }) || [];
-            return K[0] || (value && name && $.jTypeOf(value) === "string" && $.jTypeOf(name) === "string" ? new load(value, name) : null);
+            return K[0] || ((M && L && q.jTypeOf(M) === "string" && q.jTypeOf(L) === "string") ? new o(M, L) : null)
         },
-        imageByOrigin : function(listener) {
-            var K = this.additionalImages.filter(function(event) {
-                return event.origin === listener;
+        imageByOrigin: function(L) {
+            var K = this.additionalImages.filter(function(M) {
+                return (M.origin === L)
             }) || [];
-            return K[0];
+            return K[0]
         },
-        imageByIndex : function(path_to_action) {
-            return this.additionalImages[path_to_action];
+        imageByIndex: function(K) {
+            return this.additionalImages[K]
         }
     };
-    self = {
-        version : "v5.3.2 (Plus) for MagicToolbox.com",
-        start : function(name, cb) {
-            /** @type {null} */
-            var app = null;
-            /** @type {!Array} */
-            var obj = [];
-
-            function cb(name) {
-                /** @type {!Array} */
-                var cnameParts = [];
-                /** @type {null} */
-                var n = null;
-                if (name && (n = callback(name))) {
-                    cnameParts = result.filter(function(f) {
-                        return f.placeholder === n;
-                    });
-                }
-                return cnameParts.length ? cnameParts[0] : null;
-            }
-
-            $.$A(name ? [callback(name)] : $.$A(document.byClass("MagicZoom")).concat($.$A(document.byClass("MagicZoomPlus")))).jEach(callback(function(server) {
-                if (callback(server)) {
-                    if (!cb(server)) {
-                        app = new init(server, cb);
-                        if (l && !app.option("autostart")) {
-                            app.stop();
-                            /** @type {null} */
-                            app = null;
+    e = {
+        version: "v5.3.2 (Plus) for MagicToolbox.com",
+        start: function(N, L) {
+            var M = null;
+            var K = [];
+            q.$A((N ? [v(N)] : q.$A(document.byClass("MagicZoom")).concat(q.$A(document.byClass("MagicZoomPlus"))))).jEach(v(function(O) {
+                if (v(O)) {
+                    if (!n(O)) {
+                        M = new z(O, L);
+                        if (l && !M.option("autostart")) {
+                            M.stop();
+                            M = null
                         } else {
-                            result.push(app);
-                            obj.push(app);
+                            t.push(M);
+                            K.push(M)
                         }
                     }
                 }
             }).jBind(this));
-            return name ? obj[0] : obj;
+            return N ? K[0] : K
         },
-        stop : function(time) {
-            var i;
-            var value;
-            var K;
-            if (time) {
-                if ((value = cb(time)) && (value = result.splice(result.indexOf(value), 1)) && value[0].stop()) {
-                    delete value[0];
-                }
-                return;
+        stop: function(N) {
+            var L, M, K;
+            if (N) {
+                (M = n(N)) && (M = t.splice(t.indexOf(M), 1)) && M[0].stop() && (delete M[0]);
+                return
             }
-            for (; i = result.length;) {
-                value = result.splice(i - 1, 1);
-                value[0].stop();
-                delete value[0];
+            while (L = t.length) {
+                M = t.splice(L - 1, 1);
+                M[0].stop();
+                delete M[0]
             }
         },
-        refresh : function(from) {
-            this.stop(from);
-            return this.start(from);
+        refresh: function(K) {
+            this.stop(K);
+            return this.start(K)
         },
         optionCustomRu : function(){
-            options.textHoverZoomHint.default = "Наведите, чтобы увеличить";
-            options.textClickZoomHint.default = "Нажмите, чтобы увеличить";
-            options.textBtnNext.default = "Следующий";
-            options.textBtnPrev.default = "Предыдущий";
-            options.textBtnClose.default = "Закрыть";
-            options.textExpandHint.default = "Нажмите, чтобы развернуть";
+            b.textHoverZoomHint.default = "Наведите, чтобы увеличить";
+            b.textClickZoomHint.default = "Нажмите, чтобы увеличить";
+            b.textBtnNext.default = "Следующий";
+            b.textBtnPrev.default = "Предыдущий";
+            b.textBtnClose.default = "Закрыть";
+            b.textExpandHint.default = "Нажмите, чтобы развернуть";
 
-            element.textHoverZoomHint.default = "Наведите, чтобы увеличить";
-            element.textClickZoomHint.default = "Нажмите, чтобы увеличить";
+            D.textHoverZoomHint.default = "Наведите, чтобы увеличить";
+            D.textClickZoomHint.default = "Нажмите, чтобы увеличить";
         },
         optionCustomEn : function(){
-            options.textHoverZoomHint.default = "Hover to zoom";
-            options.textClickZoomHint.default = "Click to zoom";
-            options.textBtnNext.default = "Next";
-            options.textBtnPrev.default = "Previous";
-            options.textBtnClose.default = "Close";
-            options.textExpandHint.default = "Click to expand";
+            b.textHoverZoomHint.default = "Hover to zoom";
+            b.textClickZoomHint.default = "Click to zoom";
+            b.textBtnNext.default = "Next";
+            b.textBtnPrev.default = "Previous";
+            b.textBtnClose.default = "Close";
+            b.textExpandHint.default = "Click to expand";
 
-            element.textHoverZoomHint.default = "Hover to zoom";
-            element.textClickZoomHint.default = "Click to zoom";
+            D.textHoverZoomHint.default = "Hover to zoom";
+            D.textClickZoomHint.default = "Click to zoom";
+            D.textExpandHint.default = "Нажмите или растяните, чтобы расширить";
         },
         optionCustomUa : function(){
-            options.textHoverZoomHint.default = "Наведіть щоб збільшити";
-            options.textClickZoomHint.default = "Нажміть щоб збільшити";
-            options.textBtnNext.default = "Наступний";
-            options.textBtnPrev.default = "Попередній";
-            options.textBtnClose.default = "Закрити";
-            options.textExpandHint.default = "Нажміть щоб розгорнути";
+            b.textHoverZoomHint.default = "Наведіть щоб збільшити";
+            b.textClickZoomHint.default = "Нажміть щоб збільшити";
+            b.textBtnNext.default = "Наступний";
+            b.textBtnPrev.default = "Попередній";
+            b.textBtnClose.default = "Закрити";
+            b.textExpandHint.default = "Нажміть щоб розгорнути";
 
-            element.textHoverZoomHint.default = "Наведіть щоб збільшити";
-            element.textClickZoomHint.default = "Нажміть щоб збільшити";
+            D.textHoverZoomHint.default = "Наведіть щоб збільшити";
+            D.textClickZoomHint.default = "Нажміть щоб збільшити";
+            D.textExpandHint.default = "Торкніться або розтяніть, щоб розгорнути";
         },
-        update : function(value, i, e, animate) {
-            var v = cb(value);
-            var gatewayToken;
-            if (v) {
-                gatewayToken = $.jTypeOf(i) === "element" ? v.imageByOrigin(i) : v.imageByURL(i, e);
-                if (gatewayToken) {
-                    v.update(gatewayToken);
+        update: function(P, O, N, L) {
+            var M = n(P);
+            var K;
+            if (M) {
+                K = q.jTypeOf(O) === "element" ? M.imageByOrigin(O) : M.imageByURL(O, N);
+                if (K) {
+                    M.update(K)
                 }
             }
         },
-        switchTo : function(url, data) {
-            var res = cb(url);
-            var gatewayToken;
-            if (res) {
-                switch($.jTypeOf(data)) {
+        switchTo: function(N, M) {
+            var L = n(N);
+            var K;
+            if (L) {
+                switch (q.jTypeOf(M)) {
                     case "element":
-                        gatewayToken = res.imageByOrigin(data);
+                        K = L.imageByOrigin(M);
                         break;
                     case "number":
-                        gatewayToken = res.imageByIndex(data);
+                        K = L.imageByIndex(M);
                         break;
                     default:
                 }
-                if (gatewayToken) {
-                    res.update(gatewayToken);
+                if (K) {
+                    L.update(K)
                 }
             }
         },
-        prev : function(image) {
-            var result;
-            if (result = cb(image)) {
-                result.update(result.getPrev());
+        prev: function(L) {
+            var K;
+            (K = n(L)) && K.update(K.getPrev())
+        },
+        next: function(L) {
+            var K;
+            (K = n(L)) && K.update(K.getNext())
+        },
+        zoomIn: function(L) {
+            var K;
+            (K = n(L)) && K.activate()
+        },
+        zoomOut: function(L) {
+            var K;
+            (K = n(L)) && K.deactivate()
+        },
+        expand: function(L) {
+            var K;
+            (K = n(L)) && K.expand()
+        },
+        close: function(L) {
+            var K;
+            (K = n(L)) && K.close()
+        },
+        registerCallback: function(K, L) {
+            if (!F[K]) {
+                F[K] = []
+            }
+            if (q.jTypeOf(L) === "function") {
+                F[K].push(L)
             }
         },
-        next : function(end) {
-            var res;
-            if (res = cb(end)) {
-                res.update(res.getNext());
-            }
-        },
-        zoomIn : function(services) {
-            var app;
-            if (app = cb(services)) {
-                app.activate();
-            }
-        },
-        zoomOut : function(value) {
-            var a;
-            if (a = cb(value)) {
-                a.deactivate();
-            }
-        },
-        expand : function(template) {
-            var result;
-            if (result = cb(template)) {
-                result.expand();
-            }
-        },
-        close : function(value) {
-            var ss;
-            if (ss = cb(value)) {
-                ss.close();
-            }
-        },
-        registerCallback : function(name, value) {
-            if (!containers[name]) {
-                /** @type {!Array} */
-                containers[name] = [];
-            }
-            if ($.jTypeOf(value) === "function") {
-                containers[name].push(value);
-            }
-        },
-        running : function(value) {
-            return !!cb(value);
+        running: function(K) {
+            return !!n(K)
         }
     };
-    callback(document).jAddEvent("domready", function() {
-        var callbacks = window[name + "Options"] || {};
-        i = i();
-        initMidi();
-        parent = $.$new("div", {
-            "class" : "magic-hidden-wrapper"
+    v(document).jAddEvent("domready", function() {
+        var L = window[j + "Options"] || {};
+        y = y();
+        A();
+        r = q.$new("div", {
+            "class": "magic-hidden-wrapper"
         }).jAppendTo(document.body);
-        isShortcut = $.browser.mobile && window.matchMedia && window.matchMedia("(max-device-width: 767px), (max-device-height: 767px)").matches;
-        if ($.browser.mobile) {
-            $.extend(options, element);
+        p = (q.browser.mobile && window.matchMedia && window.matchMedia("(max-device-width: 767px), (max-device-height: 767px)").matches);
+        if (q.browser.mobile) {
+            q.extend(b, D)
         }
-        if (isShortcut && $.browser.platform === "ios") {
-            playerObserver = $.$new("div").jSetCss({
-                position : "fixed",
-                top : 0,
-                width : 0,
-                height : "100vh"
-            });
+        if (p && q.browser.platform === "ios") {
+            G = q.$new("div").jSetCss({
+                position: "fixed",
+                top: 0,
+                width: 0,
+                height: "100vh"
+            })
         }
-        /** @type {number} */
-        var j = 0;
-        for (; j < names.length; j++) {
-            if (callbacks[names[j]] && $.$F !== callbacks[names[j]]) {
-                self.registerCallback(names[j], callbacks[names[j]]);
+        for (var K = 0; K < u.length; K++) {
+            if (L[u[K]] && q.$F !== L[u[K]]) {
+                e.registerCallback(u[K], L[u[K]])
             }
         }
-        self.start();
-        /** @type {boolean} */
-        l = false;
+        e.start();
+        l = false
     });
     window.MagicZoomPlus = window.MagicZoomPlus || {};
-    return self;
-}();
+    return e
+})();
